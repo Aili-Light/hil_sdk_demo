@@ -98,10 +98,10 @@ class pcie_image_data_t(Structure):
 
 callbackFunc_t = ctypes.CFUNCTYPE(c_void_p, c_void_p)
 if os.name == 'nt' :
-    pcie_sdk = ctypes.CDLL('../../pcie_sdk/lib/mingw32/libpcie_sdk.dll', winmode=0)
+    pcie_sdk = ctypes.CDLL('../../hil_sdk/lib/mingw32/libhil_sdk.dll', winmode=0)
 elif os.name == 'posix' :
     processor_name = platform.processor()
-    pcie_sdk = ctypes.CDLL('../../pcie_sdk/lib/linux/'+processor_name+'/libpcie_sdk.so')
+    pcie_sdk = ctypes.CDLL('../../hil_sdk/lib/linux/'+processor_name+'/libhil_sdk.so')
 
 def CallServices(topic_ptr, cfg, timeo):
     pcie_sdk.alg_sdk_call_service.argtypes = [c_char_p, c_void_p, c_int]
