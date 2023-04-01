@@ -44,10 +44,10 @@ Push image
    `cd <install path>`  
    `sudo ./hil_sdk_demo_push_1_ch --publish <file> <width> <height> <channel_id>`  
    note :   
-   #1. <file> is the path to image file    
-   #2. <width> is image width  
-   #3. <height> is image height  
-   #4. <channel_id> is the channel index to push image to   
+   #1. `<file>` is the path to image file    
+   #2. `<width>` is image width  
+   #3. `<height>` is image height  
+   #4. `<channel_id>` is the channel index to push image to   
 
 Set Trigger
 ------------------------------------
