@@ -27,5 +27,6 @@ SOFTWARE.
 
 unsigned char crc_array(unsigned char *p, unsigned char counter);
 uint64_t milliseconds (void);
+uint64_t macroseconds (void);
 
 #endif

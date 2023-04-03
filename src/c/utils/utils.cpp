@@ -57,3 +57,12 @@ uint64_t milliseconds (void)
     gettimeofday (&tv, NULL);
     return (((uint64_t)tv.tv_sec * 1000) + ((uint64_t)tv.tv_usec / 1000));
 }
+
+/*  Return the UNIX time in macroseconds.  You'll need a working
+    gettimeofday(), so this won't work on Windows.  */
+uint64_t macroseconds (void)
+{
+    struct timeval tv;
+    gettimeofday (&tv, NULL);
+    return (((uint64_t)tv.tv_sec * 1000000) + ((uint64_t)tv.tv_usec ));
+}

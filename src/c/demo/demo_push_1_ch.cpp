@@ -40,12 +40,19 @@ void int_handler(int sig)
     printf("Caught signal : %d\n", sig);
     alg_sdk_stop_server();
     alg_sdk_stop_notify();
+
+    pthread_mutex_destroy(&g_mutex);
+    for (int i = 0; i < ALG_SDK_MAX_CHANNEL; i++)
+    {
+        sem_destroy(&sem_push[i]);
+    }
+
     exit(sig);
 }
 
-void safe_free(void* p)
+void safe_free(void *p)
 {
-    if(p != NULL)
+    if (p != NULL)
         free(p);
 }
 
@@ -151,7 +158,7 @@ void *hil_demo_feedon(void *args)
         sem_wait(&sem_push[ch_id]);
 
         /* read image data from buffer */
-        void* next_img = buffer->Peek(RingBuffer::Read);
+        void *next_img = buffer->Peek(RingBuffer::Read);
 
         /* push 2 queue */
         alg_sdk_push2q(next_img, ch_id);
@@ -315,13 +322,13 @@ int main(int argc, char **argv)
 
         // pcie_image_data_t img_data;
         uint32_t buffer_size = sizeof(pcie_image_data_t) + image_size;
-        // printf("size 1 [%d], size 2 [%d], size 3 [%d], size 4 [%d]\n", 
+        // printf("size 1 [%d], size 2 [%d], size 3 [%d], size 4 [%d]\n",
         // sizeof(pcie_image_data_t), sizeof(pcie_image_info_meta_t), sizeof(pcie_common_head_t), sizeof(void*));
 
         /* Initialize buffer */
         RingBuffer *buffer = &g_buffer[channel_id];
         buffer->SetThreaded(false);
-        if (!buffer->Alloc(10, buffer_size, RingBuffer::Threaded))
+        if (!buffer->Alloc(5, buffer_size, RingBuffer::Threaded))
         {
             fatal("Init buffer failed!\n");
         }
@@ -357,15 +364,17 @@ int main(int argc, char **argv)
 
             for (vector<string>::iterator it = img_filenames.begin();; it++)
             {
-                uint32_t pos = 0;
-
+                /* read image data from file */
                 const char *filename = (*it).c_str();
                 uint8_t *payload = (uint8_t *)img_data.payload;
                 load_image(filename, payload, &p_len);
                 // printf("[SEQ:%d] [FILE:%s] [LEN:%d]\n", seq, filename, p_len);
 
-                if (p_len != image_size)  // image size does not match
+                if (p_len != image_size) // image size does not match
                     break;
+
+                /* write data into ringbuffer */
+                uint32_t pos = 0;
 
                 img_info.frame_index = seq;
                 img_data.common_head = img_header;
@@ -377,8 +386,8 @@ int main(int argc, char **argv)
                 memcpy(next_img + pos, &img_info, sizeof(pcie_image_info_meta_t));
                 pos += sizeof(pcie_image_info_meta_t);
                 uintptr_t addr = (uintptr_t)payload;
-                memcpy(next_img + pos, &addr, sizeof(void*));
-                pos += sizeof(void*);
+                memcpy(next_img + pos, &addr, sizeof(void *));
+                pos += sizeof(void *);
                 memcpy(next_img + pos, payload, image_size);
 
                 /* post signal */
@@ -393,10 +402,10 @@ int main(int argc, char **argv)
                     it = img_filenames.begin();
                 }
 
-                usleep(33333);
+                usleep(20000);
             }
 
-            for (int ch_id=0; ch_id<ALG_SDK_CLIENT_THREAD_NUM_MAX; ch_id++)
+            for (int ch_id = 0; ch_id < ALG_SDK_CLIENT_THREAD_NUM_MAX; ch_id++)
             {
                 if (&g_main_loop[ch_id] != NULL)
                 {
