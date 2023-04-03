@@ -270,7 +270,9 @@ int main(int argc, char **argv)
         int rc;
         const char *foldername = argv[2];
 
-        /* Setup notify callback */
+        /* 
+        *  Setup notify callback .
+        */
         rc = alg_sdk_notify(push_callback);
         if (rc < 0)
         {
@@ -284,6 +286,7 @@ int main(int argc, char **argv)
         {
             fatal("Init server failed\n");
         }
+        /* end */
 
         const uint32_t image_width = atoi(argv[3]);
         const uint32_t image_height = atoi(argv[4]);
@@ -305,12 +308,12 @@ int main(int argc, char **argv)
         /* Generate pcie image data info */
         pcie_image_info_meta_t img_info;
         img_info.frame_index = 0;
-        /* IMPORTANT NOTE :
-         *  Image size must MATCH the input image!
-         */
+        /* **********************************
+         *  IMPORTANT : Image size must MATCH the input image!
+         * ********************************** */
         img_info.width = image_width;
         img_info.height = image_height;
-        /* */
+        /* ********************************** */
         img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
         img_info.exposure = 1.5;
         img_info.again = 1.0;
@@ -320,12 +323,8 @@ int main(int argc, char **argv)
         img_info.img_size = image_size;
         /* end */
 
-        // pcie_image_data_t img_data;
-        uint32_t buffer_size = sizeof(pcie_image_data_t) + image_size;
-        // printf("size 1 [%d], size 2 [%d], size 3 [%d], size 4 [%d]\n",
-        // sizeof(pcie_image_data_t), sizeof(pcie_image_info_meta_t), sizeof(pcie_common_head_t), sizeof(void*));
-
         /* Initialize buffer */
+        uint32_t buffer_size = sizeof(pcie_image_data_t) + image_size;
         RingBuffer *buffer = &g_buffer[channel_id];
         buffer->SetThreaded(false);
         if (!buffer->Alloc(5, buffer_size, RingBuffer::Threaded))
@@ -333,11 +332,15 @@ int main(int argc, char **argv)
             fatal("Init buffer failed!\n");
         }
 
+        /* 
+        *  Read files from folder
+        */
         printf("Open folder : %s\n", foldername);
         string folder_name = foldername;
         vector<string> img_filenames;
         load_image_path(foldername, img_filenames);
         uint32_t v_size = img_filenames.size();
+        /* end */
 
         if (v_size > 0)
         {
