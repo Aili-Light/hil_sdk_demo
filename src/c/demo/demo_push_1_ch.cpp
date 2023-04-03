@@ -28,6 +28,7 @@ static RingBuffer g_buffer[ALG_SDK_MAX_CHANNEL];
 static sem_t sem_push;
 static pthread_t g_main_loop;
 static pthread_mutex_t g_mutex;
+static uint64_t g_timer_last;
 
 int fatal(const char *msg)
 {
@@ -353,13 +354,24 @@ int main(int argc, char **argv)
 
             uint32_t seq = 0;
             uint32_t p_len = 0;
+            int freq = 30;
 
             pcie_image_data_t img_data;
             img_data.payload = (uint8_t *)malloc(sizeof(uint8_t) * image_size);
             // uint8_t* next_img = (uint8_t *)malloc(sizeof(uint8_t) * buffer_size);
 
-            for (vector<string>::iterator it = img_filenames.begin();; it++)
+            g_timer_last = macroseconds();
+            for (vector<string>::iterator it = img_filenames.begin();;)
             {
+                /* Set frequency  */
+                uint64_t t_now, delta_t;
+                t_now = macroseconds();
+                delta_t = t_now - g_timer_last;
+                if(delta_t < 1000000/freq)
+                    continue;
+                
+                g_timer_last = t_now;
+
                 /* read image data from file */
                 const char *filename = (*it).c_str();
                 uint8_t *payload = (uint8_t *)img_data.payload;
@@ -398,7 +410,8 @@ int main(int argc, char **argv)
                     it = img_filenames.begin();
                 }
 
-                usleep(20000);
+                it++;
+                // usleep(20000);
             }
 
             if (&g_main_loop != NULL)
