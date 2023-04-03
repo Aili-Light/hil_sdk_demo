@@ -9,6 +9,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/c
 )
 set(PROJECT_LINK_DIR ${CMAKE_SOURCE_DIR}/hil_sdk/lib)
+aux_source_directory(src/c/utils UTILS_SRC_LIST)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(CMAKE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/release/linux)
@@ -25,8 +26,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     )
 
     add_executable(${PROJECT_NAME}_push_1_ch 
+        ${UTILS_SRC_LIST}
         src/c/demo/demo_push_1_ch.cpp
-        src/c/utils/utils.cpp
     )
     target_link_libraries(${PROJECT_NAME}_push_1_ch
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
