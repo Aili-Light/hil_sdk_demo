@@ -25,8 +25,8 @@ static uint8_t payload[ALG_SDK_PAYLOAD_LEN_MAX];
 static uint64_t g_t_last[ALG_SDK_MAX_CHANNEL] = {0};
 static uint32_t g_f_count[ALG_SDK_MAX_CHANNEL] = {0};
 static RingBuffer g_buffer[ALG_SDK_MAX_CHANNEL];
-static sem_t sem_push[ALG_SDK_MAX_CHANNEL];
-static pthread_t g_main_loop[ALG_SDK_MAX_CHANNEL];
+static sem_t sem_push;
+static pthread_t g_main_loop;
 static pthread_mutex_t g_mutex;
 
 int fatal(const char *msg)
@@ -42,10 +42,7 @@ void int_handler(int sig)
     alg_sdk_stop_notify();
 
     pthread_mutex_destroy(&g_mutex);
-    for (int i = 0; i < ALG_SDK_MAX_CHANNEL; i++)
-    {
-        sem_destroy(&sem_push[i]);
-    }
+    sem_destroy(&sem_push);
 
     exit(sig);
 }
@@ -155,7 +152,7 @@ void *hil_demo_feedon(void *args)
     while (1)
     {
         /* wait until buffer update */
-        sem_wait(&sem_push[ch_id]);
+        sem_wait(&sem_push);
 
         /* read image data from buffer */
         void *next_img = buffer->Peek(RingBuffer::Read);
@@ -270,9 +267,9 @@ int main(int argc, char **argv)
         int rc;
         const char *foldername = argv[2];
 
-        /* 
-        *  Setup notify callback .
-        */
+        /*
+         *  Setup notify callback .
+         */
         rc = alg_sdk_notify(push_callback);
         if (rc < 0)
         {
@@ -297,9 +294,9 @@ int main(int argc, char **argv)
         pcie_common_head_t img_header;
         img_header.head = 55;
         img_header.version = 1;
-        int ch = channel_id;
+        int ch_id = channel_id;
         char topic_name[ALG_SDK_HEAD_COMMON_TOPIC_NAME_LEN] = {};
-        sprintf(topic_name, "/image_data/stream/%02d", ch);
+        sprintf(topic_name, "/image_data/stream/%02d", ch_id);
         strcpy(img_header.topic_name, topic_name);
         // printf("%s\n", img_header[i].topic_name);
         img_header.crc8 = crc_array((unsigned char *)&img_header, 130);
@@ -332,9 +329,9 @@ int main(int argc, char **argv)
             fatal("Init buffer failed!\n");
         }
 
-        /* 
-        *  Read files from folder
-        */
+        /*
+         *  Read files from folder
+         */
         printf("Open folder : %s\n", foldername);
         string folder_name = foldername;
         vector<string> img_filenames;
@@ -344,18 +341,14 @@ int main(int argc, char **argv)
 
         if (v_size > 0)
         {
-            memset(g_main_loop, 0, sizeof(g_main_loop));
             pthread_mutex_init(&g_mutex, NULL);
 
-            for (int ch_id = 0; ch_id < ALG_SDK_MAX_CHANNEL; ch_id++)
-            {
-                sem_init(&sem_push[ch_id], 0, 0);
+            sem_init(&sem_push, 0, 0);
 
-                rc = pthread_create(&g_main_loop[ch_id], NULL, hil_demo_feedon, (void *)(intptr_t)ch_id);
-                if (rc < 0)
-                {
-                    fatal("Create data feed-on Thread failed!\n");
-                }
+            rc = pthread_create(&g_main_loop, NULL, hil_demo_feedon, (void *)(intptr_t)ch_id);
+            if (rc < 0)
+            {
+                fatal("Create data feed-on Thread failed!\n");
             }
 
             uint32_t seq = 0;
@@ -394,7 +387,7 @@ int main(int argc, char **argv)
                 memcpy(next_img + pos, payload, image_size);
 
                 /* post signal */
-                sem_post(&sem_push[channel_id]);
+                sem_post(&sem_push);
 
                 /* update sequence */
                 seq++;
@@ -408,12 +401,9 @@ int main(int argc, char **argv)
                 usleep(20000);
             }
 
-            for (int ch_id = 0; ch_id < ALG_SDK_CLIENT_THREAD_NUM_MAX; ch_id++)
+            if (&g_main_loop != NULL)
             {
-                if (&g_main_loop[ch_id] != NULL)
-                {
-                    pthread_join(g_main_loop[ch_id], NULL);
-                }
+                pthread_join(g_main_loop, NULL);
             }
 
             safe_free(img_data.payload);
