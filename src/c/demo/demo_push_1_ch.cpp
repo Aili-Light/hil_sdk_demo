@@ -411,7 +411,7 @@ int main(int argc, char **argv)
                 }
 
                 it++;
-                // usleep(20000);
+                usleep(25000);
             }
 
             if (&g_main_loop != NULL)
