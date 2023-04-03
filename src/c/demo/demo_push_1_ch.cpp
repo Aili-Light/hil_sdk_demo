@@ -424,6 +424,7 @@ int main(int argc, char **argv)
     {
         fprintf(stderr, "Usage: ./hil_sdk_demo_push_1_ch <TYP> <FILENAME> <ARG1> <ARG2> <ARG3>...\n");
         fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --publish 'test_image.yuv' 1920 1280 0\n");
+        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --feedon '/image_folder' 1920 1280 0\n");
     }
 
     return 0;

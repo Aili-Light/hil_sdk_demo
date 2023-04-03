@@ -39,13 +39,23 @@ Stream On/Off
    Stream off
    `python stream_off.py`  
 
-Push image
+Push single image
 ------------------------------------
    `cd <install path>`  
    `sudo ./hil_sdk_demo_push_1_ch --publish <file> <width> <height> <channel_id>`  
    note :   
-   #1. `<file>` is the path to image file    
-   #2. `<width>` is image width  
+   #1. `<file>`   is the path to image file    
+   #2. `<width>`  is image width  
+   #3. `<height>` is image height  
+   #4. `<channel_id>` is the channel index to push image to   
+
+Feed consecutive images
+------------------------------------
+   `cd <install path>`  
+   `sudo ./hil_sdk_demo_push_1_ch --feedon <folder> <width> <height> <channel_id>`  
+   note :   
+   #1. `<folder>` is the folder to consecutive image files   
+   #2. `<width>`  is image width  
    #3. `<height>` is image height  
    #4. `<channel_id>` is the channel index to push image to   
 
