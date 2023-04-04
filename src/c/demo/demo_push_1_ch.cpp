@@ -163,6 +163,27 @@ void *hil_demo_feedon(void *args)
     }
 }
 
+void copy_to_ringbuffer(const void *buffer, const void *img_data, const void *p_data)
+{
+    uint8_t *next_img = (uint8_t *)buffer;
+    pcie_image_data_t *ptr = (pcie_image_data_t *)img_data;
+    pcie_common_head_t *img_header = (pcie_common_head_t *)&(ptr->common_head);
+    pcie_image_info_meta_t *img_info = (pcie_image_info_meta_t *)&(ptr->image_info_meta);
+    uint8_t *payload = (uint8_t *)p_data;
+
+    uint32_t pos = 0;
+    uint32_t image_size = img_info->img_size;
+
+    memcpy(next_img, img_header, sizeof(pcie_common_head_t));
+    pos += sizeof(pcie_common_head_t);
+    memcpy(next_img + pos, img_info, sizeof(pcie_image_info_meta_t));
+    pos += sizeof(pcie_image_info_meta_t);
+    uintptr_t addr = (uintptr_t)payload;
+    memcpy(next_img + pos, &addr, sizeof(void *));
+    pos += sizeof(void *);
+    memcpy(next_img + pos, payload, image_size);
+}
+
 int main(int argc, char **argv)
 {
     uint32_t seq = 0;
@@ -247,8 +268,9 @@ int main(int argc, char **argv)
 
             float fps = 0.0f;
             img_info.frame_index = seq;
-            pcie_image_data_t img_data;
+            img_info.timestamp = milliseconds();
 
+            pcie_image_data_t img_data;
             img_data.common_head = img_header;
             img_data.image_info_meta = img_info;
             img_data.payload = (uint8_t *)payload;
@@ -315,7 +337,7 @@ int main(int argc, char **argv)
         img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
         img_info.exposure = 1.5;
         img_info.again = 1.0;
-        img_info.dgain = 1.0;
+        img_info.dgain = 4.0;
         img_info.temp = 25.0;
         img_info.timestamp = milliseconds();
         img_info.img_size = image_size;
@@ -354,11 +376,10 @@ int main(int argc, char **argv)
 
             uint32_t seq = 0;
             uint32_t p_len = 0;
-            int freq = 30;
+            int      freq = 30;
 
             pcie_image_data_t img_data;
             img_data.payload = (uint8_t *)malloc(sizeof(uint8_t) * image_size);
-            // uint8_t* next_img = (uint8_t *)malloc(sizeof(uint8_t) * buffer_size);
 
             g_timer_last = macroseconds();
             for (vector<string>::iterator it = img_filenames.begin();;)
@@ -367,9 +388,9 @@ int main(int argc, char **argv)
                 uint64_t t_now, delta_t;
                 t_now = macroseconds();
                 delta_t = t_now - g_timer_last;
-                if(delta_t < 1000000/freq)
+                if (delta_t < 1000000 / freq)
                     continue;
-                
+
                 g_timer_last = t_now;
 
                 /* read image data from file */
@@ -383,20 +404,12 @@ int main(int argc, char **argv)
 
                 /* write data into ringbuffer */
                 uint32_t pos = 0;
-
                 img_info.frame_index = seq;
+                img_info.timestamp = milliseconds();
                 img_data.common_head = img_header;
                 img_data.image_info_meta = img_info;
-                uint8_t *next_img = (uint8_t *)buffer->Next(RingBuffer::Write);
-
-                memcpy(next_img, &img_header, sizeof(pcie_common_head_t));
-                pos += sizeof(pcie_common_head_t);
-                memcpy(next_img + pos, &img_info, sizeof(pcie_image_info_meta_t));
-                pos += sizeof(pcie_image_info_meta_t);
-                uintptr_t addr = (uintptr_t)payload;
-                memcpy(next_img + pos, &addr, sizeof(void *));
-                pos += sizeof(void *);
-                memcpy(next_img + pos, payload, image_size);
+                void *next_img = buffer->Next(RingBuffer::Write);
+                copy_to_ringbuffer(next_img, &img_data, payload);
 
                 /* post signal */
                 sem_post(&sem_push);
@@ -425,6 +438,9 @@ int main(int argc, char **argv)
         {
             fatal("ERROR! folder is empty\n");
         }
+
+        alg_sdk_server_spin_on();
+        alg_sdk_notify_spin_on();
     }
     else
     {
