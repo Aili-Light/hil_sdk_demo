@@ -28,7 +28,7 @@ SOFTWARE.
 #include "RingBuffer.h"
 
 // constructor
-RingBuffer::RingBuffer( uint32_t flags )
+RingBuffer::RingBuffer(uint32_t flags)
 {
 	mFlags = flags;
 	mBuffers = NULL;
@@ -39,180 +39,197 @@ RingBuffer::RingBuffer( uint32_t flags )
 	mLatestWrite = 0;
 }
 
-
 // destructor
 RingBuffer::~RingBuffer()
 {
 	// Free();
-	
-	if( mBuffers != NULL )
+
+	if (mBuffers != NULL)
 	{
 		free(mBuffers);
 		mBuffers = NULL;
 	}
 }
 
-
 // Alloc
-bool RingBuffer::Alloc( uint32_t numBuffers, size_t size, uint32_t flags )
+bool RingBuffer::Alloc(uint32_t numBuffers, size_t size, uint32_t flags)
 {
-	if( numBuffers == mNumBuffers && size == mBufferSize && (flags & ZeroCopy) == (mFlags & ZeroCopy) )
+	if (numBuffers == mNumBuffers && size == mBufferSize && (flags & ZeroCopy) == (mFlags & ZeroCopy))
 		return true;
-	
+
 	Free();
-	
-	if( mBuffers != NULL && mNumBuffers != numBuffers )
+
+	if (mBuffers != NULL && mNumBuffers != numBuffers)
 	{
 		free(mBuffers);
 		mBuffers = NULL;
 	}
-	
-	if( mBuffers == NULL )
+
+	if (mBuffers == NULL)
 	{
-		const size_t bufferListSize = numBuffers * sizeof(void*);
-		mBuffers = (void**)malloc(bufferListSize);
+		const size_t bufferListSize = numBuffers * sizeof(void *);
+		mBuffers = (void **)malloc(bufferListSize);
 		memset(mBuffers, 0, bufferListSize);
 	}
 
-	for( uint32_t n=0; n < numBuffers; n++ )
+	for (uint32_t n = 0; n < numBuffers; n++)
 	{
 		mBuffers[n] = malloc(size);
 	}
 	printf("RingBuffer -- allocated %u buffers (%zu bytes each, %zu bytes total)\n", numBuffers, size, size * numBuffers);
-	
+
 	mNumBuffers = numBuffers;
 	mBufferSize = size;
-	mFlags     |= flags;
-	
+	mFlags |= flags;
+
 	return true;
 }
-
 
 // Free
 void RingBuffer::Free()
 {
-	if( !mBuffers || mNumBuffers == 0 )
+	if (!mBuffers || mNumBuffers == 0)
 		return;
 
-	for( uint32_t n=0; n < mNumBuffers; n++ )
+	for (uint32_t n = 0; n < mNumBuffers; n++)
 	{
 		free(mBuffers[n]);
 		mBuffers[n] = NULL;
 	}
 }
 
-
 // Peek
-void* RingBuffer::Peek( uint32_t flags )
+void *RingBuffer::Peek(uint32_t flags)
 {
 	flags |= mFlags;
 
-	if( !mBuffers || mNumBuffers == 0 )
+	if (!mBuffers || mNumBuffers == 0)
 	{
 		printf("RingBuffer::Peek() -- error, must call RingBuffer::Alloc() first\n");
 		return NULL;
 	}
 
-	if( flags & Threaded )
+	if (flags & Threaded)
 		mMutex.Lock();
 
 	int bufferIndex = -1;
 
-	if( flags & Write )
+	if (flags & Write)
+	{
 		bufferIndex = (mLatestWrite + 1) % mNumBuffers;
-	else if( flags & ReadLatest )
+	}
+	else if (flags & ReadLatest)
+	{
 		bufferIndex = mLatestWrite;
-	else if( flags & Read )
+	}
+	else if (flags & Read)
+	{
 		bufferIndex = mLatestRead;
+	}
 
-	if( flags & Threaded )
+	if (flags & Threaded)
 		mMutex.Unlock();
 
-	if( bufferIndex < 0 )
+	if (bufferIndex < 0)
 	{
 		printf("RingBuffer::Peek() -- error, invalid flags (must be Write or Read flags)\n");
 		return NULL;
 	}
 
+	// printf("RingBuffer : latest read [%d], flag [%d]\n", mLatestRead, flags);
 	return mBuffers[bufferIndex];
 }
 
-
 // Next
-void* RingBuffer::Next( uint32_t flags )
+void *RingBuffer::Next(uint32_t flags)
 {
 	flags |= mFlags;
 
-	if( !mBuffers || mNumBuffers == 0 )
+	if (!mBuffers || mNumBuffers == 0)
 	{
 		printf("RingBuffer::Next() -- error, must call RingBuffer::Alloc() first\n");
 		return NULL;
 	}
 
-	if( flags & Threaded )
+	if (flags & Threaded)
 		mMutex.Lock();
 
 	int bufferIndex = -1;
 
-	if( flags & Write )
+	if (flags & Write)
 	{
 		mLatestWrite = (mLatestWrite + 1) % mNumBuffers;
-		bufferIndex  = mLatestWrite;
-		mReadOnce    = false;
+		bufferIndex = mLatestWrite;
+		mReadOnce = false;
 	}
-	else if( (flags & ReadOnce) && mReadOnce )
+	else if ((flags & ReadOnce) && mReadOnce)
 	{
-
-		if( flags & Threaded )
+		if (flags & Threaded)
 			mMutex.Unlock();
 
 		return NULL;
 	}
-	else if( flags & ReadLatest )
-	{
-		mLatestRead = mLatestWrite;
-		bufferIndex = mLatestWrite;
-		mReadOnce   = true;
-	}
-	else if( flags & Read )
+	else if (flags & Read)
 	{
 		mLatestRead = (mLatestRead + 1) % mNumBuffers;
 		bufferIndex = mLatestRead;
-		mReadOnce   = true;
+		mReadOnce = true;
+	}
+	else if (flags & ReadLatest)
+	{
+		mLatestRead = mLatestWrite;
+		bufferIndex = mLatestWrite;
+		mReadOnce = true;
 	}
 
-	if( flags & Threaded )
+	if (flags & Threaded)
 		mMutex.Unlock();
 
-	if( bufferIndex < 0 )
+	if (bufferIndex < 0)
 	{
 		printf("RingBuffer::Next() -- error, invalid flags (must be Write or Read flags)\n");
 		return NULL;
 	}
 
+	// printf("RingBuffer : Index [%d], LastRead [%d], LastWrite [%d], flag [%d]\n", bufferIndex, mLatestRead, mLatestWrite, flags);
 	return mBuffers[bufferIndex];
 }
-
 
 // GetFlags
 uint32_t RingBuffer::GetFlags() const
 {
 	return mFlags;
 }
-	
 
 // SetFlags
-void RingBuffer::SetFlags( uint32_t flags )
+void RingBuffer::SetFlags(uint32_t flags)
 {
 	mFlags = flags;
 }
-	
 
 // SetThreaded
-void RingBuffer::SetThreaded( bool threaded )
+void RingBuffer::SetThreaded(bool threaded)
 {
-	if( threaded )
+	if (threaded)
 		mFlags |= Threaded;
 	else
 		mFlags &= ~Threaded;
+}
+
+// Is buffer empty
+bool RingBuffer::Empty()
+{
+	if (mLatestWrite == mLatestRead)
+		return true;
+	else
+		return false;
+}
+
+// Is buffer full
+bool RingBuffer::Full()
+{
+	if (((mLatestWrite + 1) % mNumBuffers) == mLatestRead)
+		return true;
+	else
+		return false;
 }

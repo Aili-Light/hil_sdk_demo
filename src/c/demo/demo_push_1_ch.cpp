@@ -156,10 +156,13 @@ void *hil_demo_feedon(void *args)
         sem_wait(&sem_push);
 
         /* read image data from buffer */
-        void *next_img = buffer->Peek(RingBuffer::Read);
+        if (!buffer->Empty()) // if buffer not empty
+        {
+            void *next_img = buffer->Next(RingBuffer::Read);
+            alg_sdk_push2q(next_img, ch_id);
+        }
 
         /* push 2 queue */
-        alg_sdk_push2q(next_img, ch_id);
     }
 }
 
@@ -376,7 +379,7 @@ int main(int argc, char **argv)
 
             uint32_t seq = 0;
             uint32_t p_len = 0;
-            int      freq = 30;
+            int freq = 30;
 
             pcie_image_data_t img_data;
             img_data.payload = (uint8_t *)malloc(sizeof(uint8_t) * image_size);
@@ -403,19 +406,22 @@ int main(int argc, char **argv)
                     break;
 
                 /* write data into ringbuffer */
-                uint32_t pos = 0;
-                img_info.frame_index = seq;
-                img_info.timestamp = milliseconds();
-                img_data.common_head = img_header;
-                img_data.image_info_meta = img_info;
-                void *next_img = buffer->Next(RingBuffer::Write);
-                copy_to_ringbuffer(next_img, &img_data, payload);
+                if (!buffer->Full()) // if buffer not full
+                {
+                    /* copy data into ringbuffer */
+                    img_info.frame_index = seq;
+                    img_info.timestamp = milliseconds();
+                    img_data.common_head = img_header;
+                    img_data.image_info_meta = img_info;
+                    void *next_img = buffer->Next(RingBuffer::Write);
+                    copy_to_ringbuffer(next_img, &img_data, payload);
 
-                /* post signal */
-                sem_post(&sem_push);
+                    /* post signal */
+                    sem_post(&sem_push);
 
-                /* update sequence */
-                seq++;
+                    /* update sequence */
+                    seq++;
+                }
 
                 /* iterator never reach the end */
                 if (it == img_filenames.end() - 1)

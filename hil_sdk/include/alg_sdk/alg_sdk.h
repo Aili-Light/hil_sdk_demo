@@ -28,6 +28,7 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "alg_common/basic_types.h"
 
 #ifdef __cplusplus
@@ -49,6 +50,8 @@ ALG_SDK_API int alg_sdk_spin_on();
 ALG_SDK_API int alg_sdk_stop();
 int alg_sdk_append_task(alg_sdk_amp_msg_t* ptr, void* control);
 ALG_SDK_API int alg_sdk_init_v2(int argn, char** arg);
+void *alg_sdk_read_ringbuffer_next(const int ch_id);
+bool alg_sdk_read_ringbuffer_empty(const int ch_id);
 
 #ifdef __cplusplus
 }

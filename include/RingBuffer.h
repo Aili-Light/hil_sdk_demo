@@ -117,6 +117,16 @@ public:
 	 */
 	void SetThreaded( bool threaded );
 
+	/**
+	 * Is buffer full.
+	 */
+	bool Full();
+
+	/**
+	 * Is buffer full.
+	 */
+	bool Empty();
+
 protected:
 
 	uint32_t mNumBuffers;
