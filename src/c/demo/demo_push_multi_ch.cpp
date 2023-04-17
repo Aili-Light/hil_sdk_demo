@@ -13,7 +13,6 @@
 #include <netinet/in.h> /* For htonl and ntohl */
 #endif
 #include <unistd.h>
-#include "RingBuffer.h"
 #include <sys/types.h>
 #include <dirent.h>
 #include <iostream>
@@ -27,11 +26,13 @@ static pcie_image_info_meta_t img_info[ALG_SDK_MAX_CHANNEL];
 static pcie_image_data_t img_data[ALG_SDK_MAX_CHANNEL];
 static uint64_t g_t_last[ALG_SDK_MAX_CHANNEL] = {0};
 static uint32_t g_f_count[ALG_SDK_MAX_CHANNEL] = {0};
-static RingBuffer g_buffer[ALG_SDK_MAX_CHANNEL];
 static sem_t sem_push;
 static pthread_t g_main_loop;
 static pthread_mutex_t g_mutex;
 static uint64_t g_timer_last;
+static vector<string> img_file_lists[ALG_SDK_MAX_CHANNEL];
+static uint32_t file_list_sizes[ALG_SDK_MAX_CHANNEL];
+static vector<string>::iterator it_mulch[ALG_SDK_MAX_CHANNEL];
 
 int fatal(const char *msg)
 {
@@ -146,50 +147,6 @@ void push_callback(void *p)
     printf("Notify Message : %s\n", msg);
 }
 
-void *hil_demo_feedon(void *args)
-{
-    int ch_id = (intptr_t)args;
-
-    printf("Create data feed-on thread on CH:[%d]\n", ch_id);
-
-    RingBuffer *buffer = &g_buffer[ch_id];
-    while (1)
-    {
-        /* wait until buffer update */
-        sem_wait(&sem_push);
-
-        /* read image data from buffer */
-        if (!buffer->Empty()) // if buffer not empty
-        {
-            void *next_img = buffer->Next(RingBuffer::Read);
-            alg_sdk_push2q(next_img, ch_id);
-        }
-
-        /* push 2 queue */
-    }
-}
-
-void copy_to_ringbuffer(const void *buffer, const void *img_data, const void *p_data)
-{
-    uint8_t *next_img = (uint8_t *)buffer;
-    pcie_image_data_t *ptr = (pcie_image_data_t *)img_data;
-    pcie_common_head_t *img_header = (pcie_common_head_t *)&(ptr->common_head);
-    pcie_image_info_meta_t *img_info = (pcie_image_info_meta_t *)&(ptr->image_info_meta);
-    uint8_t *payload = (uint8_t *)p_data;
-
-    uint32_t pos = 0;
-    uint32_t image_size = img_info->img_size;
-
-    memcpy(next_img, img_header, sizeof(pcie_common_head_t));
-    pos += sizeof(pcie_common_head_t);
-    memcpy(next_img + pos, img_info, sizeof(pcie_image_info_meta_t));
-    pos += sizeof(pcie_image_info_meta_t);
-    uintptr_t addr = (uintptr_t)payload;
-    memcpy(next_img + pos, &addr, sizeof(void *));
-    pos += sizeof(void *);
-    memcpy(next_img + pos, payload, image_size);
-}
-
 int main(int argc, char **argv)
 {
     uint32_t seq_ch[ALG_SDK_MAX_CHANNEL] = {0};
@@ -199,7 +156,7 @@ int main(int argc, char **argv)
         int rc;
         const uint16_t num_channel = atoi(argv[2]);
 
-        if (num_channel == 0)
+        if (num_channel < 1)
         {
             fatal("ERROR! Number of Channel is 0!! \n");
         }
@@ -222,6 +179,10 @@ int main(int argc, char **argv)
         }
         /* end */
 
+        /* Init Parameters */
+        memset(&img_header, 0, sizeof(img_header));
+        memset(&img_info, 0, sizeof(img_info));
+        memset(&img_data, 0, sizeof(img_data));
         for (int i = 0; i < num_channel; i++)
         {
             const char *filename = argv[4 * i + 3];
@@ -275,7 +236,9 @@ int main(int argc, char **argv)
             img_info[i].img_size = image_size;
             /* end */
         }
+        /* end */
 
+        /* Main Loop */
         while (1)
         {
             for (int i = 0; i < num_channel; i++)
@@ -293,6 +256,157 @@ int main(int argc, char **argv)
                 seq_ch[i]++;
             }
         }
+        /* end */
+    }
+    else if ((argc > 2) && (strcmp(argv[1], "--feedin_multi") == 0))
+    {
+        int rc;
+        const uint16_t num_channel = atoi(argv[2]);
+
+        if (num_channel < 1)
+        {
+            fatal("ERROR! Number of Channel is 0!! \n");
+        }
+
+        /*
+         *  Setup notify callback .
+         */
+        rc = alg_sdk_notify(push_callback);
+        if (rc < 0)
+        {
+            fatal("Setup notify failed\n");
+        }
+        /* end */
+
+        /* Init Servers */
+        rc = alg_sdk_init_server();
+        if (rc < 0)
+        {
+            fatal("Init server failed\n");
+        }
+        /* end */
+
+        /* Init Parameters */
+        memset(&img_header, 0, sizeof(img_header));
+        memset(&img_info, 0, sizeof(img_info));
+        memset(&img_data, 0, sizeof(img_data));
+        memset(&img_file_lists, 0, sizeof(img_file_lists));
+        memset(&file_list_sizes, 0, sizeof(file_list_sizes));
+
+        for (int i = 0; i < num_channel; i++)
+        {
+            const char *foldername = argv[4 * i + 3];
+            const uint32_t image_width = atoi(argv[4 * i + 4]);
+            const uint32_t image_height = atoi(argv[4 * i + 5]);
+            const uint8_t channel_id = atoi(argv[4 * i + 6]);
+            const uint32_t image_size = image_width * image_height * 2;
+
+            /* Generate pcie image data head */
+            img_header[i].head = 55;
+            img_header[i].version = 1;
+            int ch_id = channel_id;
+            char topic_name[ALG_SDK_HEAD_COMMON_TOPIC_NAME_LEN] = {};
+            sprintf(topic_name, "/image_data/stream/%02d", ch_id);
+            strcpy(img_header[i].topic_name, topic_name);
+            // printf("%s\n", img_header[i].topic_name);
+            img_header[i].crc8 = crc_array((unsigned char *)&img_header[i], 130);
+            /* end */
+
+            /* Generate pcie image data info */
+            img_info[i].frame_index = 0;
+            /* **********************************
+             *  IMPORTANT : Image size must MATCH the input image!
+             * ********************************** */
+            img_info[i].width = image_width;
+            img_info[i].height = image_height;
+            /* ********************************** */
+            img_info[i].data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
+            img_info[i].exposure = 1.5;
+            img_info[i].again = 1.0;
+            img_info[i].dgain = 4.0;
+            img_info[i].temp = 25.0;
+            img_info[i].timestamp = milliseconds();
+            img_info[i].img_size = image_size;
+            /* end */
+
+            /*
+             *  Read files from folder
+             */
+            printf("Open folder : %s\n", foldername);
+            string folder_name = foldername;
+            load_image_path(foldername, img_file_lists[i]);
+            file_list_sizes[i] = img_file_lists[i].size();
+            /* end */
+
+            if (file_list_sizes[i] > 0)
+            {
+                img_data[i].payload = (uint8_t *)malloc(sizeof(uint8_t) * image_size);
+                it_mulch[i] = img_file_lists[i].begin();
+            }
+            else
+            {
+                fatal("Read image list error!\n");
+            }
+        }
+
+        int freq = 30;
+        uint32_t seq = 0;
+        uint32_t p_len = 0;
+        g_timer_last = macroseconds();
+        /* end */
+
+        /* Main Loop */
+        while (1)
+        {
+            /* Set frequency  */
+            uint64_t t_now, delta_t;
+            t_now = macroseconds();
+            delta_t = t_now - g_timer_last;
+            if (delta_t < 1000000 / freq)
+                continue;
+
+            g_timer_last = t_now;
+
+            /* Feed data on each channel */
+            for (int i = 0; i < num_channel; i++)
+            {
+                /* read image data from file */
+                const char *filename = (*it_mulch[i]).c_str();
+                uint8_t *payload = (uint8_t *)img_data[i].payload;
+                load_image(filename, payload, &p_len);
+                // printf("[SEQ:%d] [FILE:%s] [LEN:%d]\n", seq, filename, p_len);
+
+                if (p_len != img_info[i].img_size) // image size does not match
+                {
+                    fatal("Image size do not match!\n");
+                }
+
+                img_info[i].frame_index = seq;
+                img_info[i].timestamp = milliseconds();
+                img_data[i].common_head = img_header[i];
+                img_data[i].image_info_meta = img_info[i];
+                alg_sdk_push2q(&img_data[i], i);
+
+                it_mulch[i]++;
+                /* iterator never reach the end */
+                if (it_mulch[i] == img_file_lists[i].end())
+                {
+                    // printf("reach end [%d]\n", i);
+                    it_mulch[i] = img_file_lists[i].begin();
+                }
+
+                usleep(25000);
+            }
+
+            /* update sequence */
+            seq++;
+        }
+        /* end */
+
+        for (int i = 0; i < num_channel; i++)
+        {
+            safe_free(img_data[i].payload);
+        }
 
         alg_sdk_server_spin_on();
         alg_sdk_notify_spin_on();
@@ -300,7 +414,8 @@ int main(int argc, char **argv)
     else
     {
         fprintf(stderr, "Usage: ./hil_sdk_demo_multi_ch_ch <TYP> <NUM_CHANNEL> <FILENAME> <ARG1> <ARG2> <ARG3>...\n");
-        fprintf(stderr, "e.g. ./hil_sdk_demo_multi_ch_ch --publish_multi 2 'test_image_0.yuv' 1920 1280 0 'test_image_1' 1920 1280 1\n");
+        fprintf(stderr, "e.g. ./hil_sdk_demo_multi_ch_ch --publish_multi 2 'test_image_0.yuv' 1920 1280 0 'test_image_1' 3840 2160 1\n");
+        fprintf(stderr, "e.g. ./hil_sdk_demo_multi_ch_ch --feedin_multi 2 'folder0/' 1920 1280 0 'folder1' 3840 2160 1\n");
     }
 
     return 0;

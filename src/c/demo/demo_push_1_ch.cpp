@@ -13,7 +13,6 @@
 #include <netinet/in.h> /* For htonl and ntohl */
 #endif
 #include <unistd.h>
-#include "RingBuffer.h"
 #include <sys/types.h>
 #include <dirent.h>
 #include <iostream>
@@ -24,7 +23,6 @@ using namespace std;
 static uint8_t payload[ALG_SDK_PAYLOAD_LEN_MAX];
 static uint64_t g_t_last[ALG_SDK_MAX_CHANNEL] = {0};
 static uint32_t g_f_count[ALG_SDK_MAX_CHANNEL] = {0};
-static RingBuffer g_buffer[ALG_SDK_MAX_CHANNEL];
 static sem_t sem_push;
 static pthread_t g_main_loop;
 static pthread_mutex_t g_mutex;
@@ -141,29 +139,6 @@ void push_callback(void *p)
 {
     char *msg = (char *)p;
     printf("Notify Message : %s\n", msg);
-}
-
-void *hil_demo_feedon(void *args)
-{
-    int ch_id = (intptr_t)args;
-
-    printf("Create data feed-on thread on CH:[%d]\n", ch_id);
-
-    RingBuffer *buffer = &g_buffer[ch_id];
-    while (1)
-    {
-        /* wait until buffer update */
-        sem_wait(&sem_push);
-
-        /* read image data from buffer */
-        if (!buffer->Empty()) // if buffer not empty
-        {
-            void *next_img = buffer->Next(RingBuffer::Read);
-            alg_sdk_push2q(next_img, ch_id);
-        }
-
-        /* push 2 queue */
-    }
 }
 
 void copy_to_ringbuffer(const void *buffer, const void *img_data, const void *p_data)
@@ -288,7 +263,7 @@ int main(int argc, char **argv)
         alg_sdk_server_spin_on();
         alg_sdk_notify_spin_on();
     }
-    else if ((argc > 2) && (strcmp(argv[1], "--feedon") == 0))
+    else if ((argc > 2) && (strcmp(argv[1], "--feedin") == 0))
     {
         int rc;
         const char *foldername = argv[2];
@@ -346,15 +321,6 @@ int main(int argc, char **argv)
         img_info.img_size = image_size;
         /* end */
 
-        /* Initialize buffer */
-        uint32_t buffer_size = sizeof(pcie_image_data_t) + image_size;
-        RingBuffer *buffer = &g_buffer[channel_id];
-        buffer->SetThreaded(false);
-        if (!buffer->Alloc(5, buffer_size, RingBuffer::Threaded))
-        {
-            fatal("Init buffer failed!\n");
-        }
-
         /*
          *  Read files from folder
          */
@@ -367,16 +333,6 @@ int main(int argc, char **argv)
 
         if (v_size > 0)
         {
-            pthread_mutex_init(&g_mutex, NULL);
-
-            sem_init(&sem_push, 0, 0);
-
-            rc = pthread_create(&g_main_loop, NULL, hil_demo_feedon, (void *)(intptr_t)ch_id);
-            if (rc < 0)
-            {
-                fatal("Create data feed-on Thread failed!\n");
-            }
-
             uint32_t seq = 0;
             uint32_t p_len = 0;
             int freq = 30;
@@ -405,37 +361,24 @@ int main(int argc, char **argv)
                 if (p_len != image_size) // image size does not match
                     break;
 
-                /* write data into ringbuffer */
-                if (!buffer->Full()) // if buffer not full
-                {
-                    /* copy data into ringbuffer */
-                    img_info.frame_index = seq;
-                    img_info.timestamp = milliseconds();
-                    img_data.common_head = img_header;
-                    img_data.image_info_meta = img_info;
-                    void *next_img = buffer->Next(RingBuffer::Write);
-                    copy_to_ringbuffer(next_img, &img_data, payload);
+                /* copy data into ringbuffer */
+                img_info.frame_index = seq;
+                img_info.timestamp = milliseconds();
+                img_data.common_head = img_header;
+                img_data.image_info_meta = img_info;
+                alg_sdk_push2q(&img_data, ch_id);
 
-                    /* post signal */
-                    sem_post(&sem_push);
-
-                    /* update sequence */
-                    seq++;
-                }
+                /* update sequence */
+                seq++;
+                it++;
 
                 /* iterator never reach the end */
-                if (it == img_filenames.end() - 1)
+                if (it == img_filenames.end())
                 {
                     it = img_filenames.begin();
                 }
 
-                it++;
                 usleep(25000);
-            }
-
-            if (&g_main_loop != NULL)
-            {
-                pthread_join(g_main_loop, NULL);
             }
 
             safe_free(img_data.payload);
@@ -452,7 +395,7 @@ int main(int argc, char **argv)
     {
         fprintf(stderr, "Usage: ./hil_sdk_demo_push_1_ch <TYP> <FILENAME> <ARG1> <ARG2> <ARG3>...\n");
         fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --publish 'test_image.yuv' 1920 1280 0\n");
-        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --feedon '/image_folder' 1920 1280 0\n");
+        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --feedin '/image_folder' 1920 1280 0\n");
     }
 
     return 0;
