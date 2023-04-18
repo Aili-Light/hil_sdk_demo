@@ -362,6 +362,7 @@ int main(int argc, char **argv)
             uint64_t t_now, delta_t;
             t_now = macroseconds();
             delta_t = t_now - g_timer_last;
+
             if (delta_t < 1000000 / freq)
                 continue;
 
@@ -394,9 +395,8 @@ int main(int argc, char **argv)
                     // printf("reach end [%d]\n", i);
                     it_mulch[i] = img_file_lists[i].begin();
                 }
-
-                usleep(25000);
             }
+            usleep(10000);
 
             /* update sequence */
             seq++;
