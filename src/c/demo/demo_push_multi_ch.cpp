@@ -33,6 +33,7 @@ static uint64_t g_timer_last;
 static vector<string> img_file_lists[ALG_SDK_MAX_CHANNEL];
 static uint32_t file_list_sizes[ALG_SDK_MAX_CHANNEL];
 static vector<string>::iterator it_mulch[ALG_SDK_MAX_CHANNEL];
+static uint8_t channel_ids[ALG_SDK_MAX_CHANNEL];
 
 int fatal(const char *msg)
 {
@@ -183,6 +184,8 @@ int main(int argc, char **argv)
         memset(&img_header, 0, sizeof(img_header));
         memset(&img_info, 0, sizeof(img_info));
         memset(&img_data, 0, sizeof(img_data));
+        memset(&channel_ids, 0, sizeof(channel_ids));
+
         for (int i = 0; i < num_channel; i++)
         {
             const char *filename = argv[4 * i + 3];
@@ -190,9 +193,9 @@ int main(int argc, char **argv)
             const uint32_t image_height = atoi(argv[4 * i + 5]);
             const uint8_t channel_id = atoi(argv[4 * i + 6]);
             const uint32_t image_size = image_width * image_height * 2;
+            channel_ids[i] = channel_id;
 
             uint32_t p_len;
-
             if (load_image(filename, payload[i], &p_len))
             {
                 fatal("Read File Error!\n");
@@ -236,11 +239,24 @@ int main(int argc, char **argv)
             img_info[i].img_size = image_size;
             /* end */
         }
+
+        int freq = 30;
+        g_timer_last = macroseconds();
         /* end */
 
         /* Main Loop */
         while (1)
         {
+            /* Set frequency  */
+            uint64_t t_now, delta_t;
+            t_now = macroseconds();
+            delta_t = t_now - g_timer_last;
+
+            if (delta_t < 1000000 / freq)
+                continue;
+
+            g_timer_last = t_now;
+
             for (int i = 0; i < num_channel; i++)
             {
                 img_info[i].frame_index = seq_ch[i];
@@ -249,12 +265,12 @@ int main(int argc, char **argv)
                 img_data[i].common_head = img_header[i];
                 img_data[i].image_info_meta = img_info[i];
                 img_data[i].payload = (uint8_t *)payload[i];
-                alg_sdk_push2q(&img_data[i], i);
+                alg_sdk_push2q(&img_data[i], channel_ids[i]);
 
                 // frame_monitor(channel_id, &fps, seq);
-                usleep(33333 / num_channel);
                 seq_ch[i]++;
             }
+            usleep(10000);
         }
         /* end */
     }
@@ -292,6 +308,7 @@ int main(int argc, char **argv)
         memset(&img_data, 0, sizeof(img_data));
         memset(&img_file_lists, 0, sizeof(img_file_lists));
         memset(&file_list_sizes, 0, sizeof(file_list_sizes));
+        memset(&channel_ids, 0, sizeof(channel_ids));
 
         for (int i = 0; i < num_channel; i++)
         {
@@ -300,6 +317,7 @@ int main(int argc, char **argv)
             const uint32_t image_height = atoi(argv[4 * i + 5]);
             const uint8_t channel_id = atoi(argv[4 * i + 6]);
             const uint32_t image_size = image_width * image_height * 2;
+            channel_ids[i] = channel_id;
 
             /* Generate pcie image data head */
             img_header[i].head = 55;
@@ -386,7 +404,7 @@ int main(int argc, char **argv)
                 img_info[i].timestamp = milliseconds();
                 img_data[i].common_head = img_header[i];
                 img_data[i].image_info_meta = img_info[i];
-                alg_sdk_push2q(&img_data[i], i);
+                alg_sdk_push2q(&img_data[i], channel_ids[i]);
 
                 it_mulch[i]++;
                 /* iterator never reach the end */
