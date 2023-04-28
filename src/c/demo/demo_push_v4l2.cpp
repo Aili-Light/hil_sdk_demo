@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
         /* end */
 
         int data_type;
-        pcie_image_data_t image_data;
+        uint32_t data_len;
 
         while (!g_signal_recieved)
         {
@@ -179,12 +179,12 @@ int main(int argc, char *argv[])
                 break;
             }
 
-            printf("[SEQ:%d] [Type:%d]  [Width:%d] [Height:%d] [Len:%ld]\n", v4l2_device->sequence, data_type, v4l2_device->width, v4l2_device->height, v4l2_device->buffers[v4l2_device->buf_index].length);
-
-            if (image_size != v4l2_device->buffers[v4l2_device->buf_index].length)
+            data_len = v4l2_device->buffers[v4l2_device->buf_index].length;
+            if (image_size != data_len)
             {
                 fatal("ERROR! Image Size Do Not Match!!!\n");
             }
+            printf("[SEQ:%d] [Type:%d]  [Width:%d] [Height:%d] [Len:%d]\n", v4l2_device->sequence, data_type, v4l2_device->width, v4l2_device->height, data_len);
 
             img_info.frame_index = v4l2_device->sequence;
             img_info.timestamp = v4l2_device->timestamp;
