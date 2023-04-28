@@ -189,7 +189,7 @@ int main(int argc, char **argv)
         uint32_t p_len;
         const uint32_t image_width = atoi(argv[3]);
         const uint32_t image_height = atoi(argv[4]);
-        const uint8_t channel_id = atoi(argv[5]);
+        const uint8_t  channel_id = atoi(argv[5]);
         const uint32_t image_size = image_width * image_height * 2;
 
         if (load_image(filename, payload, &p_len))

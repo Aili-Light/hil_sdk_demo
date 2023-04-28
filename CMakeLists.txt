@@ -45,6 +45,17 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         anl
     )
 
+    add_executable(${PROJECT_NAME}_push_v4l2
+        ${UTILS_SRC_LIST}
+        src/c/demo/demo_push_v4l2.cpp
+        src/c/alg_camera/v4l2_camera.cpp
+    )
+    target_link_libraries(${PROJECT_NAME}_push_v4l2
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+        pthread
+        anl
+    )
+
     FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
 endif()
@@ -52,3 +63,4 @@ endif()
 install (TARGETS ${PROJECT_NAME}_init RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
 install (TARGETS ${PROJECT_NAME}_push_1_ch RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
 install (TARGETS ${PROJECT_NAME}_push_multi_ch RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+install (TARGETS ${PROJECT_NAME}_push_v4l2 RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
