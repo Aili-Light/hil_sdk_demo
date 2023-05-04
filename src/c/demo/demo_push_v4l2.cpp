@@ -39,6 +39,7 @@ SOFTWARE.
 #include <alg_camera/v4l2_camera.h>
 #include "alg_sdk/alg_sdk.h"
 #include "alg_sdk/server.h"
+#include "alg_sdk/pull.h"
 #include "alg_common/basic_types.h"
 #include "utils.h"
 
@@ -78,8 +79,16 @@ void int_handler(int sig)
     stream_off(&v4l2loop_device);   // 8 关闭视频流
     close_device(&v4l2loop_device); // 9 释放内存关闭文件
     alg_sdk_stop_server();
+    alg_sdk_stop_notify();
+
     /* terminate program */
     exit(sig);
+}
+
+void push_callback(void *p)
+{
+    char *msg = (char *)p;
+    printf("Notify Message : %s\n", msg);
 }
 
 void save_image_raw(const char *filename, void *image_ptr, size_t image_size)
@@ -98,12 +107,22 @@ int main(int argc, char *argv[])
     if ((argc > 2) && (strcmp(argv[1], "--v4l2") == 0))
     {
         int rc;
+
+        /* Setup notify callback */
+        rc = alg_sdk_notify(push_callback);
+        if (rc < 0)
+        {
+            fatal("Setup notify failed\n");
+        }
+        /* end */
+
         /* Init Servers */
         rc = alg_sdk_init_server();
         if (rc < 0)
         {
             fatal("Init server failed\n");
         }
+        /* end */
 
         v4l2_device->path = argv[2];
 
@@ -200,6 +219,7 @@ int main(int argc, char *argv[])
             // save_image_raw(filename_raw, v4l2_device->out_data, v4l2_device->buffers[v4l2_device->buf_index].length);
         }
         alg_sdk_server_spin_on();
+        alg_sdk_notify_spin_on();
     }
     else
     {
