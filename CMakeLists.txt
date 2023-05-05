@@ -56,6 +56,29 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         anl
     )
 
+    include_directories(${CMAKE_SOURCE_DIR}/qcap_lib
+    )
+
+    link_directories(
+        ${CMAKE_SOURCE_DIR}/qcap_lib/lib/
+    )
+
+    if (WITH_QCAP)
+        add_executable(${PROJECT_NAME}_push_qcap
+            ${UTILS_SRC_LIST}
+            src/c/demo/demo_push_qcap.cpp
+            src/c/qcap/qcapdev.cpp
+        )
+        target_link_libraries(${PROJECT_NAME}_push_qcap
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+            pthread
+            anl
+            -lqcap.x64
+        )
+
+        install (TARGETS ${PROJECT_NAME}_push_qcap RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+    endif ()
+
     FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
 endif()
