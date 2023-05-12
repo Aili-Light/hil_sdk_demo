@@ -59,7 +59,7 @@ void int_handler(int sig)
     g_signal_recieved = true;
 
     alg_sdk_stop_server();
-    // alg_sdk_stop_notify();
+    alg_sdk_stop_notify();
 
     /* terminate program */
     exit(sig);
@@ -271,11 +271,11 @@ int main(int argc, char *argv[])
         int rc;
 
         /* Setup notify callback */
-        // rc = alg_sdk_notify(push_callback);
-        // if (rc < 0)
-        // {
-        //     fatal("Setup notify failed\n");
-        // }
+        rc = alg_sdk_notify(push_callback);
+        if (rc < 0)
+        {
+            fatal("Setup notify failed\n");
+        }
         /* end */
 
         /* Init Servers */
@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
 
         free(img_data->payload);
         alg_sdk_server_spin_on();
-        // alg_sdk_notify_spin_on();
+        alg_sdk_notify_spin_on();
     }
     else
     {
