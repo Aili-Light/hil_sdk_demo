@@ -62,6 +62,15 @@ int main (int argc, char **argv)
     else
     {
         int rc;
+        
+        /* Setup notify callback */
+        rc = alg_sdk_notify(push_callback);
+        if (rc < 0)
+        {
+            fatal("Setup notify failed\n");
+        }
+        /* end */
+
         rc = alg_sdk_init_v2(argc, argv);
         if(rc < 0)
         {

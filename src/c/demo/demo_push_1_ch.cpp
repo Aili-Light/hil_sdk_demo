@@ -38,7 +38,6 @@ void int_handler(int sig)
 {
     printf("Caught signal : %d\n", sig);
     alg_sdk_stop_server();
-    alg_sdk_stop_notify();
 
     pthread_mutex_destroy(&g_mutex);
     sem_destroy(&sem_push);
@@ -170,14 +169,6 @@ int main(int argc, char **argv)
     {
         int rc;
 
-        /* Setup notify callback */
-        rc = alg_sdk_notify(push_callback);
-        if (rc < 0)
-        {
-            fatal("Setup notify failed\n");
-        }
-        /* end */
-
         /* Init Servers */
         rc = alg_sdk_init_server();
         if (rc < 0)
@@ -261,22 +252,11 @@ int main(int argc, char **argv)
         }
 
         alg_sdk_server_spin_on();
-        alg_sdk_notify_spin_on();
     }
     else if ((argc > 2) && (strcmp(argv[1], "--feedin") == 0))
     {
         int rc;
         const char *foldername = argv[2];
-
-        /*
-         *  Setup notify callback .
-         */
-        rc = alg_sdk_notify(push_callback);
-        if (rc < 0)
-        {
-            fatal("Setup notify failed\n");
-        }
-        /* end */
 
         /* Init Servers */
         rc = alg_sdk_init_server();
@@ -389,7 +369,6 @@ int main(int argc, char **argv)
         }
 
         alg_sdk_server_spin_on();
-        alg_sdk_notify_spin_on();
     }
     else
     {
