@@ -59,7 +59,6 @@ void int_handler(int sig)
     g_signal_recieved = true;
 
     alg_sdk_stop_server();
-    alg_sdk_stop_notify();
 
     /* terminate program */
     exit(sig);
@@ -251,12 +250,6 @@ QRETURN on_process_signal_removed(PVOID pDevice, ULONG nVideoInput, ULONG nAudio
     return QCAP_RT_OK;
 }
 
-void push_callback(void *p)
-{
-    char *msg = (char *)p;
-    printf("Notify Message : %s\n", msg);
-}
-
 void save_image_raw(const char *filename, void *image_ptr, size_t image_size)
 {
     std::ofstream storage_file(filename, std::ios::out | std::ios::binary);
@@ -269,14 +262,6 @@ int main(int argc, char *argv[])
     if ((argc > 2) && (strcmp(argv[1], "--qcap") == 0))
     {
         int rc;
-
-        /* Setup notify callback */
-        rc = alg_sdk_notify(push_callback);
-        if (rc < 0)
-        {
-            fatal("Setup notify failed\n");
-        }
-        /* end */
 
         /* Init Servers */
         rc = alg_sdk_init_server();
@@ -357,7 +342,6 @@ int main(int argc, char *argv[])
 
         free(img_data->payload);
         alg_sdk_server_spin_on();
-        alg_sdk_notify_spin_on();
     }
     else
     {
