@@ -68,7 +68,8 @@ SOFTWARE.
 #define ALG_SDK_MAX_CHANNEL 16
 #define ALG_SDK_MAX_DESERDES 8
 #define ALG_SDK_CHANNEL_PER_DEV 8
-
+#define MAX_FILE_PATH_LENGTH 60
+#define ONE_MAX_TRANSMISSION_SIZE 65535
 #ifdef __cplusplus
 extern "C"
 {
@@ -466,6 +467,15 @@ extern "C"
         /* Reply Field */
         uint8_t ack_code;
     } service_set_trigger_t;
+
+#pragma pack(1)
+    typedef struct
+    {
+        char    path[MAX_FILE_PATH_LENGTH];
+        uint16_t size;
+        uint16_t count;
+    } host_rpc_push_file_t;
+#pragma pack()
 
 #ifdef __cplusplus
 }

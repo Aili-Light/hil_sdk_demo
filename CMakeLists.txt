@@ -4,7 +4,7 @@ project(hil_sdk_demo)
 
 message(STATUS "Processor name is ${CMAKE_SYSTEM_PROCESSOR}")
 include_directories(
-    include
+    ${CMAKE_SOURCE_DIR}/src/include
     ${CMAKE_SOURCE_DIR}/hil_sdk/include 
     ${CMAKE_SOURCE_DIR}/src/c
 )
