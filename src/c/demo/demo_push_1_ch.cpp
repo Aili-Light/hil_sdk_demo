@@ -180,8 +180,20 @@ int main(int argc, char **argv)
         uint32_t p_len;
         const uint32_t image_width = atoi(argv[3]);
         const uint32_t image_height = atoi(argv[4]);
-        const uint8_t  channel_id = atoi(argv[5]);
+        const uint8_t channel_id = atoi(argv[5]);
         const uint32_t image_size = image_width * image_height * 2;
+
+        /* User defined Data Type
+         *  Default=YUYV (0x1E)
+         *  Acceptable: UYVY (0x1C) / VYUY (0x1D) / YUYV (0x1E) / YVYU ((0x1F) / RAW10 (0x2B) / RAW12 (0x2C)
+         */
+        char data_type[64] = {"Default"};
+        if (argc > 6)
+        {
+            // printf("argc : %s\n", argv[6]);
+            strncpy(data_type, argv[6], strlen(argv[6]));
+            printf("data type : [%s]\n", data_type);
+        }
 
         if (load_image(filename, payload, &p_len))
         {
@@ -218,8 +230,8 @@ int main(int argc, char **argv)
          */
         img_info.width = image_width;
         img_info.height = image_height;
-        /* */
-        img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
+
+        /* data type is user-defined */
         img_info.exposure = 1.5;
         img_info.again = 1.0;
         img_info.dgain = 1.0;
@@ -227,6 +239,10 @@ int main(int argc, char **argv)
         img_info.timestamp = milliseconds();
         img_info.img_size = p_len;
         /* end */
+
+        /* for raw data */
+        const uint32_t data_size = image_width * image_height;
+        uint16_t *pdata = (uint16_t *)malloc(sizeof(uint16_t) * data_size);
 
         while (1)
         {
@@ -242,7 +258,58 @@ int main(int argc, char **argv)
             pcie_image_data_t img_data;
             img_data.common_head = img_header;
             img_data.image_info_meta = img_info;
-            img_data.payload = (uint8_t *)payload;
+
+            /* Data Type is UYVY/VYUY/YUYV/YVYU */
+            if (strncmp(data_type, "YUYV", 4) == 0 || strncmp(data_type, "Default", 7) == 0)
+            {
+                // printf("****Match YUYV\n");
+                img_data.payload = (uint8_t *)payload;
+                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
+            }
+            else if (strncmp(data_type, "YVYU", 4) == 0)
+            {
+                img_data.payload = (uint8_t *)payload;
+                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_YVYU;
+            }
+            else if (strncmp(data_type, "UYVY", 4) == 0)
+            {
+                img_data.payload = (uint8_t *)payload;
+                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_UYVY;
+            }
+            else if (strncmp(data_type, "VYUY", 4) == 0)
+            {
+                img_data.payload = (uint8_t *)payload;
+                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_VYUY;
+            }
+            else if (strncmp(data_type, "RAW10", 5) == 0)
+            {
+                // printf("****Match raw10\n");
+                for (int i = 0; i < int(data_size / 4); i++)
+                {
+                    pdata[4 * i] = ((((payload[5 * i]) << 2) & 0x03FC) | ((payload[5 * i + 4] >> 0) & 0x0003));
+                    pdata[4 * i + 1] = ((((payload[5 * i + 1]) << 2) & 0x03FC) | ((payload[5 * i + 4] >> 2) & 0x0003));
+                    pdata[4 * i + 2] = ((((payload[5 * i + 2]) << 2) & 0x03FC) | ((payload[5 * i + 4] >> 4) & 0x0003));
+                    pdata[4 * i + 3] = ((((payload[5 * i + 3]) << 2) & 0x03FC) | ((payload[5 * i + 4] >> 6) & 0x0003));
+                }
+                img_data.payload = (uint8_t *)pdata;
+                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW10;
+            }
+            else if (strncmp(data_type, "RAW12", 5) == 0)
+            {
+                // printf("****Match raw12\n");
+                for (int i = 0; i < int(data_size / 2); i++)
+                {
+                    pdata[2 * i] = ((((payload[3 * i]) << 4) & 0x0FF0) | ((payload[3 * i + 2] >> 0) & 0x000F));
+                    pdata[2 * i + 1] = ((((payload[3 * i + 1]) << 4) & 0x0FF0) | ((payload[3 * i + 2] >> 4) & 0x000F));
+                }
+                img_data.payload = (uint8_t *)pdata;
+                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW12;
+            }
+            else
+            {
+                fatal("Data Type Error!.\n");
+            }
+
             alg_sdk_push2q(&img_data, channel_id);
 
             // frame_monitor(channel_id, &fps, seq);
@@ -251,6 +318,7 @@ int main(int argc, char **argv)
             seq++;
         }
 
+        free(pdata);
         alg_sdk_server_spin_on();
     }
     else if ((argc > 2) && (strcmp(argv[1], "--feedin") == 0))
