@@ -24,9 +24,21 @@ SOFTWARE.
 #ifndef __UTILS_H__
 #define __UTILS_H__
 #include <stdint.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
 
 unsigned char crc_array(unsigned char *p, unsigned char counter);
 uint64_t milliseconds (void);
 uint64_t macroseconds (void);
+int fatal(const char *msg);
+void safe_free(void *p);
+void load_image_path(string img_dir_path, vector<string> &img_path);
+int load_image(const char *filename, uint8_t *buffer, uint32_t *data_len);
 
 #endif

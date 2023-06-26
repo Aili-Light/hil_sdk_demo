@@ -24,6 +24,7 @@ SOFTWARE.
 #include "utils.h"
 #include <time.h>
 #include <sys/time.h>
+using namespace std;
 
 const unsigned char crc8_table[256] = {
     0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83,
@@ -88,4 +89,79 @@ uint64_t macroseconds (void)
     struct timeval tv;
     gettimeofday (&tv, NULL);
     return (((uint64_t)tv.tv_sec * 1000000) + ((uint64_t)tv.tv_usec ));
+}
+
+int fatal(const char *msg)
+{
+    fprintf(stderr, "fatal error : %s", msg);
+    exit(1);
+}
+
+void safe_free(void *p)
+{
+    if (p != NULL)
+        free(p);
+}
+
+void load_image_path(string img_dir_path, vector<string> &img_path)
+{
+    DIR *pDir;
+    struct dirent *ptr;
+    if (!(pDir = opendir(img_dir_path.c_str())))
+    {
+        cout << "Folder doesn't Exist!" << endl;
+        return;
+    }
+
+    while ((ptr = readdir(pDir)) != 0)
+    {
+        if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0)
+        {
+            img_path.push_back(img_dir_path + "/" + ptr->d_name);
+        }
+    }
+    sort(img_path.begin(), img_path.end());
+
+    closedir(pDir);
+}
+
+int load_image(const char *filename, uint8_t *buffer, uint32_t *data_len)
+{
+    FILE *fp = fopen(filename, "r");
+    uint32_t lSize;
+    size_t result;
+
+    if (fp != NULL)
+    {
+        fseek(fp, 0, SEEK_END);
+        lSize = ftell(fp);
+        // printf("file size = %d\n", lSize);
+        rewind(fp);
+        // allocate memory to contain the whole file:
+        // buffer = (uint8_t*) malloc (sizeof(uint8_t)*lSize);
+        if (buffer == NULL)
+        {
+            fatal("Buffer allocation error\n");
+        }
+        // copy the file into the buffer:
+        result = fread(buffer, 1, lSize, fp);
+#ifndef __MINGW32__
+        if (result != lSize)
+        {
+            fatal("Read file error\n");
+        }
+#endif
+        // printf("size = %d, data = %d\n", lSize, buffer[4]);
+
+        fclose(fp);
+        *data_len = lSize;
+
+        return 0;
+    }
+    else
+    {
+        fatal("Failed to load image\n");
+    }
+
+    return 0;
 }

@@ -67,12 +67,6 @@ struct v4l2_dev v4l2loop_device = {
     .buf_index = 0,
 };
 
-int fatal(const char *msg)
-{
-    fprintf(stderr, "fatal error : %s", msg);
-    exit(1);
-}
-
 void int_handler(int sig)
 {
     g_signal_recieved = true;

@@ -36,13 +36,6 @@ SOFTWARE.
 #ifndef __MINGW32__
 #include <netinet/in.h> /* For htonl and ntohl */
 #endif
-#include <unistd.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <iostream>
-#include <vector>
-#include <algorithm>
-using namespace std;
 
 static uint8_t payload[ALG_SDK_MAX_CHANNEL][ALG_SDK_PAYLOAD_LEN_MAX];
 static pcie_common_head_t img_header[ALG_SDK_MAX_CHANNEL];
@@ -60,12 +53,6 @@ static vector<string>::iterator it_mulch[ALG_SDK_MAX_CHANNEL];
 static uint8_t channel_ids[ALG_SDK_MAX_CHANNEL];
 static ImageFeed image_feed[ALG_SDK_MAX_CHANNEL];
 
-int fatal(const char *msg)
-{
-    fprintf(stderr, "fatal error : %s", msg);
-    exit(1);
-}
-
 void int_handler(int sig)
 {
     printf("Caught signal : %d\n", sig);
@@ -75,95 +62,6 @@ void int_handler(int sig)
     sem_destroy(&sem_push);
 
     exit(sig);
-}
-
-void safe_free(void *p)
-{
-    if (p != NULL)
-        free(p);
-}
-
-int load_image(const char *filename, uint8_t *buffer, uint32_t *data_len)
-{
-    FILE *fp = fopen(filename, "r");
-    uint32_t lSize;
-    size_t result;
-
-    if (fp != NULL)
-    {
-        fseek(fp, 0, SEEK_END);
-        lSize = ftell(fp);
-        // printf("file size = %d\n", lSize);
-        rewind(fp);
-        // allocate memory to contain the whole file:
-        // buffer = (uint8_t*) malloc (sizeof(uint8_t)*lSize);
-        if (buffer == NULL)
-        {
-            fatal("Buffer allocation error\n");
-        }
-        // copy the file into the buffer:
-        result = fread(buffer, 1, lSize, fp);
-#ifndef __MINGW32__
-        if (result != lSize)
-        {
-            fatal("Read file error\n");
-        }
-#endif
-        // printf("size = %d, data = %d\n", lSize, buffer[4]);
-
-        fclose(fp);
-        *data_len = lSize;
-
-        return 0;
-    }
-    else
-    {
-        fatal("Failed to load image\n");
-    }
-
-    return 0;
-}
-
-void load_image_path(string img_dir_path, vector<string> &img_path)
-{
-    DIR *pDir;
-    struct dirent *ptr;
-    if (!(pDir = opendir(img_dir_path.c_str())))
-    {
-        cout << "Folder doesn't Exist!" << endl;
-        return;
-    }
-
-    while ((ptr = readdir(pDir)) != 0)
-    {
-        if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0)
-        {
-            img_path.push_back(img_dir_path + "/" + ptr->d_name);
-        }
-    }
-    sort(img_path.begin(), img_path.end());
-
-    closedir(pDir);
-}
-
-void frame_monitor(const int ch_id, float *fps, const int frame_index)
-{
-    /* Monitor Frame Drop : current frame should be last frame +1,
-        otherwise some frames may be lost.
-    */
-
-    /* Calculate Frame Rate */
-    uint64_t t_now = milliseconds();
-    g_f_count[ch_id]++;
-
-    uint64_t delta_t = t_now - g_t_last[ch_id];
-    if (delta_t > 1000) // for 1000 milliseconds
-    {
-        g_t_last[ch_id] = t_now;
-        *fps = (float)g_f_count[ch_id] / delta_t * 1000.0f;
-        printf("Frame Monitor : [Channel %d] [Index %d] [frm rate (SW) = %f]\n", ch_id, frame_index, *fps);
-        g_f_count[ch_id] = 0;
-    }
 }
 
 int main(int argc, char **argv)
