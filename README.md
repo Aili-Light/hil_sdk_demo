@@ -35,13 +35,18 @@ Stream On/Off
 Push single image
 ------------------------------------
    `cd <install path>`  
-   `sudo ./hil_sdk_demo_push_1_ch --publish <file> <width> <height> <channel_id> <data_type>`  
+   `sudo ./hil_sdk_demo_push_1_ch --publish <image> <width> <height> <channel_id> <data_type>`  
    note :   
-   #1. `<file>`   is the path to image file    
+   #1. `<image>`   is the path to image file    
    #2. `<width>`  is image width  
    #3. `<height>` is image height  
    #4. `<channel_id>` is the channel index to push image to   
    #5. `<data_type>` is data_type (YUYV/RAW)   
+
+   `sudo ./hil_sdk_demo_push_multi_ch --publish_multi <num_channels> <image_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <image_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> `  
+   note :   
+   #1. `<num_channels>`   is totol number of channels  
+   #2. `<image_#1>` `<image_#2>`  are image files for each channel  
 
 Feed consecutive images
 ------------------------------------
@@ -53,6 +58,11 @@ Feed consecutive images
    #3. `<height>` is image height  
    #4. `<channel_id>` is the channel index to push image to   
    #5. `<data_type>` is data_type (YUYV/RAW)   
+
+   `sudo ./hil_sdk_demo_push_multi_ch --feedin_multi <num_channels> <folder_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <folder_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> ` 
+   note :   
+   #1. `<num_channels>`   is totol number of channels  
+   #2. `<folder_#1>` `<folder_#2>`  are image folders for each channel  
 
 # Support
 contact : jimmy@ailiteam.com
