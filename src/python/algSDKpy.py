@@ -111,6 +111,13 @@ def CallServices(topic_ptr, cfg, timeo):
 
     return ret
 
+def crc_array(p, counter):
+    pcie_sdk.crc_array.argtypes = [c_char_p, c_ubyte]
+    pcie_sdk.crc_array.restype = c_ubyte
+    ret = pcie_sdk.crc_array(p, counter)
+
+    return ret
+
 class algSDKInit():
     def __init__(self):
         self.pcie_sdk = pcie_sdk
@@ -129,7 +136,27 @@ class algSDKInit():
     def Spin(self):
         self.pcie_sdk.alg_sdk_spin_on()
 
+class algSDKServer():
+    def __init__(self):
+        self.pcie_sdk = pcie_sdk    
 
+    def InitServer(self):
+        self.pcie_sdk.alg_sdk_init_server.restype = ctypes.c_int
+        ret = self.pcie_sdk.alg_sdk_init_server()
+    
+        return ret
+
+    def Publish(self, msg, ch_id):
+        self.pcie_sdk.alg_sdk_push2q.restype = ctypes.c_int
+        self.pcie_sdk.alg_sdk_push2q.argtypes = [c_void_p, c_int]
+
+        ptr = cast(pointer(msg), c_void_p)
+        ret = self.pcie_sdk.alg_sdk_push2q(ptr, ch_id)
+    
+    def Spin(self):
+        self.pcie_sdk.alg_sdk_server_spin_on.restype = ctypes.c_int
+        ret = self.pcie_sdk.alg_sdk_server_spin_on()
+    
 class algSDKClient():
     def __init__(self):
         self.pcie_sdk = pcie_sdk

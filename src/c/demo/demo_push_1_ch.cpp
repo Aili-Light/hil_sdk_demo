@@ -220,8 +220,9 @@ int main(int argc, char **argv)
         strcpy(img_header.topic_name, topic_name);
         // printf("%s\n", img_header[i].topic_name);
         img_header.crc8 = crc_array((unsigned char *)&img_header, 130);
+        // printf("crc8:%d\n",img_header.crc8);
         /* end */
-
+        
         /* Generate pcie image data info */
         pcie_image_info_meta_t img_info;
         img_info.frame_index = 0;
@@ -440,9 +441,9 @@ int main(int argc, char **argv)
     }
     else
     {
-        fprintf(stderr, "Usage: ./hil_sdk_demo_push_1_ch <TYP> <FILENAME> <ARG1> <ARG2> <ARG3>...\n");
-        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --publish 'test_image.yuv' 1920 1280 0\n");
-        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --feedin '/image_folder' 1920 1280 0\n");
+        fprintf(stderr, "Usage: ./hil_sdk_demo_push_1_ch <TYP> <FILENAME> <ARG1> <ARG2> <ARG3> <ARG4>...\n");
+        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --publish 'test_image.yuv' 1920 1280 0 'YUYV'\n");
+        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --feedin '/image_folder' 1920 1280 0 'RAW12'\n");
     }
 
     return 0;
