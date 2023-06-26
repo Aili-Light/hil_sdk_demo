@@ -1,3 +1,26 @@
+/*
+ The MIT License (MIT)
+
+Copyright (c) 2022 Aili-Light. All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +31,7 @@
 #include "alg_sdk/server.h"
 #include "alg_sdk/pull.h"
 #include "alg_common/basic_types.h"
+#include "image_feed.h"
 #include "utils.h"
 #ifndef __MINGW32__
 #include <netinet/in.h> /* For htonl and ntohl */
@@ -28,6 +52,12 @@ static pthread_t g_main_loop;
 static pthread_mutex_t g_mutex;
 static uint64_t g_timer_last;
 
+void safe_free(void *p)
+{
+    if (p != NULL)
+        free(p);
+}
+
 int fatal(const char *msg)
 {
     fprintf(stderr, "fatal error : %s", msg);
@@ -43,12 +73,6 @@ void int_handler(int sig)
     sem_destroy(&sem_push);
 
     exit(sig);
-}
-
-void safe_free(void *p)
-{
-    if (p != NULL)
-        free(p);
 }
 
 int load_image(const char *filename, uint8_t *buffer, uint32_t *data_len)
@@ -134,48 +158,19 @@ void frame_monitor(const int ch_id, float *fps, const int frame_index)
     }
 }
 
-void push_callback(void *p)
-{
-    char *msg = (char *)p;
-    printf("Notify Message : %s\n", msg);
-}
-
-void copy_to_ringbuffer(const void *buffer, const void *img_data, const void *p_data)
-{
-    uint8_t *next_img = (uint8_t *)buffer;
-    pcie_image_data_t *ptr = (pcie_image_data_t *)img_data;
-    pcie_common_head_t *img_header = (pcie_common_head_t *)&(ptr->common_head);
-    pcie_image_info_meta_t *img_info = (pcie_image_info_meta_t *)&(ptr->image_info_meta);
-    uint8_t *payload = (uint8_t *)p_data;
-
-    uint32_t pos = 0;
-    uint32_t image_size = img_info->img_size;
-
-    memcpy(next_img, img_header, sizeof(pcie_common_head_t));
-    pos += sizeof(pcie_common_head_t);
-    memcpy(next_img + pos, img_info, sizeof(pcie_image_info_meta_t));
-    pos += sizeof(pcie_image_info_meta_t);
-    uintptr_t addr = (uintptr_t)payload;
-    memcpy(next_img + pos, &addr, sizeof(void *));
-    pos += sizeof(void *);
-    memcpy(next_img + pos, payload, image_size);
-}
-
 int main(int argc, char **argv)
 {
-    uint32_t seq = 0;
+    int rc;
+
+    /* Init Servers */
+    rc = alg_sdk_init_server();
+    if (rc < 0)
+    {
+        fatal("Init server failed\n");
+    }
 
     if ((argc > 2) && (strcmp(argv[1], "--publish") == 0))
     {
-        int rc;
-
-        /* Init Servers */
-        rc = alg_sdk_init_server();
-        if (rc < 0)
-        {
-            fatal("Init server failed\n");
-        }
-
         char *filename = argv[2];
         uint32_t p_len;
         const uint32_t image_width = atoi(argv[3]);
@@ -187,17 +182,22 @@ int main(int argc, char **argv)
          *  Default=YUYV (0x1E)
          *  Acceptable: UYVY (0x1C) / VYUY (0x1D) / YUYV (0x1E) / YVYU ((0x1F) / RAW10 (0x2B) / RAW12 (0x2C)
          */
-        char data_type[64] = {"Default"};
+        char data_type_c[64] = {"Default"};
         if (argc > 6)
         {
             // printf("argc : %s\n", argv[6]);
-            strncpy(data_type, argv[6], strlen(argv[6]));
-            printf("data type : [%s]\n", data_type);
+            strncpy(data_type_c, argv[6], 12);
+            printf("data type : [%s]\n", data_type_c);
         }
 
         if (load_image(filename, payload, &p_len))
         {
             fatal("Read File Error!\n");
+        }
+
+        if (!payload)
+        {
+            fatal("Empty data.\n");
         }
 
         if (p_len == 0)
@@ -210,169 +210,70 @@ int main(int argc, char **argv)
             fatal("Image Size Not Match!\n");
         }
 
-        /* Generate pcie image data head */
-        pcie_common_head_t img_header;
-        img_header.head = 55;
-        img_header.version = 1;
-        int ch = channel_id;
-        char topic_name[ALG_SDK_HEAD_COMMON_TOPIC_NAME_LEN] = {};
-        sprintf(topic_name, "/image_data/stream/%02d", ch);
-        strcpy(img_header.topic_name, topic_name);
-        // printf("%s\n", img_header[i].topic_name);
-        img_header.crc8 = crc_array((unsigned char *)&img_header, 130);
-        // printf("crc8:%d\n",img_header.crc8);
-        /* end */
-        
-        /* Generate pcie image data info */
-        pcie_image_info_meta_t img_info;
-        img_info.frame_index = 0;
-        /* IMPORTANT NOTE :
-         *  Image size must MATCH the input image!
-         */
-        img_info.width = image_width;
-        img_info.height = image_height;
-
-        /* data type is user-defined */
-        img_info.exposure = 1.5;
-        img_info.again = 1.0;
-        img_info.dgain = 1.0;
-        img_info.temp = 25.0;
-        img_info.timestamp = milliseconds();
-        img_info.img_size = p_len;
+        /* Generate pcie image data */
+        ImageFeed image_feed;
+        image_feed.init_feed(image_width, image_height, channel_id, image_size, 0);
+        image_feed.make_data_struct();
         /* end */
 
-        /* for raw data */
-        const uint32_t data_size = image_width * image_height;
-        uint16_t *pdata = (uint16_t *)malloc(sizeof(uint16_t) * data_size);
+        /* Set up data type */
+        int data_type = image_feed.set_data_type(data_type_c);
+        if (data_type == 0)
+        {
+            fatal("Wrong Data Type!");
+        }
+        /* end */
 
+        /* Main loop : Feed Image */
+        uint32_t seq = 0;
+        uint64_t t_now = 0;
         while (1)
         {
-            if (!payload || !p_len)
-            {
-                fatal("Empty data.\n");
-            }
-
-            float fps = 0.0f;
-            img_info.frame_index = seq;
-            img_info.timestamp = milliseconds();
-
-            pcie_image_data_t img_data;
-            img_data.common_head = img_header;
-            img_data.image_info_meta = img_info;
-
-            /* Data Type is UYVY/VYUY/YUYV/YVYU */
-            if (strncmp(data_type, "YUYV", 4) == 0 || strncmp(data_type, "Default", 7) == 0)
-            {
-                // printf("****Match YUYV\n");
-                img_data.payload = (uint8_t *)payload;
-                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
-            }
-            else if (strncmp(data_type, "YVYU", 4) == 0)
-            {
-                img_data.payload = (uint8_t *)payload;
-                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_YVYU;
-            }
-            else if (strncmp(data_type, "UYVY", 4) == 0)
-            {
-                img_data.payload = (uint8_t *)payload;
-                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_UYVY;
-            }
-            else if (strncmp(data_type, "VYUY", 4) == 0)
-            {
-                img_data.payload = (uint8_t *)payload;
-                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_VYUY;
-            }
-            else if (strncmp(data_type, "RAW10", 5) == 0)
-            {
-                // printf("****Match raw10\n");
-                for (int i = 0; i < int(data_size / 4); i++)
-                {
-                    pdata[4 * i] = ((((payload[5 * i]) << 2) & 0x03FC) | ((payload[5 * i + 4] >> 0) & 0x0003));
-                    pdata[4 * i + 1] = ((((payload[5 * i + 1]) << 2) & 0x03FC) | ((payload[5 * i + 4] >> 2) & 0x0003));
-                    pdata[4 * i + 2] = ((((payload[5 * i + 2]) << 2) & 0x03FC) | ((payload[5 * i + 4] >> 4) & 0x0003));
-                    pdata[4 * i + 3] = ((((payload[5 * i + 3]) << 2) & 0x03FC) | ((payload[5 * i + 4] >> 6) & 0x0003));
-                }
-                img_data.payload = (uint8_t *)pdata;
-                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW10;
-            }
-            else if (strncmp(data_type, "RAW12", 5) == 0)
-            {
-                // printf("****Match raw12\n");
-                for (int i = 0; i < int(data_size / 2); i++)
-                {
-                    pdata[2 * i] = ((((payload[3 * i]) << 4) & 0x0FF0) | ((payload[3 * i + 2] >> 0) & 0x000F));
-                    pdata[2 * i + 1] = ((((payload[3 * i + 1]) << 4) & 0x0FF0) | ((payload[3 * i + 2] >> 4) & 0x000F));
-                }
-                img_data.payload = (uint8_t *)pdata;
-                img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW12;
-            }
-            else
-            {
-                fatal("Data Type Error!.\n");
-            }
-
-            alg_sdk_push2q(&img_data, channel_id);
+            t_now = milliseconds();
+            image_feed.feed_data((uint8_t *)payload, seq, t_now);
+            void *img_data_ptr = image_feed.get_data_ptr();
+            // pcie_image_data_t *data_p = (pcie_image_data_t *)img_data_ptr;
+            // printf("topic : %s, index : [%d]\n", data_p->common_head.topic_name, data_p->image_info_meta.frame_index);
+            alg_sdk_push2q(img_data_ptr, channel_id);
 
             // frame_monitor(channel_id, &fps, seq);
             usleep(33333);
-            // usleep(50000);
             seq++;
         }
 
-        free(pdata);
         alg_sdk_server_spin_on();
     }
     else if ((argc > 2) && (strcmp(argv[1], "--feedin") == 0))
     {
-        int rc;
         const char *foldername = argv[2];
-
-        /* Init Servers */
-        rc = alg_sdk_init_server();
-        if (rc < 0)
-        {
-            fatal("Init server failed\n");
-        }
-        /* end */
-
         const uint32_t image_width = atoi(argv[3]);
         const uint32_t image_height = atoi(argv[4]);
         const uint8_t channel_id = atoi(argv[5]);
         const uint32_t image_size = image_width * image_height * 2;
 
-        /* Generate pcie image data head */
-        pcie_common_head_t img_header;
-        img_header.head = 55;
-        img_header.version = 1;
-        int ch_id = channel_id;
-        char topic_name[ALG_SDK_HEAD_COMMON_TOPIC_NAME_LEN] = {};
-        sprintf(topic_name, "/image_data/stream/%02d", ch_id);
-        strcpy(img_header.topic_name, topic_name);
-        // printf("%s\n", img_header[i].topic_name);
-        img_header.crc8 = crc_array((unsigned char *)&img_header, 130);
+        char data_type_c[64] = {"Default"};
+        if (argc > 6)
+        {
+            // printf("argc : %s\n", argv[6]);
+            strncpy(data_type_c, argv[6], 12);
+            printf("data type : [%s]\n", data_type_c);
+        }
+
+        /* Generate pcie image data */
+        ImageFeed image_feed;
+        image_feed.init_feed(image_width, image_height, channel_id, image_size, 0);
+        image_feed.make_data_struct();
         /* end */
 
-        /* Generate pcie image data info */
-        pcie_image_info_meta_t img_info;
-        img_info.frame_index = 0;
-        /* **********************************
-         *  IMPORTANT : Image size must MATCH the input image!
-         * ********************************** */
-        img_info.width = image_width;
-        img_info.height = image_height;
-        /* ********************************** */
-        img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
-        img_info.exposure = 1.5;
-        img_info.again = 1.0;
-        img_info.dgain = 4.0;
-        img_info.temp = 25.0;
-        img_info.timestamp = milliseconds();
-        img_info.img_size = image_size;
+        /* Set up data type */
+        int data_type = image_feed.set_data_type(data_type_c);
+        if (data_type == 0)
+        {
+            fatal("Wrong Data Type!");
+        }
         /* end */
 
-        /*
-         *  Read files from folder
-         */
+        /* Read files from folder */
         printf("Open folder : %s\n", foldername);
         string folder_name = foldername;
         vector<string> img_filenames;
@@ -386,8 +287,7 @@ int main(int argc, char **argv)
             uint32_t p_len = 0;
             int freq = 30;
 
-            pcie_image_data_t img_data;
-            img_data.payload = (uint8_t *)malloc(sizeof(uint8_t) * image_size);
+            uint8_t *payload = (uint8_t *)malloc(sizeof(uint8_t) * image_size);
 
             g_timer_last = macroseconds();
             for (vector<string>::iterator it = img_filenames.begin();;)
@@ -403,7 +303,6 @@ int main(int argc, char **argv)
 
                 /* read image data from file */
                 const char *filename = (*it).c_str();
-                uint8_t *payload = (uint8_t *)img_data.payload;
                 load_image(filename, payload, &p_len);
                 // printf("[SEQ:%d] [FILE:%s] [LEN:%d]\n", seq, filename, p_len);
 
@@ -411,11 +310,11 @@ int main(int argc, char **argv)
                     break;
 
                 /* copy data into ringbuffer */
-                img_info.frame_index = seq;
-                img_info.timestamp = milliseconds();
-                img_data.common_head = img_header;
-                img_data.image_info_meta = img_info;
-                alg_sdk_push2q(&img_data, ch_id);
+                image_feed.feed_data((uint8_t *)payload, seq, t_now);
+                void *img_data_ptr = image_feed.get_data_ptr();
+                // pcie_image_data_t *data_p = (pcie_image_data_t *)img_data_ptr;
+                // printf("topic : %s, index : [%d]\n", data_p->common_head.topic_name, data_p->image_info_meta.frame_index);
+                alg_sdk_push2q(img_data_ptr, channel_id);
 
                 /* update sequence */
                 seq++;
@@ -430,7 +329,7 @@ int main(int argc, char **argv)
                 usleep(25000);
             }
 
-            safe_free(img_data.payload);
+            safe_free(payload);
         }
         else
         {
@@ -443,7 +342,7 @@ int main(int argc, char **argv)
     {
         fprintf(stderr, "Usage: ./hil_sdk_demo_push_1_ch <TYP> <FILENAME> <ARG1> <ARG2> <ARG3> <ARG4>...\n");
         fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --publish 'test_image.yuv' 1920 1280 0 'YUYV'\n");
-        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --feedin '/image_folder' 1920 1280 0 'RAW12'\n");
+        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --feedin '/image_folder' 3840 2160 1 'RAW12'\n");
     }
 
     return 0;

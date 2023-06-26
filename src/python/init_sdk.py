@@ -6,8 +6,8 @@ from algSDKpy import algSDKInit
 sdkHandler = algSDKInit()
 
 def int_handler(signum, frame):
-    print('---------stop-------------')
-    sdkHandler.sdkStop()
+    print('---------SDK Stop-------------')
+    sdkHandler.Stop()
     sys.exit(0)
 
 if __name__ == '__main__':
@@ -18,6 +18,9 @@ if __name__ == '__main__':
     if(ret < 0):
         print(' result = %d ' % ret)
 
+    while(1):
+        time.sleep(0.001)
+    
     sdkHandler.Spin()
 
     print('---------finish-------------')
