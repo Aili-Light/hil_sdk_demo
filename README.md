@@ -23,13 +23,6 @@ Init SDK
    `cd <install path>`  
    `sudo ./hil_sdk_demo_init -s`   
 
-Set Sensor Config
-------------------------------------
-   `cd <src/python>`  
-
-   for all sensor (use json file)  
-   `python set_sensor_from_json.py --json_file=<path to json file> --channel=xx`  
-
 Stream On/Off
 ------------------------------------
    `cd <src/python>`  
@@ -42,34 +35,24 @@ Stream On/Off
 Push single image
 ------------------------------------
    `cd <install path>`  
-   `sudo ./hil_sdk_demo_push_1_ch --publish <file> <width> <height> <channel_id>`  
+   `sudo ./hil_sdk_demo_push_1_ch --publish <file> <width> <height> <channel_id> <data_type>`  
    note :   
    #1. `<file>`   is the path to image file    
    #2. `<width>`  is image width  
    #3. `<height>` is image height  
    #4. `<channel_id>` is the channel index to push image to   
+   #5. `<data_type>` is data_type (YUYV/RAW)   
 
 Feed consecutive images
 ------------------------------------
    `cd <install path>`  
-   `sudo ./hil_sdk_demo_push_1_ch --feedon <folder> <width> <height> <channel_id>`  
+   `sudo ./hil_sdk_demo_push_1_ch --feedon <folder> <width> <height> <channel_id> <data_type>`  
    note :   
    #1. `<folder>` is the folder to consecutive image files   
    #2. `<width>`  is image width  
    #3. `<height>` is image height  
    #4. `<channel_id>` is the channel index to push image to   
-
-Set Trigger
-------------------------------------
-   `cd <src/python>`  
-   Set Trigger Mode (Int Trigger) :  
-   `python set_trigger_mode.py --device=xx --mode=2`  
-   
-   Set Trigger Mode (Ext Trigger) :  
-   `python set_trigger_mode.py --device=xx --mode=1`  
-   
-   Set Trigger Parameters :  
-   `python set_trigger_mode.py --channel=xx,yy --mode=2 --delay_time=0 --valid_time=1000 --polarity=0 --freq=30`  
+   #5. `<data_type>` is data_type (YUYV/RAW)   
 
 # Support
 contact : jimmy@ailiteam.com
