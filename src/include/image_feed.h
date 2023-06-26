@@ -45,6 +45,7 @@ public:
 
     /* Get Data */
     void* get_data_ptr();
+    size_t get_image_size();
 
 private:
     int image_width;

@@ -259,3 +259,8 @@ void *ImageFeed::get_data_ptr()
 {
     return (&img_data);
 }
+
+size_t ImageFeed::get_image_size()
+{
+    return (img_data.image_info_meta.img_size);
+}

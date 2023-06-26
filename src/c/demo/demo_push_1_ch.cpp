@@ -310,7 +310,8 @@ int main(int argc, char **argv)
                     break;
 
                 /* copy data into ringbuffer */
-                image_feed.feed_data((uint8_t *)payload, seq, t_now);
+                uint64_t timestamp = milliseconds();
+                image_feed.feed_data((uint8_t *)payload, seq, timestamp);
                 void *img_data_ptr = image_feed.get_data_ptr();
                 // pcie_image_data_t *data_p = (pcie_image_data_t *)img_data_ptr;
                 // printf("topic : %s, index : [%d]\n", data_p->common_head.topic_name, data_p->image_info_meta.frame_index);
