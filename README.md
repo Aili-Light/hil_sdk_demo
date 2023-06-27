@@ -59,7 +59,7 @@ Push single image
    #4. `<channel_id>` is the channel index to push image to   
    #5. `<data_type>` is data_type ('YUYV'/'RAW10'/'RAW12')   
 
-*  push multiple channels
+*  push multiple channels  
    `sudo ./hil_sdk_demo_push_multi_ch --publish_multi <num_channels> <image_path_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <image_path_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> `  
    note :   
    #1. `<num_channels>`   is totol number of channels  
@@ -77,7 +77,7 @@ Feed consecutive images
    #4. `<channel_id>` is the channel index to push image to   
    #5. `<data_type>` is data_type (YUYV/RAW)   
 
-*  push multiple channels
+*  push multiple channels  
    `sudo ./hil_sdk_demo_push_multi_ch --feedin_multi <num_channels> <folder_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <folder_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> ` 
    note :   
    #1. `<num_channels>`   is totol number of channels  
