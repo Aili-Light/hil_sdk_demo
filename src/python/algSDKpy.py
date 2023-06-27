@@ -97,6 +97,8 @@ class pcie_image_data_t(Structure):
     ]
 
 callbackFunc_t = ctypes.CFUNCTYPE(c_void_p, c_void_p)
+notifyFunc_t = ctypes.CFUNCTYPE(c_void_p, c_void_p)
+
 if os.name == 'nt' :
     pcie_sdk = ctypes.CDLL('../../hil_sdk/lib/mingw32/libhil_sdk.dll', winmode=0)
 elif os.name == 'posix' :
@@ -177,5 +179,25 @@ class algSDKClient():
     def Spin(self):
         self.pcie_sdk.alg_sdk_client_spin_on.restype = ctypes.c_int
         ret = self.pcie_sdk.alg_sdk_client_spin_on()
+
+        return ret
+
+class algSDKNotify():
+    def __init__(self):
+        self.pcie_sdk = pcie_sdk
+
+    def SetNotify(self, notify_func):
+        self.pcie_sdk.alg_sdk_notify.argtypes = [notifyFunc_t]
+        self.pcie_sdk.alg_sdk_notify.restype = ctypes.c_int
+        ret = self.pcie_sdk.alg_sdk_notify(notify_func)
+
+        return ret
+    
+    def Spin(self):
+        self.pcie_sdk.alg_sdk_notify_spin_on()
+
+    def Stop(self):
+        self.pcie_sdk.alg_sdk_notify.restype = ctypes.c_int
+        ret = self.pcie_sdk.alg_sdk_stop_notify()
 
         return ret
