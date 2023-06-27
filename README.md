@@ -20,8 +20,13 @@ For more information check the [website](https://aili-light.com)
 # Usuage
 Init SDK
 ------------------------------------
+a. init sdk (C++)  
    `cd <install path>`  
    `sudo ./hil_sdk_demo_init -s`   
+
+b. init sdk (python)  
+   `cd <src/python>`  
+   `sudo python3 init_sdk.py`  
 
 Stream On/Off
 ------------------------------------
@@ -34,22 +39,29 @@ Stream On/Off
 
 Push single image
 ------------------------------------
+a. push 1 channel (c++)  
    `cd <install path>`  
-   `sudo ./hil_sdk_demo_push_1_ch --publish <image> <width> <height> <channel_id> <data_type>`  
+   `sudo ./hil_sdk_demo_push_1_ch --publish <image_path> <width> <height> <channel_id> <data_type>`  
    note :   
-   #1. `<image>`   is the path to image file    
+   #1. `<image_path>`   is the path to image file    
    #2. `<width>`  is image width  
    #3. `<height>` is image height  
    #4. `<channel_id>` is the channel index to push image to   
    #5. `<data_type>` is data_type (YUYV/RAW)   
 
-   `sudo ./hil_sdk_demo_push_multi_ch --publish_multi <num_channels> <image_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <image_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> `  
+b. push 1 channel (python)  
+   `cd <src/python>`  
+   `sudo python3 image_feed.py --image_path=<image_path>' --width=<width> --height=<height> --channel=<channel_id>`  
+
+c. push multiple channels
+   `sudo ./hil_sdk_demo_push_multi_ch --publish_multi <num_channels> <image_path_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <image_path_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> `  
    note :   
    #1. `<num_channels>`   is totol number of channels  
-   #2. `<image_#1>` `<image_#2>`  are image files for each channel  
+   #2. `<image_path_#1>` `<image_path_#2>`  are image files for each channel  
 
 Feed consecutive images
 ------------------------------------
+a. push 1 channel  
    `cd <install path>`  
    `sudo ./hil_sdk_demo_push_1_ch --feedon <folder> <width> <height> <channel_id> <data_type>`  
    note :   
@@ -59,6 +71,7 @@ Feed consecutive images
    #4. `<channel_id>` is the channel index to push image to   
    #5. `<data_type>` is data_type (YUYV/RAW)   
 
+b. push multiple channels
    `sudo ./hil_sdk_demo_push_multi_ch --feedin_multi <num_channels> <folder_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <folder_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> ` 
    note :   
    #1. `<num_channels>`   is totol number of channels  
