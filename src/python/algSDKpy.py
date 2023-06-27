@@ -256,7 +256,7 @@ class ImageFeed():
         self.img_data.payload = ctypes.cast(img_ptr, ctypes.c_void_p)
 
     def feed_data_raw10(self, payload, frame_index, timestamp):
-        p_array = np.frombuffer(np.ctypeslib.as_array(payload, shape=((self.image_size, 1, 1))), dtype=np.uint8)
+        p_array = np.frombuffer(np.ctypeslib.as_array(payload, shape=((self.img_size, 1, 1))), dtype=np.uint8)
         p_data = np.zeros(shape=(self.height*self.width, 1, 1), dtype=np.uint16)
         for i in range(0, int(self.height*self.width/4)):
             p_data[4*i] = (((np.ushort(p_array[5*i]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 0) & 0x0003));
@@ -264,20 +264,20 @@ class ImageFeed():
             p_data[4*i+2] = (((np.ushort(p_array[5*i+2]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 4) & 0x0003));
             p_data[4*i+3] = (((np.ushort(p_array[5*i+3]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 6) & 0x0003));
 
-        img_ptr = ctypes.c_char_p(bytes(p_data))
+        img_ptr = p_data.ctypes.data_as(ctypes.c_char_p)
         # s = img_ptr.value
         self.img_data.image_info_meta.frame_index = frame_index
         self.img_data.image_info_meta.timestamp = timestamp
         self.img_data.payload = ctypes.cast(img_ptr, ctypes.c_void_p)
 
     def feed_data_raw12(self, payload, frame_index, timestamp):
-        p_array = np.frombuffer(np.ctypeslib.as_array(payload, shape=((self.image_size, 1, 1))), dtype=np.uint8)
+        p_array = np.frombuffer(np.ctypeslib.as_array(payload, shape=((self.img_size, 1, 1))), dtype=np.uint8)
         p_data = np.zeros(shape=(self.height*self.width, 1, 1), dtype=np.uint16)
         for i in range(0, int(self.height*self.width/2)):
             p_data[2*i] = (((np.ushort(p_array[3*i]) << 4) & 0x0FF0) | np.ushort((p_array[3*i+2] >> 0) & 0x000F));
             p_data[2*i+1] = (((np.ushort(p_array[3*i+1]) << 4) & 0x0FF0) | np.ushort((p_array[3*i+2] >> 4) & 0x000F));
 
-        img_ptr = ctypes.c_char_p(bytes(p_data))
+        img_ptr = p_data.ctypes.data_as(ctypes.c_char_p)
         # s = img_ptr.value
         self.img_data.image_info_meta.frame_index = frame_index
         self.img_data.image_info_meta.timestamp = timestamp
