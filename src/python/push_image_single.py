@@ -12,6 +12,7 @@ from algSDKpy import pcie_common_head_t
 from algSDKpy import pcie_image_info_meta_t
 from algSDKpy import pcie_image_data_t
 from algSDKpy import crc_array
+from algSDKpy import ImageFeed
 
 def image_show_yuv(buf, height, width):
     img = np.frombuffer(buf, dtype=np.uint8)
@@ -21,57 +22,13 @@ def image_show_yuv(buf, height, width):
     cv2.imshow("Image Show", img)
     cv2.waitKey(0)
 
-class ImageFeed():
-    def __init__(self, h, w, ch, size):
-        self.img_header = pcie_common_head_t()
-        self.img_info = pcie_image_info_meta_t()
-        self.img_data = pcie_image_data_t()
-
-        self.height = h
-        self.width = w
-        self.img_size = size
-        self.ch_id = ch
-    
-    def make_header(self):
-        self.img_header.head = 55
-        self.img_header.version = 1
-
-        topic_name_s = ("/image_data/stream/%02d") % self.ch_id
-        # print(topic_name_s)
-        topic_name_s = topic_name_s.encode("utf-8")
-        self.img_header.topic_name = topic_name_s
-        self.img_header.crc8 = crc_array(ctypes.c_char_p(bytes(self.img_header)), 130)
-        # print("*******crc8: %d" % self.img_header.crc8)
-
-    def make_info(self):
-        self.img_info.width = self.width
-        self.img_info.height = self.height
-        self.img_info.img_size = self.img_size
-        self.img_info.exposure = 1.5
-        self.img_info.again = 1.0
-        self.img_info.dgain = 1.0
-        self.img_info.temp = 25.0
-
-    def make_data(self):
-        self.make_header()
-        self.make_info()
-        self.img_data.common_head = self.img_header
-        self.img_data.image_info_meta = self.img_info
-
-    def feed_data(self, payload, frame_index, timestamp):
-        self.img_data.image_info_meta.frame_index = frame_index
-        self.img_data.image_info_meta.timestamp = timestamp
-        img_ptr = ctypes.c_char_p(bytes(payload))
-        # s = img_ptr.value
-        self.img_data.payload = ctypes.cast(img_ptr, ctypes.c_void_p)
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Feed Image to HIL"
     )
     parser.add_argument('--image_path',
                         type=str,
-                        help="path of image",
+                        help="image path",
                         required=True
     )
     parser.add_argument('--width',
@@ -89,12 +46,18 @@ if __name__ == '__main__':
                         help="channel id",
                         required=True
     )
+    parser.add_argument('--data_type',
+                        type=str,
+                        help="data type",
+                        required=True
+    )
 
     args = parser.parse_args()
     image_path = args.image_path
     w = args.width
     h = args.height
     ch_id = args.channel
+    dt = args.data_type
 
     server = algSDKServer()
     ret = server.InitServer()
@@ -116,8 +79,14 @@ if __name__ == '__main__':
             sys.exit(0)
  
         # image_show_yuv(payload, h, w)
-        image_feed = ImageFeed(h,w,ch_id,img_size)
+        image_feed = ImageFeed(h,w,ch_id,img_size,0)
         image_feed.make_data()
+
+        # Set data type
+        data_type = image_feed.set_data_type(dt)
+        if data_type == 0:
+            print("Set Data Type Error -- unsupported image format! [%s]" % dt)
+            sys.exit(0)
 
         frm_cnt = 0
         while(1):
@@ -128,14 +97,3 @@ if __name__ == '__main__':
             time.sleep(0.033333)
 
         server.Spin()
-
-    # files = os.listdir(image_folder)
-    # for file in files:
-    #     file_path = os.path.join(image_folder, file)
-    #     # print(file_path)
-    #     img = cv2.imread(file_path, cv2.IMREAD_COLOR)
-    #     # print(img.shape)
-
-    # img_data = pcie_image_data_t()
-    # img_data.payload = ctypes.c_void_p(img)
-

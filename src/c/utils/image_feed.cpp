@@ -26,33 +26,6 @@ SOFTWARE.
 #include "image_feed.h"
 #include "utils.h"
 
-// void safe_free(void *p)
-// {
-//     if (p != NULL)
-//         free(p);
-// }
-
-// void copy_to_ringbuffer(const void *buffer, const void *img_data, const void *p_data)
-// {
-//     uint8_t *next_img = (uint8_t *)buffer;
-//     pcie_image_data_t *ptr = (pcie_image_data_t *)img_data;
-//     pcie_common_head_t *img_header = (pcie_common_head_t *)&(ptr->common_head);
-//     pcie_image_info_meta_t *img_info = (pcie_image_info_meta_t *)&(ptr->image_info_meta);
-//     uint8_t *payload = (uint8_t *)p_data;
-
-//     uint32_t pos = 0;
-//     uint32_t image_size = img_info->img_size;
-
-//     memcpy(next_img, img_header, sizeof(pcie_common_head_t));
-//     pos += sizeof(pcie_common_head_t);
-//     memcpy(next_img + pos, img_info, sizeof(pcie_image_info_meta_t));
-//     pos += sizeof(pcie_image_info_meta_t);
-//     uintptr_t addr = (uintptr_t)payload;
-//     memcpy(next_img + pos, &addr, sizeof(void *));
-//     pos += sizeof(void *);
-//     memcpy(next_img + pos, payload, image_size);
-// }
-
 ImageFeed::ImageFeed() {}
 
 ImageFeed::~ImageFeed()
@@ -145,8 +118,6 @@ int ImageFeed::feed_data_yuv422(const unsigned char *payload, const unsigned int
     img_data.image_info_meta.timestamp = (uint64_t)timestamp;
     img_data.payload = (void *)payload;
 
-    // printf("2********* payload [%d] [%d], ptr [%p], ptr [%p]\n", ((uint8_t *)payload)[0], ((uint8_t *)payload)[100245], payload, payload_ptr);
-
     return 0;
 }
 
@@ -207,7 +178,7 @@ int ImageFeed::feed_data(const unsigned char *payload, const unsigned int frame_
         break;
     }
 
-    // printf("3********* payload [%d] [%d], ptr [%p]\n", ((uint8_t *)img_data.payload)[0], ((uint8_t *)img_data.payload)[100245], img_data.payload);
+    // printf("********* payload [%d] [%d], ptr [%p]\n", ((uint8_t *)img_data.payload)[0], ((uint8_t *)img_data.payload)[100245], img_data.payload);
     return 0;
 }
 
