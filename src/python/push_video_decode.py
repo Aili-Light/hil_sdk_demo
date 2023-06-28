@@ -2,13 +2,9 @@ import sys
 import argparse
 import os
 import numpy as np
-import cv2
-import ctypes
-from ctypes import *
 import time
 import typing as typ
 import threading
-import numpy as np
 
 import algSDKpy
 from algSDKpy import algSDKServer
@@ -44,11 +40,10 @@ class VideoPublisher():
             time.sleep(0.0333)
 
     def my_callback(self, array:np.ndarray):
+        self.frame_index = self.frame_index + 1
+        self.timestamp = int(time.time() * 1000)
         self.feed.feed_data(array.tobytes(), self.frame_index, self.timestamp)
-        self.frame_index = self.frame_index+1
-        self.timestamp = int(time.time()*1000)
         # feed.image_show_yuv(array.tobytes(), feed.height, feed.width)
-        # print(self.timestamp)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
