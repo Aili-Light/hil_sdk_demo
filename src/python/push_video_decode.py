@@ -98,8 +98,14 @@ if __name__ == '__main__':
     publisher.run()
 
     # # init video decoder
-    decoder = VideoDecoderGst(w,h,ch_id,size,'h264')
-    decoder.build_launch_str(video_path)
+    decoder = VideoDecoderGst(w,h,ch_id,size,codec)
+    launch_str = decoder.build_launch_str(video_path)
+    if launch_str != None:
+        print(launch_str)
+    else:
+        print("Build launch str Error!")
+        sys.exit(0)
+
     decoder.init_decoder()
     decoder.set_callback(publisher.my_callback)
     decoder.decode_h264()

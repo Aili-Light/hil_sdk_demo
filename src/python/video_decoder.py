@@ -20,12 +20,21 @@ class VideoDecoderGst():
         self.app_sink = 'mysink'
         self.img_size = size
         self.publish_cb = None
+        self.launch_str = None
 
     def register_callback(self, callback):
         self.callback = callback
+
     def build_launch_str(self, filename):
-        self.launch_str = ("filesrc location=%s ! qtdemux ! h264parse ! video/x-h264,stream-format=byte-stream,alignment=au ! nvh264dec  ! videoconvert ! video/x-raw,format=YUY2,pixel-aspect-ratio=1/1  ! appsink emit-signals=True name=%s") % (filename, self.app_sink)
-        print(self.launch_str)
+        if self.codec_type == 'h264':
+            self.launch_str = ("filesrc location=%s ! qtdemux ! h264parse ! video/x-h264,stream-format=byte-stream,alignment=au ! nvh264dec  ! videoconvert ! video/x-raw,format=YUY2,pixel-aspect-ratio=1/1  ! appsink emit-signals=True name=%s") % (filename, self.app_sink)
+        elif self.codec_type == 'h265':
+            self.launch_str = ("filesrc location=%s ! qtdemux ! h265parse ! video/x-h265,stream-format=byte-stream,alignment=au ! nvh265dec  ! videoconvert ! video/x-raw,format=YUY2,pixel-aspect-ratio=1/1  ! appsink emit-signals=True name=%s") % (filename, self.app_sink)
+        else:
+            self.launch_str = None
+            print("Set codec type error -- unsupported codec type! [%s]" % self.codec_type)
+        
+        return self.launch_str
 
     def init_decoder(self):
         Gst.init()
@@ -52,10 +61,10 @@ class VideoDecoderGst():
         sample = sink.emit("pull-sample")  # Gst.Sample
         if isinstance(sample, Gst.Sample):
             array = self.extract_buffer(sample)
-            # print(
-            #     "Received {type} with shape {shape} of type {dtype}".format(type=type(array),
-            #                                                                 shape=array.shape,
-            #                                                                 dtype=array.dtype))
+            print(
+                "Received {type} with shape {shape} of type {dtype}".format(type=type(array),
+                                                                            shape=array.shape,
+                                                                            dtype=array.dtype))
 
             self.publish_cb(array)
             return Gst.FlowReturn.OK
