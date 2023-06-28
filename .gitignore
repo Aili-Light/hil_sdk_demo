@@ -6,3 +6,5 @@ qcap_lib/
 tools/
 src/python/algSDKpy.pyc
 src/python/images
+src/python/__pycache__/
+src/python/gstreamer/__pycache__/

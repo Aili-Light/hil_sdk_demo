@@ -39,7 +39,7 @@ Stream On/Off
 
 Push single image
 ------------------------------------
-*  push 1 channel (c++)  
+*  push an image to one channel (c++)  
    `cd <install path>`  
    `sudo ./hil_sdk_demo_push_1_ch --publish <image_path> <width> <height> <channel_id> <data_type>`  
    note :   
@@ -49,7 +49,7 @@ Push single image
    #4. `<channel_id>` is the channel index to push image to   
    #5. `<data_type>` is data_type ('YUYV'/'RAW10'/'RAW12')   
 
-*  push 1 channel (python)  
+*  push an image to one channel (python)  
    `cd <src/python>`  
    `sudo python3 push_image_single.py --image_path=<image_path>' --width=<width> --height=<height> --channel=<channel_id> --data_type=<data_type>`  
    note :   
@@ -59,15 +59,15 @@ Push single image
    #4. `<channel_id>` is the channel index to push image to   
    #5. `<data_type>` is data_type ('YUYV'/'RAW10'/'RAW12')   
 
-*  push multiple channels  
+*  push multiple images to multiple channels (c++)  
    `sudo ./hil_sdk_demo_push_multi_ch --publish_multi <num_channels> <image_path_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <image_path_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> `  
    note :   
    #1. `<num_channels>`   is totol number of channels  
    #2. `<image_path_#1>` `<image_path_#2>`  are image files for each channel  
 
-Feed consecutive images
+Push consecutive images
 ------------------------------------
-*  push 1 channel  
+*  push images in one folder to one channel (c++)    
    `cd <install path>`  
    `sudo ./hil_sdk_demo_push_1_ch --feedon <folder> <width> <height> <channel_id> <data_type>`  
    note :   
@@ -77,11 +77,23 @@ Feed consecutive images
    #4. `<channel_id>` is the channel index to push image to   
    #5. `<data_type>` is data_type (YUYV/RAW)   
 
-*  push multiple channels  
+*  push images in multiple folders to multiple channels (c++)    
    `sudo ./hil_sdk_demo_push_multi_ch --feedin_multi <num_channels> <folder_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <folder_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> ` 
    note :   
    #1. `<num_channels>`   is totol number of channels  
    #2. `<folder_#1>` `<folder_#2>`  are image folders for each channel  
+
+Push video
+------------------------------------
+*  decode a video and push to one channel (python)  
+   `cd <src/python>`  
+   `sudo python3 push_video_decode.py --video_path=<video_path>' --width=<width> --height=<height> --channel=<channel_id> --codec_type=<codec_type>`
+   note :   
+   #1. `<video_path>`   is the path to video file    
+   #2. `<width>`  is image width  
+   #3. `<height>` is image height  
+   #4. `<channel_id>` is the channel index to push image to   
+   #5. `<codec_type>` is video codec type ('h264'/'h265')   
 
 # Support
 contact : jimmy@ailiteam.com
