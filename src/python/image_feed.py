@@ -30,17 +30,6 @@ class ImageFeed():
         self.img_size = 0
         self.ch_id = 0
         self.data_type = 0
-
-    # def __init__(self, h, w, ch, size, type):
-    #     self.img_header = pcie_common_head_t()
-    #     self.img_info = pcie_image_info_meta_t()
-    #     self.img_data = pcie_image_data_t()
-
-    #     self.height = h
-    #     self.width = w
-    #     self.img_size = size
-    #     self.ch_id = ch
-    #     self.data_type = type
     
     def init_feed(self, h, w, ch, size, type):
         self.height = h
@@ -54,11 +43,11 @@ class ImageFeed():
         self.img_header.version = 1
 
         topic_name_s = ("/image_data/stream/%02d") % self.ch_id
-        print(topic_name_s)
+        # print(topic_name_s)
         topic_name_s = topic_name_s.encode("utf-8")
         self.img_header.topic_name = topic_name_s
         self.img_header.crc8 = crc_array(ctypes.c_char_p(bytes(self.img_header)), 130)
-        print("*******crc8: %d" % self.img_header.crc8)
+        # print("*******crc8: %d" % self.img_header.crc8)
 
     def make_info(self):
         self.img_info.width = self.width

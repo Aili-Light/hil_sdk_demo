@@ -86,5 +86,5 @@ class VideoDecoderGst():
         # save_image_cv2(array, buffer.offset)
         return np.squeeze(array)  # remove single dimension if exists
     
-    def set_publisher(self, callback):
+    def set_callback(self, callback):
         self.publish_cb = callback
