@@ -97,7 +97,32 @@ def video_play_avi_h264(file_in):
         print("Wrong File Type ! Must be .avi !")
         return
     
-    launch_str = ("filesrc location=%s ! avidemux name=demux ! video/x-h264 ! h264parse ! avdec_h264 ! autovideosink sync=false") % (video_file)
+    launch_str = ("filesrc location=%s ! avidemux name=demux ! video/x-h264 ! h264parse ! nvh264dec ! autovideosink sync=false") % (video_file)
+    print(launch_str)
+
+    Gst.init()
+    pipeline = Gst.parse_launch(launch_str)
+    pipeline.set_state(Gst.State.PLAYING)
+
+    # wait until EOS or error
+    bus = pipeline.get_bus()
+    msg = bus.timed_pop_filtered(
+        Gst.CLOCK_TIME_NONE,
+        Gst.MessageType.ERROR | Gst.MessageType.EOS
+    )
+    # free resources
+    pipeline.set_state(Gst.State.NULL)
+
+
+def video_play_mp4_h264(file_in):
+    filetype = (os.path.splitext(video_file)[1])
+    print(filetype)
+
+    if filetype != '.mp4':
+        print("Wrong File Type ! Must be .mp4 !")
+        return
+    
+    launch_str = ("filesrc location=%s ! qtdemux name=demux ! video/x-h264 ! h264parse ! nvh264dec ! autovideosink sync=false") % (video_file)
     print(launch_str)
 
     Gst.init()
@@ -189,19 +214,23 @@ def video_convert_test_appsink(video_file):
 
 
 def video_convert_test(video_file):
-    launch_str = ("filesrc location=%s ! qtdemux ! video/x-h264 ! h264parse ! avdec_h264  ! videoconvert ! autovideosink sync=false") % (video_file)
+    app_sink_name = 'mysink'
+    launch_str = ("filesrc location=%s ! qtdemux ! h264parse ! video/x-h264,stream-format=byte-stream,alignment=au ! nvh264dec  ! videoconvert ! video/x-raw,format=YUY2,pixel-aspect-ratio=1/1  ! appsink emit-signals=True name=%s") % (video_file, app_sink_name)
     print(launch_str)
 
     Gst.init()
-    Gst.debug_set_active(True)
-    level = Gst.debug_get_default_threshold()
-    # if level < Gst.DebugLevel.ERROR:
-    Gst.debug_set_default_threshold(Gst.DebugLevel.ERROR)
-    # print(level)
-    Gst.debug_add_log_function(on_debug, None)
-    Gst.debug_remove_log_function(Gst.debug_log_default)
-
     pipeline = Gst.parse_launch(launch_str)
+    appsink = pipeline.get_by_name(app_sink_name)
+    # subscribe to <new-sample> signal
+    appsink.connect("new-sample", on_buffer, None)
+
+    # Gst.debug_set_active(True)
+    # level = Gst.debug_get_default_threshold()
+    # # if level < Gst.DebugLevel.ERROR:
+    # Gst.debug_set_default_threshold(Gst.DebugLevel.ERROR)
+    # # print(level)
+    # Gst.debug_add_log_function(on_debug, None)
+    # Gst.debug_remove_log_function(Gst.debug_log_default)
 
     pipeline.set_state(Gst.State.PLAYING)
     # wait until EOS or error
@@ -213,12 +242,11 @@ def video_convert_test(video_file):
     # free resources
     pipeline.set_state(Gst.State.NULL)
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Video Convert by Gst"
     )
-    parser.add_argument('--file_in',
+    parser.add_argument('--file',
                         type=str,
                         help="video file input (h264.avi format)",
                         required=False
@@ -228,20 +256,32 @@ if __name__ == '__main__':
                         help="convert | play | avimux | decode | test)",
                         required=True
     )
+    parser.add_argument('--width',
+                        type=int,
+                        help="video resolution (width))",
+                        required=False
+    )   
+    parser.add_argument('--height',
+                        type=int,
+                        help="video resolution (height))",
+                        required=False
+    )   
 
     args = parser.parse_args()
-    video_file = args.file_in
+    video_file = args.file
     method = args.method
+    width = args.width    
+    height = args.height
 
     if method == 'convert':
         video_convert_avi2mp4(video_file)
     elif method == 'play':
-        video_play_avi_h264(video_file)
+        video_play_mp4_h264(video_file)
     elif method == 'avimux':
         video_avimux_h264(video_file)
     elif method == 'decode':
         video_decode_h264(video_file)
     elif method == 'test':
-        video_convert_test_appsink(video_file)
+        video_convert_test(video_file)
     else:
         print("Wrong input method!")

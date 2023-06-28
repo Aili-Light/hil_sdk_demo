@@ -1,26 +1,11 @@
 import sys
 import argparse
 import os
-import numpy as np
-import cv2
-import ctypes
 import time
 
 import algSDKpy
 from algSDKpy import algSDKServer
-from algSDKpy import pcie_common_head_t
-from algSDKpy import pcie_image_info_meta_t
-from algSDKpy import pcie_image_data_t
-from algSDKpy import crc_array
-from algSDKpy import ImageFeed
-
-def image_show_yuv(buf, height, width):
-    img = np.frombuffer(buf, dtype=np.uint8)
-    img = img.reshape((height, width, 2))
-    img = cv2.cvtColor(img, cv2.COLOR_YUV2BGR_YUYV)
-    cv2.namedWindow("Image Show", cv2.WINDOW_NORMAL)
-    cv2.imshow("Image Show", img)
-    cv2.waitKey(0)
+from image_feed import ImageFeed
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -61,7 +46,6 @@ if __name__ == '__main__':
 
     server = algSDKServer()
     ret = server.InitServer()
-    
     if ret != 0:
         print("Init Server Failed! [Code:%d]" % ret)
         sys.exit(0)
@@ -79,7 +63,8 @@ if __name__ == '__main__':
             sys.exit(0)
  
         # image_show_yuv(payload, h, w)
-        image_feed = ImageFeed(h,w,ch_id,img_size,0)
+        image_feed = ImageFeed()
+        image_feed.init_feed(h,w,ch_id,img_size,0)
         image_feed.make_data()
 
         # Set data type
@@ -96,4 +81,4 @@ if __name__ == '__main__':
             frm_cnt = frm_cnt + 1
             time.sleep(0.033333)
 
-        server.Spin()
+        # server.Spin()
