@@ -11,6 +11,7 @@ from algSDKpy import algSDKServer
 from algSDKpy import pcie_image_data_t
 from video_decoder import VideoDecoderGst
 from image_feed import ImageFeed
+semaphore = threading.Semaphore(0)
 
 class VideoPublisher():
     def __init__(self):
@@ -35,15 +36,15 @@ class VideoPublisher():
 
     def publish(self):
         while(1):
-            # print(self.feed.img_data.image_info_meta.timestamp)
+            semaphore.acquire()
             self.server.Publish(self.feed.img_data,self.feed.ch_id)
-            time.sleep(0.0333)
 
     def my_callback(self, array:np.ndarray):
         self.frame_index = self.frame_index + 1
         self.timestamp = int(time.time() * 1000)
         self.feed.feed_data(array.tobytes(), self.frame_index, self.timestamp)
-        # feed.image_show_yuv(array.tobytes(), feed.height, feed.width)
+        semaphore.release()
+        # self.feed.image_show_yuv(array.tobytes(), feed.height, feed.width)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
