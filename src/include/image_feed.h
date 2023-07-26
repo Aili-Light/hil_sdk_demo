@@ -67,6 +67,8 @@ private:
     int feed_data_yuv422(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp);
     int feed_data_raw10(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp);
     int feed_data_raw12(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp);
+    int feed_data_raw10_pad(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp);
+    int feed_data_raw12_pad(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp);
 };
 
 #endif
