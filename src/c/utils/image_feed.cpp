@@ -210,35 +210,35 @@ int ImageFeed::set_data_type(const char *c_data_type)
 {
     int dt = ALG_SDK_MIPI_DATA_TYPE_DEFAULT;
     /* Data Type is UYVY/VYUY/YUYV/YVYU */
-    if (strncmp(c_data_type, "YUYV", 4) == 0 || strncmp(c_data_type, "Default", 7) == 0)
+    if (strncmp(c_data_type, "YUYV", 16) == 0 || strncmp(c_data_type, "Default", 7) == 0)
     {
         dt = ALG_SDK_MIPI_DATA_TYPE_YUYV;
     }
-    else if (strncmp(c_data_type, "YVYU", 4) == 0)
+    else if (strncmp(c_data_type, "YVYU", 16) == 0)
     {
         dt = ALG_SDK_MIPI_DATA_TYPE_YVYU;
     }
-    else if (strncmp(c_data_type, "UYVY", 4) == 0)
+    else if (strncmp(c_data_type, "UYVY", 16) == 0)
     {
         dt = ALG_SDK_MIPI_DATA_TYPE_UYVY;
     }
-    else if (strncmp(c_data_type, "VYUY", 4) == 0)
+    else if (strncmp(c_data_type, "VYUY", 16) == 0)
     {
         dt = ALG_SDK_MIPI_DATA_TYPE_VYUY;
     }
-    else if (strncmp(c_data_type, "RAW10", 5) == 0)
+    else if (strncmp(c_data_type, "RAW10", 16) == 0)
     {
         dt = ALG_SDK_MIPI_DATA_TYPE_RAW10;
     }
-    else if (strncmp(c_data_type, "RAW12", 5) == 0)
+    else if (strncmp(c_data_type, "RAW12", 16) == 0)
     {
         dt = ALG_SDK_MIPI_DATA_TYPE_RAW12;
     }
-    else if (strncmp(c_data_type, "RAW10-PAD", 9) == 0)
+    else if (strncmp(c_data_type, "RAW10-PAD", 16) == 0)
     {
         dt = ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD;
     }
-    else if (strncmp(c_data_type, "RAW12-PAD", 9) == 0)
+    else if (strncmp(c_data_type, "RAW12-PAD", 16) == 0)
     {
         dt = ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD;
     }
