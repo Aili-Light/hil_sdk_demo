@@ -234,6 +234,14 @@ int ImageFeed::set_data_type(const char *c_data_type)
     {
         dt = ALG_SDK_MIPI_DATA_TYPE_RAW12;
     }
+    else if (strncmp(c_data_type, "RAW10-PAD", 9) == 0)
+    {
+        dt = ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD;
+    }
+    else if (strncmp(c_data_type, "RAW12-PAD", 9) == 0)
+    {
+        dt = ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD;
+    }
     else
     {
         printf("Set Data Type -- unsupported image format (%s)\n", c_data_type);
@@ -241,7 +249,9 @@ int ImageFeed::set_data_type(const char *c_data_type)
         printf("          * YUYV/YVYU/UYVY/VYUY\n");
         printf("          * RAW10\n");
         printf("          * RAW12\n");
-
+        printf("          * RAW10-PAD\n");
+        printf("          * RAW12-PAD\n");
+        
         return 0;
     }
 
