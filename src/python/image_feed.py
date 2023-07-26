@@ -75,10 +75,10 @@ class ImageFeed():
         p_array = np.frombuffer(np.ctypeslib.as_array(payload, shape=((self.img_size, 1, 1))), dtype=np.uint8)
         p_data = np.zeros(shape=(self.height*self.width, 1, 1), dtype=np.uint16)
         for i in range(0, int(self.height*self.width/4)):
-            p_data[4*i] = (((np.ushort(p_array[5*i]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 0) & 0x0003));
-            p_data[4*i+1] = (((np.ushort(p_array[5*i+1]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 2) & 0x0003));
-            p_data[4*i+2] = (((np.ushort(p_array[5*i+2]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 4) & 0x0003));
-            p_data[4*i+3] = (((np.ushort(p_array[5*i+3]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 6) & 0x0003));
+            p_data[4*i] = (((np.ushort(p_array[5*i]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 0) & 0x0003))
+            p_data[4*i+1] = (((np.ushort(p_array[5*i+1]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 2) & 0x0003))
+            p_data[4*i+2] = (((np.ushort(p_array[5*i+2]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 4) & 0x0003))
+            p_data[4*i+3] = (((np.ushort(p_array[5*i+3]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 6) & 0x0003))
 
         img_ptr = p_data.ctypes.data_as(ctypes.c_char_p)
         # s = img_ptr.value
@@ -90,8 +90,8 @@ class ImageFeed():
         p_array = np.frombuffer(np.ctypeslib.as_array(payload, shape=((self.img_size, 1, 1))), dtype=np.uint8)
         p_data = np.zeros(shape=(self.height*self.width, 1, 1), dtype=np.uint16)
         for i in range(0, int(self.height*self.width/2)):
-            p_data[2*i] = (((np.ushort(p_array[3*i]) << 4) & 0x0FF0) | np.ushort((p_array[3*i+2] >> 0) & 0x000F));
-            p_data[2*i+1] = (((np.ushort(p_array[3*i+1]) << 4) & 0x0FF0) | np.ushort((p_array[3*i+2] >> 4) & 0x000F));
+            p_data[2*i] = (((np.ushort(p_array[3*i]) << 4) & 0x0FF0) | np.ushort((p_array[3*i+2] >> 0) & 0x000F))
+            p_data[2*i+1] = (((np.ushort(p_array[3*i+1]) << 4) & 0x0FF0) | np.ushort((p_array[3*i+2] >> 4) & 0x000F))
 
         img_ptr = p_data.ctypes.data_as(ctypes.c_char_p)
         # s = img_ptr.value
