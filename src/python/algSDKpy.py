@@ -7,9 +7,9 @@ from ctypes import *
 ALG_SDK_SERVICE_SENSOR_CONFIG_MAX_LINE = 8192
 ALG_SDK_SERVICE_SENSOR_PAYLOAD_SIZE = 7*ALG_SDK_SERVICE_SENSOR_CONFIG_MAX_LINE
 
-ALG_SDK_MAX_CHANNEL = 16
-ALG_SDK_MAX_DESERDES = 8
-ALG_SDK_CHANNEL_PER_DEV = 8
+ALG_SDK_MAX_CHANNEL = 12
+ALG_SDK_MAX_DESERDES = 12
+ALG_SDK_CHANNEL_PER_DEV = 4
 
 class service_camera_config(Structure):
     _fields_ = [("ack_mode",c_uint8),
@@ -66,6 +66,14 @@ class service_set_trigger(Structure):
     ("trigger_mode",c_uint8),
     ("master_trigger_freq", c_uint32),
     ("control_param", service_trigger_slvcmd),
+    ("ack_code", c_uint8)
+    ]
+
+class service_set_channel_active(Structure):
+    _fields_ = [("ack_mode",c_uint8),
+    ("dev_index",c_uint8),
+    ("channel",c_int32),
+    ("active_status",c_uint8),
     ("ack_code", c_uint8)
     ]
 

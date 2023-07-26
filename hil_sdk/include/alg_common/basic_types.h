@@ -134,6 +134,7 @@ extern "C"
         ALG_SDK_SERVICE_PCIE_CMD_STREAM_CTL = 0x0e,
         ALG_SDK_SERVICE_PCIE_CMD_SENSOR_CONFIG = 0x10,
         ALG_SDK_SERVICE_PCIE_CMD_SET_TRIGGER = 0x0f,
+        ALG_SDK_SERVICE_PCIE_CMD_SET_CHANNEL_ACTIVE = 0x20,
     };
 
     enum
@@ -233,6 +234,11 @@ extern "C"
         AILI_SLAVE_TRIGGER_MAX,
     };
 
+    typedef enum
+    {
+        AILI_SET_STREAM_ACTIVE = 0,
+        AILI_CAM_PROTOCOL_CMD_MAX_NUM
+    }aili_cam_protocol_private_cmd_e;
     typedef struct alg_sdk_pcie_common_head
     {
         uint8_t head;
@@ -468,6 +474,17 @@ extern "C"
         uint8_t ack_code;
     } service_set_trigger_t;
 
+    typedef struct alg_sdk_service_set_channel_active
+    {
+        /* Request Field */
+        uint8_t ack_mode;
+        uint8_t dev_index;
+        int32_t channel;
+        uint8_t active_status;
+
+        /* Reply Field */
+        uint8_t ack_code;
+    } service_set_channel_active_t;
 #pragma pack(1)
     typedef struct
     {
@@ -475,6 +492,13 @@ extern "C"
         uint16_t size;
         uint16_t count;
     } host_rpc_push_file_t;
+
+    typedef struct
+    {
+        uint8_t private_cmd_id;
+        int32_t channel;
+        uint8_t active_status;
+    }aili_cam_protocol_set_stream_active_t;
 #pragma pack()
 
 #ifdef __cplusplus
