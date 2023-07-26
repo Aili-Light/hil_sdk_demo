@@ -189,18 +189,18 @@ extern "C"
 
     enum
     {
-        ALG_SDK_MIPI_DATA_TYPE_DEFAULT = 0x00,   /* Default data type (2-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_I420 = 0x02,      /* Type Planar YUV420 */
-        ALG_SDK_MIPI_DATA_TYPE_UVY2 = 0x18,      /* Type UYVY (2-bytes) but Y1/Y2 switch */
-        ALG_SDK_MIPI_DATA_TYPE_VUY2 = 0x19,      /* Type VYUY (2-bytes) but Y1/Y2 switch */
-        ALG_SDK_MIPI_DATA_TYPE_Y2UV = 0x1A,      /* Type YUYV (2-bytes) but Y1/Y2 switch */
-        ALG_SDK_MIPI_DATA_TYPE_Y2VU = 0x1B,      /* Type YVYU (2-bytes) but Y1/Y2 switch */
-        ALG_SDK_MIPI_DATA_TYPE_UYVY = 0x1C,      /* Type UYVY (2-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_VYUY = 0x1D,      /* Type VYUY (2-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_YUYV = 0x1E,      /* Type YUYV (2-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_YVYU = 0x1F,      /* Type YVYU (2-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_RAW10 = 0x2B,     /* Type RAW10 (1.25-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_RAW12 = 0x2C,     /* Type RAW12 (1.5-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_DEFAULT = 0x00, /* Default data type (2-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_I420 = 0x02,    /* Type Planar YUV420 */
+        ALG_SDK_MIPI_DATA_TYPE_UVY2 = 0x18,    /* Type UYVY (2-bytes) but Y1/Y2 switch */
+        ALG_SDK_MIPI_DATA_TYPE_VUY2 = 0x19,    /* Type VYUY (2-bytes) but Y1/Y2 switch */
+        ALG_SDK_MIPI_DATA_TYPE_Y2UV = 0x1A,    /* Type YUYV (2-bytes) but Y1/Y2 switch */
+        ALG_SDK_MIPI_DATA_TYPE_Y2VU = 0x1B,    /* Type YVYU (2-bytes) but Y1/Y2 switch */
+        ALG_SDK_MIPI_DATA_TYPE_UYVY = 0x1C,    /* Type UYVY (2-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_VYUY = 0x1D,    /* Type VYUY (2-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_YUYV = 0x1E,    /* Type YUYV (2-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_YVYU = 0x1F,    /* Type YVYU (2-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_RAW10 = 0x2B,   /* Type RAW10 (1.25-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_RAW12 = 0x2C,   /* Type RAW12 (1.5-bytes) */
         ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD = 0x3B, /* Type RAW10 PADDING (16bit zero-padding) */
         ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD = 0x3C, /* Type RAW12 PADDING (16bit zero-padding) */
     };

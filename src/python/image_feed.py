@@ -12,12 +12,12 @@ from algSDKpy import pcie_image_info_meta_t
 from algSDKpy import pcie_image_data_t
 from algSDKpy import crc_array
 
-ALG_SDK_MIPI_DATA_TYPE_UYVY = 0x1C,        # Type UYVY (2-bytes) */
-ALG_SDK_MIPI_DATA_TYPE_VYUY = 0x1D,        # Type VYUY (2-bytes) */
-ALG_SDK_MIPI_DATA_TYPE_YUYV = 0x1E,        # Type YUYV (2-bytes) */
-ALG_SDK_MIPI_DATA_TYPE_YVYU = 0x1F,        # Type YVYU (2-bytes) */
-ALG_SDK_MIPI_DATA_TYPE_RAW10 = 0x2B,       # Type RAW10 (1.25-bytes) */
-ALG_SDK_MIPI_DATA_TYPE_RAW12 = 0x2C,       # Type RAW12 (1.5-bytes) */
+ALG_SDK_MIPI_DATA_TYPE_UYVY = 0x1C,    # Type UYVY (2-bytes) */
+ALG_SDK_MIPI_DATA_TYPE_VYUY = 0x1D,    # Type VYUY (2-bytes) */
+ALG_SDK_MIPI_DATA_TYPE_YUYV = 0x1E,    # Type YUYV (2-bytes) */
+ALG_SDK_MIPI_DATA_TYPE_YVYU = 0x1F,    # Type YVYU (2-bytes) */
+ALG_SDK_MIPI_DATA_TYPE_RAW10 = 0x2B,   # Type RAW10 (1.25-bytes) */
+ALG_SDK_MIPI_DATA_TYPE_RAW12 = 0x2C,   # Type RAW12 (1.5-bytes) */
 ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD = 0x3B,   # Type RAW10 PADDING (16bit zero-padding) */
 ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD = 0x3C,   # Type RAW12 PADDING (16bit zero-padding) */
 
@@ -141,6 +141,10 @@ class ImageFeed():
             self.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW10
         elif c_data_type == 'RAW12':
             self.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW12
+        elif c_data_type == 'RAW10-PAD':
+            self.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD
+        elif c_data_type == 'RAW12-PAD':
+            self.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD
         else:
             self.data_type = 0
 
