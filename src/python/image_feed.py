@@ -18,6 +18,8 @@ ALG_SDK_MIPI_DATA_TYPE_YUYV = 0x1E,    # Type YUYV (2-bytes) */
 ALG_SDK_MIPI_DATA_TYPE_YVYU = 0x1F,    # Type YVYU (2-bytes) */
 ALG_SDK_MIPI_DATA_TYPE_RAW10 = 0x2B,   # Type RAW10 (1.25-bytes) */
 ALG_SDK_MIPI_DATA_TYPE_RAW12 = 0x2C,   # Type RAW12 (1.5-bytes) */
+ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD = 0x3B,   # Type RAW10 PADDING (16bit zero-padding) */
+ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD = 0x3C,   # Type RAW12 PADDING (16bit zero-padding) */
 
 class ImageFeed():
     def __init__(self):
@@ -71,14 +73,28 @@ class ImageFeed():
         # s = img_ptr.value
         self.img_data.payload = ctypes.cast(img_ptr, ctypes.c_void_p)
 
+    def feed_data_raw10_pad(self, payload, frame_index, timestamp):
+        self.img_data.image_info_meta.frame_index = frame_index
+        self.img_data.image_info_meta.timestamp = timestamp
+        img_ptr = ctypes.c_char_p(bytes(payload))
+        # s = img_ptr.value
+        self.img_data.payload = ctypes.cast(img_ptr, ctypes.c_void_p)
+
+    def feed_data_raw12_pad(self, payload, frame_index, timestamp):
+        self.img_data.image_info_meta.frame_index = frame_index
+        self.img_data.image_info_meta.timestamp = timestamp
+        img_ptr = ctypes.c_char_p(bytes(payload))
+        # s = img_ptr.value
+        self.img_data.payload = ctypes.cast(img_ptr, ctypes.c_void_p)
+
     def feed_data_raw10(self, payload, frame_index, timestamp):
         p_array = np.frombuffer(np.ctypeslib.as_array(payload, shape=((self.img_size, 1, 1))), dtype=np.uint8)
         p_data = np.zeros(shape=(self.height*self.width, 1, 1), dtype=np.uint16)
         for i in range(0, int(self.height*self.width/4)):
-            p_data[4*i] = (((np.ushort(p_array[5*i]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 0) & 0x0003));
-            p_data[4*i+1] = (((np.ushort(p_array[5*i+1]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 2) & 0x0003));
-            p_data[4*i+2] = (((np.ushort(p_array[5*i+2]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 4) & 0x0003));
-            p_data[4*i+3] = (((np.ushort(p_array[5*i+3]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 6) & 0x0003));
+            p_data[4*i] = (((np.ushort(p_array[5*i]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 0) & 0x0003))
+            p_data[4*i+1] = (((np.ushort(p_array[5*i+1]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 2) & 0x0003))
+            p_data[4*i+2] = (((np.ushort(p_array[5*i+2]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 4) & 0x0003))
+            p_data[4*i+3] = (((np.ushort(p_array[5*i+3]) << 2) & 0x03FC) | np.ushort((p_array[5*i+4] >> 6) & 0x0003))
 
         img_ptr = p_data.ctypes.data_as(ctypes.c_char_p)
         # s = img_ptr.value
@@ -90,8 +106,8 @@ class ImageFeed():
         p_array = np.frombuffer(np.ctypeslib.as_array(payload, shape=((self.img_size, 1, 1))), dtype=np.uint8)
         p_data = np.zeros(shape=(self.height*self.width, 1, 1), dtype=np.uint16)
         for i in range(0, int(self.height*self.width/2)):
-            p_data[2*i] = (((np.ushort(p_array[3*i]) << 4) & 0x0FF0) | np.ushort((p_array[3*i+2] >> 0) & 0x000F));
-            p_data[2*i+1] = (((np.ushort(p_array[3*i+1]) << 4) & 0x0FF0) | np.ushort((p_array[3*i+2] >> 4) & 0x000F));
+            p_data[2*i] = (((np.ushort(p_array[3*i]) << 4) & 0x0FF0) | np.ushort((p_array[3*i+2] >> 0) & 0x000F))
+            p_data[2*i+1] = (((np.ushort(p_array[3*i+1]) << 4) & 0x0FF0) | np.ushort((p_array[3*i+2] >> 4) & 0x000F))
 
         img_ptr = p_data.ctypes.data_as(ctypes.c_char_p)
         # s = img_ptr.value
@@ -107,6 +123,10 @@ class ImageFeed():
             self.feed_data_raw10(payload, frame_index, timestamp)
         elif ( self.data_type == ALG_SDK_MIPI_DATA_TYPE_RAW12 ):
             self.feed_data_raw12(payload, frame_index, timestamp)
+        elif ( self.data_type == ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD):
+            self.feed_data_raw10_pad(payload, frame_index, timestamp)
+        elif ( self.data_type == ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD):
+            self.feed_data_raw12_pad(payload, frame_index, timestamp)
 
     def set_data_type(self, c_data_type):
         if c_data_type == 'YUYV':
@@ -121,6 +141,10 @@ class ImageFeed():
             self.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW10
         elif c_data_type == 'RAW12':
             self.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW12
+        elif c_data_type == 'RAW10-PAD':
+            self.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD
+        elif c_data_type == 'RAW12-PAD':
+            self.data_type = ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD
         else:
             self.data_type = 0
 

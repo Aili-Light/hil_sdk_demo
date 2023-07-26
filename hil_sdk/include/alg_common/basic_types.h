@@ -200,6 +200,8 @@ extern "C"
         ALG_SDK_MIPI_DATA_TYPE_YVYU = 0x1F,    /* Type YVYU (2-bytes) */
         ALG_SDK_MIPI_DATA_TYPE_RAW10 = 0x2B,   /* Type RAW10 (1.25-bytes) */
         ALG_SDK_MIPI_DATA_TYPE_RAW12 = 0x2C,   /* Type RAW12 (1.5-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD = 0x3B, /* Type RAW10 PADDING (16bit zero-padding) */
+        ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD = 0x3C, /* Type RAW12 PADDING (16bit zero-padding) */
     };
 
     enum

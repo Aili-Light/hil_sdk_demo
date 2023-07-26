@@ -157,6 +157,24 @@ int ImageFeed::feed_data_raw12(const unsigned char *payload, const unsigned int 
     return 0;
 }
 
+int ImageFeed::feed_data_raw10_pad(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp)
+{
+    img_data.image_info_meta.frame_index = (uint32_t)frame_index;
+    img_data.image_info_meta.timestamp = (uint64_t)timestamp;
+    img_data.payload = (void *)payload;
+
+    return 0;
+}
+
+int ImageFeed::feed_data_raw12_pad(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp)
+{
+    img_data.image_info_meta.frame_index = (uint32_t)frame_index;
+    img_data.image_info_meta.timestamp = (uint64_t)timestamp;
+    img_data.payload = (void *)payload;
+
+    return 0;
+}
+
 int ImageFeed::feed_data(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp)
 {
     img_data.image_info_meta.data_type = data_type;
@@ -174,7 +192,13 @@ int ImageFeed::feed_data(const unsigned char *payload, const unsigned int frame_
     case ALG_SDK_MIPI_DATA_TYPE_RAW12:
         feed_data_raw12(payload, frame_index, timestamp);
         break;
-    default:
+    case ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD:
+        feed_data_raw10_pad(payload, frame_index, timestamp);
+        break;
+    case ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD:
+        feed_data_raw12_pad(payload, frame_index, timestamp);
+        break;
+        default:
         break;
     }
 
@@ -210,6 +234,14 @@ int ImageFeed::set_data_type(const char *c_data_type)
     {
         dt = ALG_SDK_MIPI_DATA_TYPE_RAW12;
     }
+    else if (strncmp(c_data_type, "RAW10-PAD", 9) == 0)
+    {
+        dt = ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD;
+    }
+    else if (strncmp(c_data_type, "RAW12-PAD", 9) == 0)
+    {
+        dt = ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD;
+    }
     else
     {
         printf("Set Data Type -- unsupported image format (%s)\n", c_data_type);
@@ -217,6 +249,8 @@ int ImageFeed::set_data_type(const char *c_data_type)
         printf("          * YUYV/YVYU/UYVY/VYUY\n");
         printf("          * RAW10\n");
         printf("          * RAW12\n");
+        printf("          * RAW10-PAD\n");
+        printf("          * RAW12-PAD\n");
 
         return 0;
     }
