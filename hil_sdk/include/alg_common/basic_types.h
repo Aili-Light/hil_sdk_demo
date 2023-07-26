@@ -181,26 +181,28 @@ extern "C"
         ALG_SDK_VIDEO_FORMAT_RGB = 15,   /* RGB packed into 24 bits without padding (R-G-B-R-G-B) */
         ALG_SDK_VIDEO_FORMAT_RAW10 = 90, /* RAW 10-bit */
         ALG_SDK_VIDEO_FORMAT_RAW12 = 91, /* RAW 10-bit */
-        ALG_SDK_VIDEO_FORMAT_Y2UV = 104,  /* Packed YUY-422 format (Y2-U-Y1-V-Y2-U-Y1-V) */
-        ALG_SDK_VIDEO_FORMAT_Y2VU = 105,  /* Packed YUY-422 format (Y2-V-Y1-U-Y2-V-Y1-U) */
-        ALG_SDK_VIDEO_FORMAT_UVY2 = 106,  /* Packed YUY-422 format (U-Y2-V-Y1-U-Y2-V-Y1) */
-        ALG_SDK_VIDEO_FORMAT_VUY2 = 107,  /* Packed YUY-422 format (V-Y2-U-Y1-V-Y2-U-Y1) */
+        ALG_SDK_VIDEO_FORMAT_Y2UV = 104, /* Packed YUY-422 format (Y2-U-Y1-V-Y2-U-Y1-V) */
+        ALG_SDK_VIDEO_FORMAT_Y2VU = 105, /* Packed YUY-422 format (Y2-V-Y1-U-Y2-V-Y1-U) */
+        ALG_SDK_VIDEO_FORMAT_UVY2 = 106, /* Packed YUY-422 format (U-Y2-V-Y1-U-Y2-V-Y1) */
+        ALG_SDK_VIDEO_FORMAT_VUY2 = 107, /* Packed YUY-422 format (V-Y2-U-Y1-V-Y2-U-Y1) */
     };
 
     enum
     {
-        ALG_SDK_MIPI_DATA_TYPE_DEFAULT = 0x00, /* Default data type (2-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_I420 = 0x02,    /* Type Planar YUV420 */
-        ALG_SDK_MIPI_DATA_TYPE_UVY2 = 0x18,    /* Type UYVY (2-bytes) but Y1/Y2 switch */
-        ALG_SDK_MIPI_DATA_TYPE_VUY2 = 0x19,    /* Type VYUY (2-bytes) but Y1/Y2 switch */
-        ALG_SDK_MIPI_DATA_TYPE_Y2UV = 0x1A,    /* Type YUYV (2-bytes) but Y1/Y2 switch */
-        ALG_SDK_MIPI_DATA_TYPE_Y2VU = 0x1B,    /* Type YVYU (2-bytes) but Y1/Y2 switch */
-        ALG_SDK_MIPI_DATA_TYPE_UYVY = 0x1C,    /* Type UYVY (2-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_VYUY = 0x1D,    /* Type VYUY (2-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_YUYV = 0x1E,    /* Type YUYV (2-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_YVYU = 0x1F,    /* Type YVYU (2-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_RAW10 = 0x2B,   /* Type RAW10 (1.25-bytes) */
-        ALG_SDK_MIPI_DATA_TYPE_RAW12 = 0x2C,   /* Type RAW12 (1.5-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_DEFAULT = 0x00,   /* Default data type (2-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_I420 = 0x02,      /* Type Planar YUV420 */
+        ALG_SDK_MIPI_DATA_TYPE_UVY2 = 0x18,      /* Type UYVY (2-bytes) but Y1/Y2 switch */
+        ALG_SDK_MIPI_DATA_TYPE_VUY2 = 0x19,      /* Type VYUY (2-bytes) but Y1/Y2 switch */
+        ALG_SDK_MIPI_DATA_TYPE_Y2UV = 0x1A,      /* Type YUYV (2-bytes) but Y1/Y2 switch */
+        ALG_SDK_MIPI_DATA_TYPE_Y2VU = 0x1B,      /* Type YVYU (2-bytes) but Y1/Y2 switch */
+        ALG_SDK_MIPI_DATA_TYPE_UYVY = 0x1C,      /* Type UYVY (2-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_VYUY = 0x1D,      /* Type VYUY (2-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_YUYV = 0x1E,      /* Type YUYV (2-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_YVYU = 0x1F,      /* Type YVYU (2-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_RAW10 = 0x2B,     /* Type RAW10 (1.25-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_RAW12 = 0x2C,     /* Type RAW12 (1.5-bytes) */
+        ALG_SDK_MIPI_DATA_TYPE_RAW10_PAD = 0x3B, /* Type RAW10 PADDING (16bit zero-padding) */
+        ALG_SDK_MIPI_DATA_TYPE_RAW12_PAD = 0x3C, /* Type RAW12 PADDING (16bit zero-padding) */
     };
 
     enum
@@ -213,24 +215,24 @@ extern "C"
 
     enum
     {
-        AILI_TRIGGER_SET_MODE = 0,             //设置工作模式模式
-        AILI_TRIGGER_SET_CHANNEL_PARAM,        //设置通道参数
-        AILI_TRIGGER_SET_MASTER_TRIGGER_PARAM, //设置主trigger 参数
+        AILI_TRIGGER_SET_MODE = 0,             // 设置工作模式模式
+        AILI_TRIGGER_SET_CHANNEL_PARAM,        // 设置通道参数
+        AILI_TRIGGER_SET_MASTER_TRIGGER_PARAM, // 设置主trigger 参数
         AILI_TRIGGER_MAX_CMD_NUM,
     };
 
     enum
     {
-        AILI_MASTER_TRIGGER_DISABLE_MODE = 0,   //不输出
+        AILI_MASTER_TRIGGER_DISABLE_MODE = 0,   // 不输出
         AILI_MASTER_TRIGGER_EXT_TRG_MODE = 1,   // 外部触发模式
-        AILI_MASTER_TRIGGER_INTER_TRG_MODE = 2, //内部触发模式
+        AILI_MASTER_TRIGGER_INTER_TRG_MODE = 2, // 内部触发模式
         AILI_MASTER_TRIGGER_MAX_MODE,
     };
 
     enum
     {
-        AILI_SLAVE_TRIGGER_POSITIVE = 0, //脉冲正极性
-        AILI_SLAVE_TRIGGER_NAGTIVE,      //脉冲负极性
+        AILI_SLAVE_TRIGGER_POSITIVE = 0, // 脉冲正极性
+        AILI_SLAVE_TRIGGER_NAGTIVE,      // 脉冲负极性
         AILI_SLAVE_TRIGGER_MAX,
     };
 
@@ -238,7 +240,7 @@ extern "C"
     {
         AILI_SET_STREAM_ACTIVE = 0,
         AILI_CAM_PROTOCOL_CMD_MAX_NUM
-    }aili_cam_protocol_private_cmd_e;
+    } aili_cam_protocol_private_cmd_e;
     typedef struct alg_sdk_pcie_common_head
     {
         uint8_t head;
@@ -248,7 +250,7 @@ extern "C"
         uint8_t resv[125];
     } pcie_common_head_t;
 
-    typedef struct alg_sdk_pcie_image_info_meta  
+    typedef struct alg_sdk_pcie_image_info_meta
     {
         uint32_t frame_index;
         uint16_t width;
@@ -261,7 +263,7 @@ extern "C"
         float temp;
         uint32_t img_size;
         uint64_t timestamp;
-    } pcie_image_info_meta_t __attribute__ ((aligned(1)));
+    } pcie_image_info_meta_t __attribute__((aligned(1)));
 
     typedef struct alg_sdk_pcie_image_data
     {
@@ -427,29 +429,29 @@ extern "C"
 
     typedef struct
     {
-        uint32_t trigger_delay_time_us; //触发延时
-        uint32_t trigger_valid_time_us; //脉宽时间
-        uint8_t trigger_polarity;       //脉冲极性
+        uint32_t trigger_delay_time_us; // 触发延时
+        uint32_t trigger_valid_time_us; // 脉宽时间
+        uint8_t trigger_polarity;       // 脉冲极性
     } aili_slave_trigger_control_param_t;
 
     typedef struct
     {
-        uint8_t private_cmd_id; //私有command
+        uint8_t private_cmd_id; // 私有command
         uint8_t trigger_mode;   // trigger模式，参考aili_master_trigger_mode_e
     } aili_tirgger_set_mode_t __attribute__((aligned(1)));
 
     typedef struct
     {
         uint8_t private_cmd_id;
-        aili_slave_trigger_control_param_t control_param; //参考aili_slave_trigger_control_param_t
-        uint8_t is_complete;                              //是否设置完所有通道
+        aili_slave_trigger_control_param_t control_param; // 参考aili_slave_trigger_control_param_t
+        uint8_t is_complete;                              // 是否设置完所有通道
     } aili_tirgger_set_channel_param_t __attribute__((aligned(1)));
 
     typedef struct
     {
         uint8_t private_cmd_id;
         uint8_t trigger_mode;         // trigger模式，参考aili_master_trigger_mode_e
-        uint32_t master_trigger_freq; //如果为内触发模式，设置触发频率，外触发忽略这个参数
+        uint32_t master_trigger_freq; // 如果为内触发模式，设置触发频率，外触发忽略这个参数
     } aili_tirgger_set_master_param_t __attribute__((aligned(1)));
 
     typedef union
@@ -488,7 +490,7 @@ extern "C"
 #pragma pack(1)
     typedef struct
     {
-        char    path[MAX_FILE_PATH_LENGTH];
+        char path[MAX_FILE_PATH_LENGTH];
         uint16_t size;
         uint16_t count;
     } host_rpc_push_file_t;
@@ -498,7 +500,7 @@ extern "C"
         uint8_t private_cmd_id;
         int32_t channel;
         uint8_t active_status;
-    }aili_cam_protocol_set_stream_active_t;
+    } aili_cam_protocol_set_stream_active_t;
 #pragma pack()
 
 #ifdef __cplusplus
