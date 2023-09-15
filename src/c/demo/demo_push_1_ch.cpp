@@ -95,6 +95,7 @@ int main(int argc, char **argv)
         const uint32_t image_height = atoi(argv[4]);
         const uint8_t channel_id = atoi(argv[5]);
         const uint32_t image_size = image_width * image_height * 2;
+        float freq = 30.0f;
 
         /* User defined Data Type
          *  Default=YUYV (0x1E)
@@ -106,6 +107,17 @@ int main(int argc, char **argv)
             // printf("argc : %s\n", argv[6]);
             strncpy(data_type_c, argv[6], 12);
             printf("data type : [%s]\n", data_type_c);
+        }
+
+        if (argc > 7)
+        {
+            freq = atof(argv[7]);
+            if (freq <= 0)
+            {
+                freq = 1.0f;
+            }
+
+            printf("frequency = [%f]\n", freq);
         }
 
         if (load_image(filename, payload, &p_len))
@@ -145,8 +157,19 @@ int main(int argc, char **argv)
         /* Main loop : Feed Image */
         uint32_t seq = 0;
         uint64_t t_now = 0;
+        g_timer_last = macroseconds();
+
         while (1)
         {
+            /* Set frequency  */
+            uint64_t delta_t;
+            t_now = macroseconds();
+            delta_t = t_now - g_timer_last;
+            if (delta_t < 1000000 / freq)
+                continue;
+
+            g_timer_last = t_now;
+
             t_now = milliseconds();
             image_feed.feed_data((uint8_t *)payload, seq, t_now);
             void *img_data_ptr = image_feed.get_data_ptr();
@@ -155,7 +178,7 @@ int main(int argc, char **argv)
             alg_sdk_push2q(img_data_ptr, channel_id);
 
             // frame_monitor(channel_id, &fps, seq);
-            usleep(33333);
+            usleep(10000);
             seq++;
         }
 
@@ -168,6 +191,7 @@ int main(int argc, char **argv)
         const uint32_t image_height = atoi(argv[4]);
         const uint8_t channel_id = atoi(argv[5]);
         const uint32_t image_size = image_width * image_height * 2;
+        float freq = 30.0f;
 
         char data_type_c[64] = {"Default"};
         if (argc > 6)
@@ -175,6 +199,17 @@ int main(int argc, char **argv)
             // printf("argc : %s\n", argv[6]);
             strncpy(data_type_c, argv[6], 12);
             printf("data type : [%s]\n", data_type_c);
+        }
+
+        if (argc > 7)
+        {
+            freq = atof(argv[7]);
+            if (freq <= 0)
+            {
+                freq = 1.0f;
+            }
+
+            printf("frequency = [%f]\n", freq);
         }
 
         /* Generate pcie image data */
@@ -203,7 +238,6 @@ int main(int argc, char **argv)
         {
             uint32_t seq = 0;
             uint32_t p_len = 0;
-            int freq = 30;
 
             uint8_t *payload = (uint8_t *)malloc(sizeof(uint8_t) * image_size);
 
@@ -259,9 +293,9 @@ int main(int argc, char **argv)
     }
     else
     {
-        fprintf(stderr, "Usage: ./hil_sdk_demo_push_1_ch <TYP> <FILENAME> <ARG1> <ARG2> <ARG3> <ARG4>...\n");
-        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --publish 'test_image.yuv' 1920 1280 0 'YUYV'\n");
-        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --feedin '/image_folder' 3840 2160 1 'RAW12'\n");
+        fprintf(stderr, "Usage: ./hil_sdk_demo_push_1_ch <TYP> <FILENAME> <WIDTH> <HEIGHT> <CHANNEL> <DATA_TYPE> <FREQ>\n");
+        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --publish 'test_image.yuv' 1920 1280 0 'YUYV' 30\n");
+        fprintf(stderr, "e.g. ./hil_sdk_demo_push_1_ch --feedin '/image_folder' 3840 2160 1 'RAW12' 30\n");
     }
 
     return 0;

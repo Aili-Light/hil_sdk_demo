@@ -25,6 +25,7 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <sys/time.h>
 
 #include "alg_sdk/alg_sdk.h"
 #include "alg_sdk/pull.h"
@@ -48,10 +49,19 @@ void int_handler(int sig)
     exit(sig);
 }
 
+/*  Return the UNIX time in milliseconds.  You'll need a working
+    gettimeofday(), so this won't work on Windows.  */
+uint64_t milliseconds (void)
+{
+    struct timeval tv;
+    gettimeofday (&tv, NULL);
+    return (((uint64_t)tv.tv_sec * 1000) + ((uint64_t)tv.tv_usec / 1000));
+}
+
 void push_callback(void *p)
 {
     char *msg = (char *)p;
-    printf("Notify Message : %s\n", msg);
+    printf("[%ld] Notify Message : %s\n", milliseconds(), msg);
 }
 
 int main (int argc, char **argv)
