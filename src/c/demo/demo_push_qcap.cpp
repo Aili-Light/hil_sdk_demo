@@ -48,12 +48,6 @@ pcie_image_info_meta_t g_img_info;
 pcie_image_data_t g_img_data;
 uint32_t g_seq = 0;
 
-int fatal(const char *msg)
-{
-    fprintf(stderr, "fatal error : %s", msg);
-    exit(1);
-}
-
 void int_handler(int sig)
 {
     g_signal_recieved = true;
@@ -345,8 +339,8 @@ int main(int argc, char *argv[])
     }
     else
     {
-        fprintf(stderr, "Usage: ./hil_sdk_demo_push_qcap <TYP> <DEVICE_ID> <WIDTH> <HEIGHT> <CHANNEL>...\n");
-        fprintf(stderr, "e.g. ./hil_sdk_demo_push_qcap --qcap 0 1920 1280 0\n");
+        fprintf(stderr, "Usage: ./hil_sdk_demo_push_qcap <TYP> <WIDTH> <HEIGHT> <CHANNEL>...\n");
+        fprintf(stderr, "e.g. ./hil_sdk_demo_push_qcap --qcap 1920 1080 0\n");
     }
 
     return 0;
