@@ -132,10 +132,9 @@ class algSDKInit():
     def __init__(self):
         self.pcie_sdk = pcie_sdk
             
-    def InitSDK(self, frq):
-        self.pcie_sdk.alg_sdk_init.argtypes = [c_int]
+    def InitSDK(self):
         self.pcie_sdk.alg_sdk_init.restype = ctypes.c_int
-        ret = self.pcie_sdk.alg_sdk_init(frq)
+        ret = self.pcie_sdk.alg_sdk_init()
 
         return ret
 
@@ -150,9 +149,10 @@ class algSDKServer():
     def __init__(self):
         self.pcie_sdk = pcie_sdk    
 
-    def InitServer(self):
+    def InitServer(self, flag):
+        self.pcie_sdk.alg_sdk_init.argtypes = [c_int]
         self.pcie_sdk.alg_sdk_init_server.restype = ctypes.c_int
-        ret = self.pcie_sdk.alg_sdk_init_server()
+        ret = self.pcie_sdk.alg_sdk_init_server(flag)
     
         return ret
 

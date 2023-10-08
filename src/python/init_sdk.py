@@ -12,7 +12,6 @@ sdkHandler = algSDKInit()
 def int_handler(signum, frame):
     print('---------SDK Stop-------------')
     sdkHandler.Stop()
-    notify.Stop()
     sys.exit(0)
 
 def nofity_func(ptr):
@@ -24,21 +23,13 @@ def nofity_func(ptr):
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, int_handler)
 
-    notify = algSDKNotify()
-    func = notifyFunc_t(nofity_func)
-    rc = notify.SetNotify(func)
-    if(rc < 0):
-        print(' Set Notify Failed! result = %d ' % rc)
-        sys.exit(0)
-
     frq = 1000
-    ret = sdkHandler.InitSDK(frq)
+    ret = sdkHandler.InitSDK()
     if(ret < 0):
         print(' Init SDK Failed! result = %d ' % ret)
         sys.exit(0)
  
     sdkHandler.Spin()
-    notify.Spin()
 
     while(1):
         time.sleep(0.001)
