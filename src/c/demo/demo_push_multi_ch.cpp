@@ -29,6 +29,7 @@ SOFTWARE.
 #include <signal.h>
 #include "alg_sdk/alg_sdk.h"
 #include "alg_sdk/server.h"
+#include "alg_sdk/client.h"
 #include "alg_sdk/pull.h"
 #include "alg_common/basic_types.h"
 #include "utils.h"
@@ -64,9 +65,18 @@ void int_handler(int sig)
     exit(sig);
 }
 
+void callback_hil_message(void *p)
+{
+    hil_mesg_t *msg = (hil_mesg_t*)p;
+    // printf("MSG : %s\n", msg->msg_meta.msg);
+    printf("[time : %ld], [ch : %d], [Frame : %d], [Count : %d]\n", msg->msg_meta.timestamp, msg->msg_meta.ch_id, 
+    msg->msg_meta.frame_index, msg->msg_meta.buffer_count);
+}
+
 int main(int argc, char **argv)
 {
     uint32_t seq_ch[ALG_SDK_MAX_CHANNEL] = {0};
+
     int rc;
     /* Init Servers */
     rc = alg_sdk_init_server(0);
@@ -132,7 +142,22 @@ int main(int argc, char **argv)
             /* end */
         }
 
-        int freq = 30;
+        char topic_name[ALG_SDK_MAX_CHANNEL][256];
+        for (int i=0; i<num_channel; i++)
+        {
+            snprintf(topic_name[i], 256, "/feedback/hil_message/%02d", channel_ids[i]);
+            rc = alg_sdk_subscribe(topic_name[i], callback_hil_message);
+            if (rc < 0)
+            {
+                fatal("Subscribe to topic Error!\n");
+            }
+        }
+        if (alg_sdk_init_client())
+        {
+            fatal("Init Client Error!\n");
+        }
+
+        float freq = 30.0f;
         g_timer_last = macroseconds();
         /* end */
 
@@ -222,7 +247,22 @@ int main(int argc, char **argv)
             }
         }
 
-        int freq = 30;
+        char topic_name[ALG_SDK_MAX_CHANNEL][256];
+        for (int i=0; i<num_channel; i++)
+        {
+            snprintf(topic_name[i], 256, "/feedback/hil_message/%02d", channel_ids[i]);
+            rc = alg_sdk_subscribe(topic_name[i], callback_hil_message);
+            if (rc < 0)
+            {
+                fatal("Subscribe to topic Error!\n");
+            }
+        }
+        if (alg_sdk_init_client())
+        {
+            fatal("Init Client Error!\n");
+        }
+
+        float freq = 30.0f;
         uint32_t seq = 0;
         uint32_t p_len = 0;
         g_timer_last = macroseconds();
@@ -278,6 +318,7 @@ int main(int argc, char **argv)
         /* end */
 
         alg_sdk_server_spin_on();
+        alg_sdk_client_spin_on();
     }
     else
     {
