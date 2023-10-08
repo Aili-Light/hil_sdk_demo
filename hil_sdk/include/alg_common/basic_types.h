@@ -56,6 +56,7 @@ SOFTWARE.
 
 #define ALG_SDK_TOPIC_NAME_IMAGE_DATA "/image_data/stream"
 #define ALG_SDK_TOPIC_NAME_POC_INFO "/dev_info/poc_info"
+#define ALG_SDK_TOPIC_NAME_HIL_MSG "/feedback/hil_message"
 
 #define ALG_SDK_CLIENT_THREAD_NUM_MAX 32
 
@@ -285,6 +286,22 @@ extern "C"
         pcie_poc_info_meta_t poc_info_meta;
         // void                     *payload;
     } pcie_poc_info_t;
+
+    typedef struct alg_sdk_hil_mesg_meta
+    {
+        uint8_t  ch_id;
+        uint32_t frame_index;
+        uint64_t timestamp;
+        uint32_t buffer_count;
+        uint32_t msg_len;
+        uint8_t  msg[ALG_SDK_NOTIFY_MSG_SIZE];
+    } hil_mesg_meta_t;
+
+    typedef struct alg_sdk_hil_mesg
+    {
+        pcie_common_head_t common_head;
+        hil_mesg_meta_t msg_meta;
+    } hil_mesg_t;
 
     /*  V1 Protocal */
     typedef struct alg_sdk_pcie_msgs_meta

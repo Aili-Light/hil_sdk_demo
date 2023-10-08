@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
         int rc;
 
         /* Init Servers */
-        rc = alg_sdk_init_server();
+        rc = alg_sdk_init_server(0);
         if (rc < 0)
         {
             fatal("Init server failed\n");

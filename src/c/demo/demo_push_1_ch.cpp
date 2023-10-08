@@ -29,6 +29,7 @@ SOFTWARE.
 #include <signal.h>
 #include "alg_sdk/alg_sdk.h"
 #include "alg_sdk/server.h"
+#include "alg_sdk/client.h"
 #include "alg_sdk/pull.h"
 #include "alg_common/basic_types.h"
 #include "image_feed.h"
@@ -76,12 +77,20 @@ void frame_monitor(const int ch_id, float *fps, const int frame_index)
     }
 }
 
+void callback_hil_message(void *p)
+{
+    hil_mesg_t *msg = (hil_mesg_t*)p;
+    // printf("MSG : %s\n", msg->msg_meta.msg);
+    printf("[time : %ld], [ch : %d], [Frame : %d], [Count : %d]\n", msg->msg_meta.timestamp, msg->msg_meta.ch_id, 
+    msg->msg_meta.frame_index, msg->msg_meta.buffer_count);
+}
+
 int main(int argc, char **argv)
 {
     int rc;
 
     /* Init Servers */
-    rc = alg_sdk_init_server();
+    rc = alg_sdk_init_server(0);
     if (rc < 0)
     {
         fatal("Init server failed\n");
@@ -154,6 +163,20 @@ int main(int argc, char **argv)
         }
         /* end */
 
+        /* Set up feedback */
+        char topic_name[256];
+        snprintf(topic_name, 256, "/feedback/hil_message/%02d", channel_id);
+        rc = alg_sdk_subscribe(topic_name, callback_hil_message);
+        if (rc < 0)
+        {
+            fatal("Subscribe to topic Error!\n");
+        }
+        if (alg_sdk_init_client())
+        {
+            fatal("Init Client Error!\n");
+        }
+        /* end */
+
         /* Main loop : Feed Image */
         uint32_t seq = 0;
         uint64_t t_now = 0;
@@ -183,6 +206,7 @@ int main(int argc, char **argv)
         }
 
         alg_sdk_server_spin_on();
+        alg_sdk_client_spin_on();
     }
     else if ((argc > 2) && (strcmp(argv[1], "--feedin") == 0))
     {
@@ -223,6 +247,20 @@ int main(int argc, char **argv)
         if (data_type == 0)
         {
             fatal("Wrong Data Type!");
+        }
+        /* end */
+
+        /* Set up feedback */
+        char topic_name[256];
+        snprintf(topic_name, 256, "/feedback/hil_message/%02d", channel_id);
+        rc = alg_sdk_subscribe(topic_name, callback_hil_message);
+        if (rc < 0)
+        {
+            fatal("Subscribe to topic Error!\n");
+        }
+        if (alg_sdk_init_client())
+        {
+            fatal("Init Client Error!\n");
         }
         /* end */
 

@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef __SERVER_H__
-#define __SERVER_H__
+#ifndef __CLIENT_H__
+#define __CLIENT_H__
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,10 +43,12 @@ extern "C" {
     #define ALG_SDK_API extern
 #endif // MINGW32
 
-ALG_SDK_API int alg_sdk_push2q(const void* msg, const int ch_id);
-ALG_SDK_API int alg_sdk_init_server(const int flag);
-ALG_SDK_API int alg_sdk_stop_server(void);
-ALG_SDK_API int alg_sdk_server_spin_on(void);
+typedef void(*alg_sdk_callback_func)(void* p);
+
+ALG_SDK_API int alg_sdk_subscribe (const char* topic, alg_sdk_callback_func consumer);
+ALG_SDK_API int alg_sdk_client_spin_on(void);
+ALG_SDK_API int alg_sdk_init_client();
+ALG_SDK_API int alg_sdk_stop_client();
 
 #ifdef __cplusplus
 }

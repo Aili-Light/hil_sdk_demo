@@ -43,7 +43,6 @@ void int_handler(int sig)
 {
     // printf("Caught signal : %d\n", sig);
     alg_sdk_stop();
-    alg_sdk_stop_notify();
 
     /* terminate program */
     exit(sig);
@@ -58,12 +57,6 @@ uint64_t milliseconds (void)
     return (((uint64_t)tv.tv_sec * 1000) + ((uint64_t)tv.tv_usec / 1000));
 }
 
-void push_callback(void *p)
-{
-    char *msg = (char *)p;
-    printf("[%ld] Notify Message : %s\n", milliseconds(), msg);
-}
-
 int main (int argc, char **argv)
 {
     signal(SIGINT, int_handler);
@@ -73,13 +66,6 @@ int main (int argc, char **argv)
         int rc;
         char *appsrc[] = {"--subscribe"};
 
-        /* Setup notify callback */
-        rc = alg_sdk_notify(push_callback);
-        if (rc < 0)
-        {
-            fatal("Setup notify failed\n");
-        }
-        /* end */
 
         rc = alg_sdk_init_v2(1, &appsrc[0]);
         if(rc < 0)
@@ -89,19 +75,10 @@ int main (int argc, char **argv)
         }
 
         alg_sdk_spin_on();
-        alg_sdk_notify_spin_on();
     }
     else
     {
         int rc;
-        
-        /* Setup notify callback */
-        rc = alg_sdk_notify(push_callback);
-        if (rc < 0)
-        {
-            fatal("Setup notify failed\n");
-        }
-        /* end */
 
         rc = alg_sdk_init_v2(argc, argv);
         if(rc < 0)
