@@ -179,8 +179,8 @@ int main(int argc, char **argv)
                 uint64_t timestamp = milliseconds();
 
                 /* temporary */
-                payload[i][1154] = ((seq_ch[i] >> 8) & 0xff);
-                payload[i][1155] = (seq_ch[i] & 0xff);
+                // payload[i][1154] = ((seq_ch[i] >> 8) & 0xff);
+                // payload[i][1155] = (seq_ch[i] & 0xff);
                 // printf("*** push buffer [CH:%d] [SEQ:%d]\n", i, seq_ch[i]);
 
                 image_feed[i].feed_data((uint8_t *)payload[i], seq_ch[i], timestamp);
