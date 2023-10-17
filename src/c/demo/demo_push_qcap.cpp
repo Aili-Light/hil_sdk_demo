@@ -36,6 +36,7 @@ SOFTWARE.
 #include <fstream>
 #include "alg_sdk/alg_sdk.h"
 #include "alg_sdk/server.h"
+#include "alg_sdk/client.h"
 #include "alg_sdk/pull.h"
 #include "alg_common/basic_types.h"
 #include "utils.h"
@@ -66,6 +67,14 @@ uint64_t get_time_unix()
     time_us = (((uint64_t)tv.tv_sec * 1000) + ((uint64_t)tv.tv_usec / 1000));
 
     return time_us;
+}
+
+void callback_hil_message(void *p)
+{
+    hil_mesg_t *msg = (hil_mesg_t*)p;
+    // printf("MSG : %s\n", msg->msg_meta.msg);
+    printf("[time : %ld], [ch : %d], [Frame : %d], [Count : %d]\n", msg->msg_meta.timestamp, msg->msg_meta.ch_id, 
+    msg->msg_meta.frame_index, msg->msg_meta.buffer_count);
 }
 
 QRETURN on_video_preview_callback(PVOID pDevice, double dSampleTime, BYTE *pFrameBuffer, ULONG nFrameBufferLen, PVOID pUserData)
@@ -319,6 +328,20 @@ int main(int argc, char *argv[])
 
         int data_type;
         uint32_t data_len;
+
+        /* Set up feedback */
+        char topic_name_fb[256];
+        snprintf(topic_name_fb, 256, "/feedback/hil_message/%02d", channel_id);
+        rc = alg_sdk_subscribe(topic_name_fb, callback_hil_message);
+        if (rc < 0)
+        {
+            fatal("Subscribe to topic Error!\n");
+        }
+        if (alg_sdk_init_client())
+        {
+            fatal("Init Client Error!\n");
+        }
+        /* end */
 
         while (!g_signal_recieved)
         {
