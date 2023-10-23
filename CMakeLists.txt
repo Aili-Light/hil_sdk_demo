@@ -71,6 +71,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         )
         target_link_libraries(${PROJECT_NAME}_push_qcap
             ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
             pthread
             anl
             -lqcap.x64

@@ -41,13 +41,16 @@ SOFTWARE.
 #include "alg_common/basic_types.h"
 #include "utils.h"
 #include "qcap/qcapdev.h"
+#include "alg_cvt/alg_cvtColor.h"
+#include "image_feed.h"
 
 bool g_signal_recieved = false;
 QCapDev *g_capture;
-pcie_common_head_t g_img_header;
-pcie_image_info_meta_t g_img_info;
-pcie_image_data_t g_img_data;
+// pcie_common_head_t g_img_header;
+// pcie_image_info_meta_t g_img_info;
+// pcie_image_data_t g_img_data;
 uint32_t g_seq = 0;
+ImageFeed g_image_feed;
 
 void int_handler(int sig)
 {
@@ -87,9 +90,10 @@ QRETURN on_video_preview_callback(PVOID pDevice, double dSampleTime, BYTE *pFram
 
     uint64_t t_now = get_time_unix();
 
-    pcie_image_info_meta_t *img_info = &g_img_info;
-    img_info->frame_index = g_seq++;
-    img_info->timestamp = t_now;
+
+    pcie_image_data_t* img_data_ptr= (pcie_image_data_t*)g_image_feed.get_data_ptr();
+    // img_info->frame_index = g_seq++;
+    // img_info->timestamp = t_now;
 
     // printf("Time:%lu\n", t_now);
     pRCBuffer = QCAP_BUFFER_GET_RCBUFFER(pFrameBuffer, nFrameBufferLen);
@@ -97,21 +101,23 @@ QRETURN on_video_preview_callback(PVOID pDevice, double dSampleTime, BYTE *pFram
 
     uint32_t img_size = pAVFrame->nPitch[0] * g_capture->m_nVideoHeight;
 
-    pcie_image_data_t *img_data = &g_img_data;
-    img_data->image_info_meta = *img_info;
-    if (img_size != img_data->image_info_meta.img_size)
+    // pcie_image_data_t *img_data = &g_img_data;
+    // img_data->image_info_meta = *img_info;
+    if (img_size != img_data_ptr->image_info_meta.img_size)
     {
         printf("Image Size Not Match!!!\n");
         QCAP_RCBUFFER_UNLOCK_DATA(pRCBuffer);
         return QCAP_RT_FAIL;
     }
 
-    memcpy(img_data->payload, pAVFrame->pData[0], img_size);
-    // img_data->payload = (uint8_t *)pAVFrame->pData[0];
-    printf("SEQ : %d, TS : %ld, size : %d\n", g_seq, img_data->image_info_meta.timestamp,
-           img_data->image_info_meta.img_size);
+    g_image_feed.feed_data((uint8_t *)pAVFrame->pData[0], g_seq++, t_now);
 
-    alg_sdk_push2q(img_data, ch_id);
+    // memcpy(img_data->payload, pAVFrame->pData[0], img_size);
+    // img_data->payload = (uint8_t *)pAVFrame->pData[0];
+    printf("SEQ : %d, TS : %ld, size : %d\n", g_seq, img_data_ptr->image_info_meta.timestamp,
+           img_data_ptr->image_info_meta.img_size);
+
+    alg_sdk_push2q(img_data_ptr, ch_id);
 
     if (g_capture->m_Flags == QCapDev::WriteFrame)
     {
@@ -277,7 +283,18 @@ int main(int argc, char *argv[])
         const uint32_t image_width = atoi(argv[2]);
         const uint32_t image_height = atoi(argv[3]);
         const uint32_t channel_id = atoi(argv[4]);
-
+        /* User defined Data Type
+         *  Default=YUYV (0x1E)
+         *  Acceptable: UYVY (0x1C) / VYUY (0x1D) / YUYV (0x1E) / YVYU ((0x1F) / RAW10 (0x2B) / RAW12 (0x2C)
+         */
+        char data_type_c[64] = {"Default"};
+        if (argc > 5)
+        {
+            // printf("argc : %s\n", argv[6]);
+            strncpy(data_type_c, argv[5], 12);
+            printf("data type : [%s]\n", data_type_c);
+        }
+        
         const int rate = 30;
         const int ops = QCapDev::Default;
         const uint32_t image_size = image_width * image_height * 2;
@@ -290,44 +307,56 @@ int main(int argc, char *argv[])
         cap.setQcapCallbackVideoPreview(on_video_preview_callback);
         printf("Init QCap Device [%d]\n", channel_id);
 
-        /* Generate pcie image data head */
-        pcie_common_head_t *img_header = &g_img_header;
-        img_header->head = 55;
-        img_header->version = 1;
-        int ch = channel_id;
-        char topic_name[ALG_SDK_HEAD_COMMON_TOPIC_NAME_LEN] = {};
-        sprintf(topic_name, "/image_data/stream/%02d", ch);
-        strcpy(img_header->topic_name, topic_name);
-        // printf("%s\n", img_header->topic_name);
-        img_header->crc8 = crc_array((unsigned char *)img_header, 130);
+        /* Generate pcie image data */
+        g_image_feed.init_feed(image_width, image_height, channel_id, image_size, 0);
+        g_image_feed.make_data_struct();
+        /* end */
+
+        /* Set up data type */
+        int data_type = g_image_feed.set_data_type(data_type_c);
+        if (data_type == 0)
+        {
+            fatal("Wrong Data Type!");
+        }
+        /* end */
+
+        // pcie_common_head_t *img_header = &g_img_header;
+        // img_header->head = 55;
+        // img_header->version = 1;
+        // int ch = channel_id;
+        // char topic_name[ALG_SDK_HEAD_COMMON_TOPIC_NAME_LEN] = {};
+        // sprintf(topic_name, "/image_data/stream/%02d", ch);
+        // strcpy(img_header->topic_name, topic_name);
+        // // printf("%s\n", img_header->topic_name);
+        // img_header->crc8 = crc_array((unsigned char *)img_header, 130);
         /* end */
 
         /* Generate pcie image data info */
-        pcie_image_info_meta_t *img_info = &g_img_info;
-        img_info->frame_index = 0;
+        // pcie_image_info_meta_t *img_info = &g_img_info;
+        // img_info->frame_index = 0;
         /* IMPORTANT NOTE :
          *  Image size must MATCH the input image!
          */
-        img_info->width = image_width;
-        img_info->height = image_height;
-        /* */
-        img_info->data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
-        img_info->exposure = 1.5;
-        img_info->again = 1.0;
-        img_info->dgain = 1.0;
-        img_info->temp = 25.0;
-        img_info->timestamp = milliseconds();
-        img_info->img_size = image_size;
+        // img_info->width = image_width;
+        // img_info->height = image_height;
+        // /* */
+        // img_info->data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
+        // img_info->exposure = 1.5;
+        // img_info->again = 1.0;
+        // img_info->dgain = 1.0;
+        // img_info->temp = 25.0;
+        // img_info->timestamp = milliseconds();
+        // img_info->img_size = image_size;
         /* end */
 
         /* Generate pcie image data */
-        pcie_image_data_t *img_data = &g_img_data;
-        img_data->common_head = *img_header;
-        img_data->image_info_meta = *img_info;
-        img_data->payload = (uint8_t *)malloc(sizeof(uint8_t) * image_size);
+        // pcie_image_data_t *img_data = &g_img_data;
+        // img_data->common_head = *img_header;
+        // img_data->image_info_meta = *img_info;
+        // img_data->payload = (uint8_t *)malloc(sizeof(uint8_t) * image_size);
 
-        int data_type;
-        uint32_t data_len;
+        // int data_type;
+        // uint32_t data_len;
 
         /* Set up feedback */
         char topic_name_fb[256];
@@ -357,7 +386,7 @@ int main(int argc, char *argv[])
             usleep(100);
         }
 
-        free(img_data->payload);
+        // free(img_data->payload);
         alg_sdk_server_spin_on();
     }
     else
