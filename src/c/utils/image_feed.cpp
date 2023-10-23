@@ -25,6 +25,7 @@ SOFTWARE.
 #include "stdlib.h"
 #include "image_feed.h"
 #include "utils.h"
+#include "alg_cvt/alg_cvtColor.h"
 
 ImageFeed::ImageFeed() {}
 
@@ -121,6 +122,30 @@ int ImageFeed::feed_data_yuv422(const unsigned char *payload, const unsigned int
     return 0;
 }
 
+int ImageFeed::feed_data_yuv422_cvt(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp, int data_type)
+{
+    switch (data_type)
+    {
+        case ALG_SDK_MIPI_DATA_TYPE_YVYU:
+            alg_cv::alg_sdk_cvtColor((void*)payload, (void*)pdata, image_width, image_height, alg_cv::ALG_CV_YUYV2YVYU);
+            break;
+        case ALG_SDK_MIPI_DATA_TYPE_UYVY:
+            alg_cv::alg_sdk_cvtColor((void*)payload, (void*)pdata, image_width, image_height, alg_cv::ALG_CV_YUYV2UVY2);
+            break;
+        case ALG_SDK_MIPI_DATA_TYPE_VYUY:
+            alg_cv::alg_sdk_cvtColor((void*)payload, (void*)pdata, image_width, image_height, alg_cv::ALG_CV_YUYV2VUY2);
+            break;
+        default:
+            break;
+    }
+
+    img_data.image_info_meta.frame_index = (uint32_t)frame_index;
+    img_data.image_info_meta.timestamp = (uint64_t)timestamp;
+    img_data.payload = (void *)pdata;
+
+    return 0;
+}
+
 int ImageFeed::feed_data_raw10(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp)
 {
     img_data.image_info_meta.frame_index = (uint32_t)frame_index;
@@ -181,10 +206,12 @@ int ImageFeed::feed_data(const unsigned char *payload, const unsigned int frame_
     switch (data_type)
     {
     case ALG_SDK_MIPI_DATA_TYPE_YUYV:
+        feed_data_yuv422(payload, frame_index, timestamp);
+        break;
     case ALG_SDK_MIPI_DATA_TYPE_YVYU:
     case ALG_SDK_MIPI_DATA_TYPE_UYVY:
     case ALG_SDK_MIPI_DATA_TYPE_VYUY:
-        feed_data_yuv422(payload, frame_index, timestamp);
+        feed_data_yuv422_cvt(payload, frame_index, timestamp, data_type);
         break;
     case ALG_SDK_MIPI_DATA_TYPE_RAW10:
         feed_data_raw10(payload, frame_index, timestamp);

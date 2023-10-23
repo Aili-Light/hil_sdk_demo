@@ -31,6 +31,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     )
     target_link_libraries(${PROJECT_NAME}_push_1_ch
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
         pthread
         anl
     )
@@ -41,6 +42,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     )
     target_link_libraries(${PROJECT_NAME}_push_multi_ch
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
         pthread
         anl
     )
@@ -52,6 +54,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     )
     target_link_libraries(${PROJECT_NAME}_push_v4l2
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
         pthread
         anl
     )
@@ -81,6 +84,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     endif ()
 
     FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk*")
+    FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
 endif()
 
