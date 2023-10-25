@@ -84,8 +84,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     endif ()
 
     FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk*")
-    FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor*")
+    FILE(GLOB ALG_CVT_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
+    install (FILES ${ALG_CVT_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
 endif()
 
 install (TARGETS ${PROJECT_NAME}_init RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
