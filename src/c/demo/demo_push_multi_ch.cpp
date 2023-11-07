@@ -76,7 +76,7 @@ void callback_hil_message(void *p)
 int main(int argc, char **argv)
 {
     uint32_t seq_ch[ALG_SDK_MAX_CHANNEL] = {0};
-
+    float freq = 30.0f;
     int rc;
     /* Init Servers */
     rc = alg_sdk_init_server(0);
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
             }
 
             /* Generate pcie image data  */
-            image_feed[i].init_feed(image_width, image_height, channel_id, image_size, 0);
+            image_feed[i].init_feed(image_width, image_height, channel_id, image_size, 0, freq);
             image_feed[i].make_data_struct();
             /* end */
 
@@ -221,9 +221,9 @@ int main(int argc, char **argv)
 
             const uint32_t image_size = image_width * image_height * 2;
             channel_ids[i] = channel_id;
-
+            
             /* Generate pcie image data  */
-            image_feed[i].init_feed(image_width, image_height, channel_id, image_size, 0);
+            image_feed[i].init_feed(image_width, image_height, channel_id, image_size, 0, freq);
             image_feed[i].make_data_struct();
             /* end */
 
@@ -267,7 +267,6 @@ int main(int argc, char **argv)
             fatal("Init Client Error!\n");
         }
 
-        float freq = 30.0f;
         uint32_t seq = 0;
         uint32_t p_len = 0;
         g_timer_last = macroseconds();

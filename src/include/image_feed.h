@@ -34,7 +34,7 @@ public:
     ~ImageFeed();
 
     /* Initialize Feed */
-    int init_feed(const int w,const int h,const int ch,const size_t size, const int type);
+    int init_feed(const int w,const int h,const int ch,const size_t size, const int type, const float rate);
 
     /* Make structure */
     int make_data_struct();
@@ -54,6 +54,7 @@ private:
     size_t image_size;
     int data_type;
     uint16_t* pdata;
+    float frame_rate;
 
     pcie_common_head_t img_header;
     pcie_image_info_meta_t img_info;

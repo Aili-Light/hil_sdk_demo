@@ -25,8 +25,8 @@ class VideoPublisher():
         ret = self.server.InitServer()
         return ret
 
-    def init_feed(self,h,w,ch_id,size,dt):
-        self.feed.init_feed(h,w,ch_id,size,dt)
+    def init_feed(self,h,w,ch_id,size,dt,rate):
+        self.feed.init_feed(h,w,ch_id,size,dt,rate)
         self.feed.make_data()
         self.feed.set_data_type('YUYV')  # decode video only support yuv
 
@@ -90,7 +90,7 @@ if __name__ == '__main__':
         sys.exit(0) 
 
     size = h * w * 2  # for yuv, size=h*w*h; for rgb, size=h*w*3
-    publisher.init_feed(h,w,ch_id,size,0)
+    publisher.init_feed(h,w,ch_id,size,0,30)
     publisher.run()
 
     # # init video decoder

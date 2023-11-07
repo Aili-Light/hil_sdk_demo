@@ -23,6 +23,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
         pthread
         anl
+        rt
     )
 
     add_executable(${PROJECT_NAME}_push_1_ch 
@@ -33,6 +34,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
         pthread
         anl
+        rt
     )
 
     add_executable(${PROJECT_NAME}_push_multi_ch
@@ -43,6 +45,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
         pthread
         anl
+        rt
     )
 
     add_executable(${PROJECT_NAME}_push_v4l2
@@ -54,6 +57,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
         pthread
         anl
+        rt
     )
 
     include_directories(${CMAKE_SOURCE_DIR}/qcap_lib
@@ -74,6 +78,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
             pthread
             anl
             -lqcap.x64
+            rt
         )
 
         install (TARGETS ${PROJECT_NAME}_push_qcap RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)

@@ -33,14 +33,14 @@ ImageFeed::~ImageFeed()
     de_init();
 }
 
-int ImageFeed::init_feed(const int w, const int h, const int ch, const size_t size, const int type)
+int ImageFeed::init_feed(const int w, const int h, const int ch, const size_t size, const int type, const float rate)
 {
     image_width = w;
     image_height = h;
     channel_id = ch;
     image_size = size;
     data_type = type;
-
+    frame_rate = rate;
     const uint32_t data_size = image_width * image_height;
     pdata = (uint16_t *)malloc(sizeof(uint16_t) * data_size);
 
@@ -75,7 +75,7 @@ int ImageFeed::make_info()
      */
     img_info.width = image_width;
     img_info.height = image_height;
-
+    img_info.frame_rate = frame_rate;
     /* data type is user-defined */
     img_info.exposure = 1.5;
     img_info.again = 1.0;

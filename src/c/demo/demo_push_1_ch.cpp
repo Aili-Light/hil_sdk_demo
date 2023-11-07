@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 
         /* Generate pcie image data */
         ImageFeed image_feed;
-        image_feed.init_feed(image_width, image_height, channel_id, image_size, 0);
+        image_feed.init_feed(image_width, image_height, channel_id, image_size, 0, freq);
         image_feed.make_data_struct();
         /* end */
 
@@ -238,7 +238,7 @@ int main(int argc, char **argv)
 
         /* Generate pcie image data */
         ImageFeed image_feed;
-        image_feed.init_feed(image_width, image_height, channel_id, image_size, 0);
+        image_feed.init_feed(image_width, image_height, channel_id, image_size, 0, freq);
         image_feed.make_data_struct();
         /* end */
 

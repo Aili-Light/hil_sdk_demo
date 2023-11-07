@@ -64,7 +64,7 @@ if __name__ == '__main__':
  
         # image_show_yuv(payload, h, w)
         image_feed = ImageFeed()
-        image_feed.init_feed(h,w,ch_id,img_size,0)
+        image_feed.init_feed(h,w,ch_id,img_size,0,30)
         image_feed.make_data()
 
         # Set data type

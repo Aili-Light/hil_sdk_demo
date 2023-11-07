@@ -10,6 +10,7 @@ ALG_SDK_SERVICE_SENSOR_PAYLOAD_SIZE = 7*ALG_SDK_SERVICE_SENSOR_CONFIG_MAX_LINE
 ALG_SDK_MAX_CHANNEL = 12
 ALG_SDK_MAX_DESERDES = 12
 ALG_SDK_CHANNEL_PER_DEV = 4
+ALG_SDK_MAX_DEVICE      = 3
 
 class service_camera_config(Structure):
     _fields_ = [("ack_mode",c_uint8),
@@ -76,7 +77,13 @@ class service_set_channel_active(Structure):
     ("active_status",c_uint8),
     ("ack_code", c_uint8)
     ]
-
+class service_set_image_write_param(Structure):
+    _fields_ = [("ack_mode",c_uint8),
+    ("dev_index",c_uint8),
+    ("write_mode",c_uint8),
+    ("once_write_size",c_uint32),
+    ("ack_code", c_uint8)
+    ]
 class pcie_common_head_t(Structure):
             _fields_ = [("head",c_uint8),
     ("version", c_uint8),

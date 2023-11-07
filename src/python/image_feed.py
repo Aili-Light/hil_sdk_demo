@@ -32,13 +32,15 @@ class ImageFeed():
         self.img_size = 0
         self.ch_id = 0
         self.data_type = 0
+        self.frame_rate = 30
     
-    def init_feed(self, h, w, ch, size, type):
+    def init_feed(self, h, w, ch, size, type, rate):
         self.height = h
         self.width = w
         self.img_size = size
         self.ch_id = ch
         self.data_type = type
+        self.frame_rate = rate
 
     def make_header(self):
         self.img_header.head = 55

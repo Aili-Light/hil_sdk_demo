@@ -126,6 +126,7 @@ extern "C"
         ALG_SDK_SERVICE_COMM_CMD_GET_STATUS = 0x06,
         ALG_SDK_SERVICE_COMM_CMD_SET_TIME = 0x07,
         ALG_SDK_SERVICE_COMM_CMD_GET_TIME = 0x08,
+        ALG_SDK_SERVICE_COMM_CMD_SET_IMAGE_WRITE_PARAM = 0x09,
     };
 
     enum
@@ -240,6 +241,7 @@ extern "C"
     typedef enum
     {
         AILI_SET_STREAM_ACTIVE = 0,
+        AILI_GET_VDMA_BUFFER_COUNT,
         AILI_CAM_PROTOCOL_CMD_MAX_NUM
     } aili_cam_protocol_private_cmd_e;
     typedef struct alg_sdk_pcie_common_head
@@ -504,6 +506,18 @@ extern "C"
         /* Reply Field */
         uint8_t ack_code;
     } service_set_channel_active_t;
+
+    typedef struct alg_sdk_service_set_image_write_param
+    {
+        /* Request Field */
+        uint8_t ack_mode;
+        uint8_t dev_index;
+        uint8_t write_mode;
+        uint32_t once_write_size;
+
+        /* Reply Field */
+        uint8_t ack_code;
+    } service_set_image_write_param_t;
 #pragma pack(1)
     typedef struct
     {
@@ -518,6 +532,18 @@ extern "C"
         int32_t channel;
         uint8_t active_status;
     } aili_cam_protocol_set_stream_active_t;
+
+    typedef struct
+    {
+        uint8_t private_cmd_id;
+        int32_t channel;
+    }aili_cam_protocol_get_cam_vdma_buff_count_t;
+
+    typedef struct
+    {
+        int32_t channel;
+        uint8_t buffer_count;
+    }aili_cam_protocol_get_cam_vdma_buff_count_ack_t;
 #pragma pack()
 
 #ifdef __cplusplus
