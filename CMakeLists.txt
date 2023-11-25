@@ -4,12 +4,10 @@ project(hil_sdk_demo)
 
 message(STATUS "Processor name is ${CMAKE_SYSTEM_PROCESSOR}")
 include_directories(
-    ${CMAKE_SOURCE_DIR}/src/include
     ${CMAKE_SOURCE_DIR}/hil_sdk/include 
     ${CMAKE_SOURCE_DIR}/src/c
 )
 set(PROJECT_LINK_DIR ${CMAKE_SOURCE_DIR}/hil_sdk/lib)
-aux_source_directory(src/c/utils UTILS_SRC_LIST)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(CMAKE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/release/linux)
@@ -26,69 +24,32 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         rt
     )
 
-    add_executable(${PROJECT_NAME}_push_1_ch 
-        ${UTILS_SRC_LIST}
-        src/c/demo/demo_push_1_ch.cpp
+    add_executable(${PROJECT_NAME}_device_fromFile
+        src/c/demo/demo_device_fromFile.cpp
     )
-    target_link_libraries(${PROJECT_NAME}_push_1_ch
+    target_link_libraries(${PROJECT_NAME}_device_fromFile
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so  
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
         pthread
-        anl
-        rt
     )
+    set_target_properties(${PROJECT_NAME}_device_fromFile PROPERTIES LINKER_LANGUAGE CXX)
 
-    add_executable(${PROJECT_NAME}_push_multi_ch
-        ${UTILS_SRC_LIST}
-        src/c/demo/demo_push_multi_ch.cpp
+    add_executable(${PROJECT_NAME}_device_fromDir
+        src/c/demo/demo_device_fromDir.cpp
     )
-    target_link_libraries(${PROJECT_NAME}_push_multi_ch
+    target_link_libraries(${PROJECT_NAME}_device_fromDir
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
         pthread
-        anl
-        rt
     )
+    set_target_properties(${PROJECT_NAME}_device_fromDir PROPERTIES LINKER_LANGUAGE CXX)
 
-    add_executable(${PROJECT_NAME}_push_v4l2
-        ${UTILS_SRC_LIST}
-        src/c/demo/demo_push_v4l2.cpp
-        src/c/alg_camera/v4l2_camera.cpp
-    )
-    target_link_libraries(${PROJECT_NAME}_push_v4l2
-        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
-        pthread
-        anl
-        rt
-    )
-
-    include_directories(${CMAKE_SOURCE_DIR}/qcap_lib
-    )
-
-    link_directories(
-        ${CMAKE_SOURCE_DIR}/qcap_lib/lib/
-    )
-
-    if (WITH_QCAP)
-        add_executable(${PROJECT_NAME}_push_qcap
-            ${UTILS_SRC_LIST}
-            src/c/demo/demo_push_qcap.cpp
-            src/c/qcap/qcapdev.cpp
-        )
-        target_link_libraries(${PROJECT_NAME}_push_qcap
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
-            pthread
-            anl
-            -lqcap.x64
-            rt
-        )
-
-        install (TARGETS ${PROJECT_NAME}_push_qcap RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
-    endif ()
-
-    FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk*")
+    FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/lib*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
+    install (TARGETS ${PROJECT_NAME}_init RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+    install (TARGETS ${PROJECT_NAME}_device_fromFile RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+    install (TARGETS ${PROJECT_NAME}_device_fromDir RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
 endif()
 
-install (TARGETS ${PROJECT_NAME}_init RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
-install (TARGETS ${PROJECT_NAME}_push_1_ch RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
-install (TARGETS ${PROJECT_NAME}_push_multi_ch RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
-install (TARGETS ${PROJECT_NAME}_push_v4l2 RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
