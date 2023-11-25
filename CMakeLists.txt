@@ -24,6 +24,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         rt
     )
 
+    add_executable(${PROJECT_NAME}_service src/c/demo/demo_service.c)
+    target_link_libraries(${PROJECT_NAME}_service
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+        pthread
+    )
+
     add_executable(${PROJECT_NAME}_device_fromFile
         src/c/demo/demo_device_fromFile.cpp
     )
@@ -94,6 +100,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/lib*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
     install (TARGETS ${PROJECT_NAME}_init RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+    install (TARGETS ${PROJECT_NAME}_service RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
     install (TARGETS ${PROJECT_NAME}_device_fromFile RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
     install (TARGETS ${PROJECT_NAME}_device_fromDir RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
 endif()
