@@ -46,6 +46,51 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     )
     set_target_properties(${PROJECT_NAME}_device_fromDir PROPERTIES LINKER_LANGUAGE CXX)
 
+    if (WITH_QCAP)
+        include_directories(${CMAKE_SOURCE_DIR}/qcap_lib
+        )
+
+        link_directories(
+            ${CMAKE_SOURCE_DIR}/qcap_lib/lib/
+        )
+
+        add_executable(${PROJECT_NAME}_device_fromQCap
+            ${UTILS_SRC_LIST}
+            ${DEVICE_HANDLER_SRC_LIST}
+            ${DEVICE_HANDLER_QCAP_SRC_LIST}
+            src/c/demo/demo_device_fromQCap.cpp
+        )
+        target_link_libraries(${PROJECT_NAME}_device_fromQCap
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_qcap.so  
+            pthread
+            anl
+            -lqcap.x64
+        )
+        install (TARGETS ${PROJECT_NAME}_device_fromQCap RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+        set_target_properties(${PROJECT_NAME}_device_fromQCap PROPERTIES LINKER_LANGUAGE CXX)
+    endif ()
+
+    if (WITH_VTD)
+        add_executable(${PROJECT_NAME}_device_fromVTD
+            ${UTILS_SRC_LIST}
+            ${DEVICE_HANDLER_SRC_LIST}
+            ${DEVICE_HANDLER_VTD_SRC_LIST}
+            src/c/demo/demo_device_fromVTD.cpp
+        )
+        target_link_libraries(${PROJECT_NAME}_device_fromVTD
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_vtd.so  
+            pthread
+            anl
+        )
+        install (TARGETS ${PROJECT_NAME}_device_fromVTD RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+        set_target_properties(${PROJECT_NAME}_device_fromVTD PROPERTIES LINKER_LANGUAGE CXX)
+    endif()
+
+
     FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/lib*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
     install (TARGETS ${PROJECT_NAME}_init RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
