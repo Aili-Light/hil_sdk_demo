@@ -10,7 +10,7 @@ from algDeviceHandler import VideoSourceParam
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description="Set sensor stream on"
+        description="HIL Demo for single image"
     )
     parser.add_argument('--num_channels',
                         type=int,
