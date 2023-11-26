@@ -26,74 +26,59 @@ Init SDK
 
 * init sdk (python)  
    `cd <src/python>`  
-   `sudo python3 init_sdk.py`  
+   `sudo python3 init_sdk.py --type=--subscribe`  
 
 Stream On/Off
 ------------------------------------
+*  Stream on (c++)
+   `cd <install path>`  
+   `./hil_sdk_demo_service -stream_on -c x,y`   
+   note :   
+   #1. `x,y`  are the channel id (user can stream on multiple channels, split channel id by coma)   
+
+*  Stream on (python)
    `cd <src/python>`  
-*  Stream on
    `python3 stream_on_by_channel.py --channel='x,y'`  
-   
-*  Stream off
+   note :   
+   #1. `x,y`  are the channel id (user can stream on multiple channels, split channel id by coma)   
+
+*  Stream off (c++)
+   `cd <install path>`  
+   `./hil_sdk_demo_service -stream_off`   
+
+*  Stream off (python)
+   `cd <src/python>`  
    `python3 stream_off.py`  
 
-Push single image
+Push from image
 ------------------------------------
-*  push an image to one channel (c++)  
+*  push one image file continuously (c++)  
    `cd <install path>`  
-   `sudo ./hil_sdk_demo_push_1_ch --publish <image_path> <width> <height> <channel_id> <data_type>`  
+   `sudo ./hil_sdk_demo_device_fromFile <num_channels> <config_file>`  
    note :   
-   #1. `<image_path>`   is the path to image file    
-   #2. `<width>`  is image width  
-   #3. `<height>` is image height  
-   #4. `<channel_id>` is the channel index to push image to   
-   #5. `<data_type>` is data_type ('YUYV'/'RAW10'/'RAW12')   
+   #1. `<num_channels>`  the total number of channels    
+   #2. `<config_file>`  configuration file path  
 
-*  push an image to one channel (python)  
+*  push one image file continuously (python)  
    `cd <src/python>`  
-   `sudo python3 push_image_single.py --image_path=<image_path>' --width=<width> --height=<height> --channel=<channel_id> --data_type=<data_type>`  
+   `sudo python3 demo_device_fromFile.py --num_channels=<num_channels>' --config_file=<config_file>`  
    note :   
-   #1. `<image_path>`   is the path to image file    
-   #2. `<width>`  is image width  
-   #3. `<height>` is image height  
-   #4. `<channel_id>` is the channel index to push image to   
-   #5. `<data_type>` is data_type ('YUYV'/'RAW10'/'RAW12')   
+   #1. `<num_channels>`  the total number of channels    
+   #2. `<config_file>`  configuration file path  
 
-*  push multiple images to multiple channels (c++)  
-   `sudo ./hil_sdk_demo_push_multi_ch --publish_multi <num_channels> <image_path_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <image_path_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> `  
-   note :   
-   #1. `<num_channels>`   is totol number of channels  
-   #2. `<image_path_#1>` `<image_path_#2>`  are image files for each channel  
-
-Push consecutive images
-------------------------------------
-*  push images in one folder to one channel (c++)    
+*  push all images of a directory (c++)  
    `cd <install path>`  
-   `sudo ./hil_sdk_demo_push_1_ch --feedon <folder> <width> <height> <channel_id> <data_type>`  
+   `sudo ./hil_sdk_demo_device_fromDir <num_channels> <config_file>`  
    note :   
-   #1. `<folder>` is the folder to consecutive image files   
-   #2. `<width>`  is image width  
-   #3. `<height>` is image height  
-   #4. `<channel_id>` is the channel index to push image to   
-   #5. `<data_type>` is data_type (YUYV/RAW)   
+   #1. `<num_channels>`  the total number of channels    
+   #2. `<config_file>`  configuration file path  
 
-*  push images in multiple folders to multiple channels (c++)    
-   `sudo ./hil_sdk_demo_push_multi_ch --feedin_multi <num_channels> <folder_#1> <width_#1> <height_#1> <channel_id_#1> <data_type_#1> <folder_#2> <width_#2> <height_#2> <channel_id_#2> <data_type_#2> ` 
-   note :   
-   #1. `<num_channels>`   is totol number of channels  
-   #2. `<folder_#1>` `<folder_#2>`  are image folders for each channel  
-
-Push video
-------------------------------------
-*  decode a video and push to one channel (python)  
+*  push all images of a directory (python) 
    `cd <src/python>`  
-   `sudo python3 push_video_decode.py --video_path=<video_path>' --width=<width> --height=<height> --channel=<channel_id> --codec_type=<codec_type>`
+   `sudo python3 demo_device_fromDir.py --num_channels=<num_channels>' --config_file=<config_file>`  
    note :   
-   #1. `<video_path>`   is the path to video file    
-   #2. `<width>`  is image width  
-   #3. `<height>` is image height  
-   #4. `<channel_id>` is the channel index to push image to   
-   #5. `<codec_type>` is video codec type ('h264'/'h265')   
+   #1. `<num_channels>`  the total number of channels    
+   #2. `<config_file>`  configuration file path  
 
 # Support
 contact : jimmy@ailiteam.com
