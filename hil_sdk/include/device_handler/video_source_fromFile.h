@@ -29,7 +29,7 @@ SOFTWARE.
 class VideoSourceFromFile : public VideoSource
 {
 public:
-    VideoSourceFromFile(VideoSourceParam &param);
+    VideoSourceFromFile(VideoSourceParam *param);
     virtual ~VideoSourceFromFile();
 
 public:

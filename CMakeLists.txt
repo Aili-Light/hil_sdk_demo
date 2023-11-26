@@ -24,6 +24,13 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         rt
     )
 
+    add_executable(${PROJECT_NAME}_service src/c/demo/demo_service.c)
+    target_link_libraries(${PROJECT_NAME}_service
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+        pthread
+        rt
+    )
+
     add_executable(${PROJECT_NAME}_device_fromFile
         src/c/demo/demo_device_fromFile.cpp
     )
@@ -32,6 +39,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so  
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
         pthread
+        rt
     )
     set_target_properties(${PROJECT_NAME}_device_fromFile PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -43,6 +51,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
         pthread
+        rt
     )
     set_target_properties(${PROJECT_NAME}_device_fromDir PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -66,6 +75,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
             ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_qcap.so  
             pthread
             anl
+            rt
             -lqcap.x64
         )
         install (TARGETS ${PROJECT_NAME}_device_fromQCap RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
@@ -85,6 +95,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
             ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_vtd.so  
             pthread
             anl
+            rt
         )
         install (TARGETS ${PROJECT_NAME}_device_fromVTD RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
         set_target_properties(${PROJECT_NAME}_device_fromVTD PROPERTIES LINKER_LANGUAGE CXX)
@@ -94,6 +105,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/lib*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
     install (TARGETS ${PROJECT_NAME}_init RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+    install (TARGETS ${PROJECT_NAME}_service RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
     install (TARGETS ${PROJECT_NAME}_device_fromFile RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
     install (TARGETS ${PROJECT_NAME}_device_fromDir RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
 endif()

@@ -8,3 +8,4 @@ src/python/algSDKpy.pyc
 src/python/images
 src/python/__pycache__/
 src/python/gstreamer/__pycache__/
+hil_sdk/lib/linux/x86_64/alg_sdk.log

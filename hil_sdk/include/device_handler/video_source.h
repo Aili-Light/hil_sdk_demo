@@ -34,16 +34,7 @@ SOFTWARE.
 struct VideoSourceParam
 {
     int         source_id;
-    int         image_width;
-    int         image_height;
-    int         channel_id;
-    float       fps;
-
-    std::string source_type;
-    std::string source_name;
-    std::string output_type;
-
-    std::string config_file;
+    char        config_file[1024];
 };
 
 class VideoSource

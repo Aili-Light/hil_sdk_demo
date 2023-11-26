@@ -37,7 +37,7 @@ public:
     virtual void* GetVideoSource(const int ch_id);
 
 public:
-    virtual void  RegisterDevice(VideoSourceParam& param);
+    virtual void  RegisterDevice(VideoSourceParam* param);
     virtual bool  Init();
     virtual void  Wait();
     virtual void  Release();
@@ -54,5 +54,38 @@ protected:
  
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	HILDeviceFromQCap* HILDevQCap_GetInstance()
+	{
+		return HILDeviceFromQCap::GetInstance();
+	}
+
+    void HILDevQCap_RegisterDevice(HILDeviceFromQCap* self, VideoSourceParam* param)
+    {
+        self->RegisterDevice(param);
+    }
+
+    bool HILDevQCap_Init(HILDeviceFromQCap* self)
+    {
+        return self->Init();
+    }
+
+    void HILDevQCap_StartStreamAll(HILDeviceFromQCap* self)
+    {
+        self->StartStreamAll();
+    }
+
+    void HILDevQCap_CloseStreamAll(HILDeviceFromQCap* self)
+    {
+        self->CloseStreamAll();
+    }
+
+    void HILDevQCap_Wait(HILDeviceFromQCap* self)
+    {
+        self->Wait();
+    }
+}
 
 #endif

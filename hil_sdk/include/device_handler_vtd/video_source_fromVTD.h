@@ -30,7 +30,7 @@ SOFTWARE.
 class VideoSourceFromVTD : public VideoSource
 {
 public:
-    VideoSourceFromVTD(VideoSourceParam &param);
+    VideoSourceFromVTD(VideoSourceParam *param);
     virtual ~VideoSourceFromVTD();
 
 public:

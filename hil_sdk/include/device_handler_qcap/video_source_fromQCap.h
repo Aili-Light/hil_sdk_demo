@@ -30,7 +30,7 @@ SOFTWARE.
 class VideoSourceFromQCap : public VideoSource
 {
 public:
-    VideoSourceFromQCap(VideoSourceParam &param);
+    VideoSourceFromQCap(VideoSourceParam *param);
     virtual ~VideoSourceFromQCap();
 
 public:
