@@ -37,7 +37,7 @@ public:
     virtual void* GetVideoSource(const int ch_id);
 
 public:
-    virtual void  RegisterDevice(VideoSourceParam& param);
+    virtual void  RegisterDevice(VideoSourceParam* param);
     virtual bool  Init();
     virtual void  Wait();
     virtual void  Release();

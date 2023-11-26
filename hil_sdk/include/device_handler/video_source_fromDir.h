@@ -30,7 +30,7 @@ SOFTWARE.
 class VideoSourceFromDir : public VideoSource
 {
 public:
-    VideoSourceFromDir(VideoSourceParam &param);
+    VideoSourceFromDir(VideoSourceParam *param);
     virtual ~VideoSourceFromDir();
 
 public:
