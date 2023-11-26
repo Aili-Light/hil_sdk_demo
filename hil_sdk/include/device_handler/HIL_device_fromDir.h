@@ -54,5 +54,38 @@ protected:
  
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	HILDeviceFromDir* HILDevDir_GetInstance()
+	{
+		return HILDeviceFromDir::GetInstance();
+	}
+
+    void HILDevDir_RegisterDevice(HILDeviceFromDir* self, VideoSourceParam* param)
+    {
+        self->RegisterDevice(param);
+    }
+
+    bool HILDevDir_Init(HILDeviceFromDir* self)
+    {
+        return self->Init();
+    }
+
+    void HILDevDir_StartStreamAll(HILDeviceFromDir* self)
+    {
+        self->StartStreamAll();
+    }
+
+    void HILDevDir_CloseStreamAll(HILDeviceFromDir* self)
+    {
+        self->CloseStreamAll();
+    }
+
+    void HILDevDir_Wait(HILDeviceFromDir* self)
+    {
+        self->Wait();
+    }
+}
 
 #endif

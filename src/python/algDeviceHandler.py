@@ -15,37 +15,76 @@ class VideoSourceParam(Structure):
 class HILDeviceFromFile(object):
     def __init__(self):
         # Declare input and output types for each method you intend to use
-        device_handler.GetInstance.argtypes = []
-        device_handler.GetInstance.restype = ctypes.c_void_p
+        device_handler.HILDevFile_GetInstance.argtypes = []
+        device_handler.HILDevFile_GetInstance.restype = ctypes.c_void_p
 
-        device_handler.RegisterDevice.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-        device_handler.RegisterDevice.restype = ctypes.c_void_p
+        device_handler.HILDevFile_RegisterDevice.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+        device_handler.HILDevFile_RegisterDevice.restype = ctypes.c_void_p
 
-        device_handler.Init.argtypes = [ctypes.c_void_p]
-        device_handler.Init.restype = ctypes.c_bool
+        device_handler.HILDevFile_Init.argtypes = [ctypes.c_void_p]
+        device_handler.HILDevFile_Init.restype = ctypes.c_bool
 
-        device_handler.StartStreamAll.argtypes = [ctypes.c_void_p]
-        device_handler.StartStreamAll.restype = ctypes.c_void_p
+        device_handler.HILDevFile_StartStreamAll.argtypes = [ctypes.c_void_p]
+        device_handler.HILDevFile_StartStreamAll.restype = ctypes.c_void_p
 
-        device_handler.CloseStreamAll.argtypes = [ctypes.c_void_p]
-        device_handler.CloseStreamAll.restype = ctypes.c_void_p
+        device_handler.HILDevFile_CloseStreamAll.argtypes = [ctypes.c_void_p]
+        device_handler.HILDevFile_CloseStreamAll.restype = ctypes.c_void_p
 
-        device_handler.Wait.argtypes = [ctypes.c_void_p]
-        device_handler.Wait.restype = ctypes.c_void_p
+        device_handler.HILDevFile_Wait.argtypes = [ctypes.c_void_p]
+        device_handler.HILDevFile_Wait.restype = ctypes.c_void_p
 
-        self.obj = device_handler.GetInstance()
+        self.obj = device_handler.HILDevFile_GetInstance()
 
     def Init(self):
-        return device_handler.Init(self.obj)
+        return device_handler.HILDevFile_Init(self.obj)
 
     def RegisterDevice(self, param):
-        device_handler.RegisterDevice(self.obj, ctypes.pointer(param))
+        device_handler.HILDevFile_RegisterDevice(self.obj, ctypes.pointer(param))
     
     def StartStreamAll(self):
-        device_handler.StartStreamAll(self.obj)
+        device_handler.HILDevFile_StartStreamAll(self.obj)
 
     def CloseStreamAll(self):
-        device_handler.CloseStreamAll(self.obj)
+        device_handler.HILDevFile_CloseStreamAll(self.obj)
 
     def Wait(self):
-        device_handler.Wait(self.obj)
+        device_handler.HILDevFile_Wait(self.obj)
+
+
+class HILDeviceFromDir(object):
+    def __init__(self):
+        # Declare input and output types for each method you intend to use
+        device_handler.HILDevDir_GetInstance.argtypes = []
+        device_handler.HILDevDir_GetInstance.restype = ctypes.c_void_p
+
+        device_handler.HILDevDir_RegisterDevice.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+        device_handler.HILDevDir_RegisterDevice.restype = ctypes.c_void_p
+
+        device_handler.HILDevDir_Init.argtypes = [ctypes.c_void_p]
+        device_handler.HILDevDir_Init.restype = ctypes.c_bool
+
+        device_handler.HILDevDir_StartStreamAll.argtypes = [ctypes.c_void_p]
+        device_handler.HILDevDir_StartStreamAll.restype = ctypes.c_void_p
+
+        device_handler.HILDevDir_CloseStreamAll.argtypes = [ctypes.c_void_p]
+        device_handler.HILDevDir_CloseStreamAll.restype = ctypes.c_void_p
+
+        device_handler.HILDevDir_Wait.argtypes = [ctypes.c_void_p]
+        device_handler.HILDevDir_Wait.restype = ctypes.c_void_p
+
+        self.obj = device_handler.HILDevDir_GetInstance()
+
+    def Init(self):
+        return device_handler.HILDevDir_Init(self.obj)
+
+    def RegisterDevice(self, param):
+        device_handler.HILDevDir_RegisterDevice(self.obj, ctypes.pointer(param))
+    
+    def StartStreamAll(self):
+        device_handler.HILDevDir_StartStreamAll(self.obj)
+
+    def CloseStreamAll(self):
+        device_handler.HILDevDir_CloseStreamAll(self.obj)
+
+    def Wait(self):
+        device_handler.HILDevDir_Wait(self.obj)

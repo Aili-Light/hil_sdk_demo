@@ -57,36 +57,35 @@ protected:
 #ifdef __cplusplus
 extern "C" {
 #endif
-	HILDeviceFromFile* GetInstance()
+	HILDeviceFromFile* HILDevFile_GetInstance()
 	{
 		return HILDeviceFromFile::GetInstance();
 	}
 
-    void RegisterDevice(HILDeviceFromFile* self, VideoSourceParam* param)
+    void HILDevFile_RegisterDevice(HILDeviceFromFile* self, VideoSourceParam* param)
     {
         self->RegisterDevice(param);
     }
 
-    bool Init(HILDeviceFromFile* self)
+    bool HILDevFile_Init(HILDeviceFromFile* self)
     {
         return self->Init();
     }
 
-    void StartStreamAll(HILDeviceFromFile* self)
+    void HILDevFile_StartStreamAll(HILDeviceFromFile* self)
     {
         self->StartStreamAll();
     }
 
-    void CloseStreamAll(HILDeviceFromFile* self)
+    void HILDevFile_CloseStreamAll(HILDeviceFromFile* self)
     {
         self->CloseStreamAll();
     }
 
-    void Wait(HILDeviceFromFile* self)
+    void HILDevFile_Wait(HILDeviceFromFile* self)
     {
         self->Wait();
     }
-
 }
 
 #endif
