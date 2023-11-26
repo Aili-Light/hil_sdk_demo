@@ -6,6 +6,7 @@ from ctypes import *
 
 processor_name = platform.processor()
 device_handler = ctypes.CDLL('../../hil_sdk/lib/linux/'+processor_name+'/libhil_sdk_device.so', mode=ctypes.RTLD_GLOBAL)
+# device_handler_qcap = ctypes.CDLL('../../hil_sdk/lib/linux/'+processor_name+'/libhil_sdk_device_qcap.so', mode=ctypes.RTLD_GLOBAL)
 
 class VideoSourceParam(Structure):
     _fields_ = [("source_id",c_int32),
@@ -88,3 +89,42 @@ class HILDeviceFromDir(object):
 
     def Wait(self):
         device_handler.HILDevDir_Wait(self.obj)
+
+
+# class HILDeviceFromQCap(object):
+#     def __init__(self):
+#         # Declare input and output types for each method you intend to use
+#         device_handler_qcap.HILDevQCap_GetInstance.argtypes = []
+#         device_handler_qcap.HILDevQCap_GetInstance.restype = ctypes.c_void_p
+
+#         device_handler_qcap.HILDevQCap_RegisterDevice.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+#         device_handler_qcap.HILDevQCap_RegisterDevice.restype = ctypes.c_void_p
+
+#         device_handler_qcap.HILDevQCap_Init.argtypes = [ctypes.c_void_p]
+#         device_handler_qcap.HILDevQCap_Init.restype = ctypes.c_bool
+
+#         device_handler_qcap.HILDevQCap_StartStreamAll.argtypes = [ctypes.c_void_p]
+#         device_handler_qcap.HILDevQCap_StartStreamAll.restype = ctypes.c_void_p
+
+#         device_handler_qcap.HILDevQCap_CloseStreamAll.argtypes = [ctypes.c_void_p]
+#         device_handler_qcap.HILDevQCap_CloseStreamAll.restype = ctypes.c_void_p
+
+#         device_handler_qcap.HILDevQCap_Wait.argtypes = [ctypes.c_void_p]
+#         device_handler_qcap.HILDevQCap_Wait.restype = ctypes.c_void_p
+
+#         self.obj = device_handler_qcap.HILDevQCap_GetInstance()
+
+#     def Init(self):
+#         return device_handler_qcap.HILDevQCap_Init(self.obj)
+
+#     def RegisterDevice(self, param):
+#         device_handler_qcap.HILDevQCap_RegisterDevice(self.obj, ctypes.pointer(param))
+    
+#     def StartStreamAll(self):
+#         device_handler_qcap.HILDevQCap_StartStreamAll(self.obj)
+
+#     def CloseStreamAll(self):
+#         device_handler_qcap.HILDevQCap_CloseStreamAll(self.obj)
+
+#     def Wait(self):
+#         device_handler_qcap.HILDevQCap_Wait(self.obj)
