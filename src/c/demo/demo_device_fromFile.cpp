@@ -46,7 +46,7 @@ int main(int argc, char **argv)
             const char *config_file = argv[2];
             VideoSourceParam param;
             param.source_id = i;
-            memcpy(param.config_file, config_file, 1024);
+            memcpy(param.config_file, config_file, strlen(config_file)+1);
 
             hil_device->RegisterDevice(&param);
         }
