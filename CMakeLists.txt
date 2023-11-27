@@ -28,6 +28,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME}_service
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
         pthread
+        rt
     )
 
     add_executable(${PROJECT_NAME}_device_fromFile
@@ -38,6 +39,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so  
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
         pthread
+        rt
     )
     set_target_properties(${PROJECT_NAME}_device_fromFile PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -49,6 +51,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
         pthread
+        rt
     )
     set_target_properties(${PROJECT_NAME}_device_fromDir PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -72,6 +75,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
             ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_qcap.so  
             pthread
             anl
+            rt
             -lqcap.x64
         )
         install (TARGETS ${PROJECT_NAME}_device_fromQCap RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
@@ -91,6 +95,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
             ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_vtd.so  
             pthread
             anl
+            rt
         )
         install (TARGETS ${PROJECT_NAME}_device_fromVTD RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
         set_target_properties(${PROJECT_NAME}_device_fromVTD PROPERTIES LINKER_LANGUAGE CXX)
