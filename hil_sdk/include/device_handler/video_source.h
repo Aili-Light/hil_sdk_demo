@@ -62,6 +62,13 @@ public:
     int                     GetWidth()const{ return m_image_width; }
     int                     GetHeight()const{ return m_image_height; }
     float                   GetFrameRate()const{ return m_fps; }
+    bool                    IsThreadActive() const{return m_thread_started; }
+    void                    WaitFull();
+    void                    WaitEmpty();
+    void                    PostFull();
+    void                    PostEmpty();
+    int                     GetSyncMode()const{ return m_sync_mode; }
+    unsigned short          GetLatestFrame()const{ return m_seq; }
 
 protected:
     int                     m_image_width;
@@ -69,7 +76,10 @@ protected:
     float                   m_fps;
     int                     m_ch_id;
     bool                    m_thread_started;
-
+    int                     m_sync_mode;
+    uint32_t                m_seq;
+    uint64_t                t_now;
+    uint64_t                t_last;
     std::string             m_source_name;
     std::string             m_output_type;
     std::string             m_source_type;

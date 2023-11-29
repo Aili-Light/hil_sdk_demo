@@ -1,5 +1,6 @@
 {
     "num_channels": 2,
+    "sync_mode": 2,
 
     "channels": [
         {

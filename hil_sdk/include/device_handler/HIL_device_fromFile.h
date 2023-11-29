@@ -35,6 +35,8 @@ public:
     virtual int   GetWidth(const int ch_id)const ;
     virtual int   GetHeight(const int ch_id)const ;
     virtual void* GetVideoSource(const int ch_id);
+    // virtual unsigned short GetLastFrame(const int ch_id) const;
+    // virtual int   GetBufferCount(const int ch_id) const;
 
 public:
     virtual void  RegisterDevice(VideoSourceParam* param);
@@ -44,6 +46,8 @@ public:
     virtual void  CloseStreamAll();
     virtual void  StartStreamAll();
     virtual int   GetVideoSourceNum() const;
+    virtual void  LoopTimeSync();
+    virtual void  LoopFrameSync();
 
 public:
     static HILDeviceFromFile *GetInstance();
@@ -51,7 +55,9 @@ public:
 
 protected:
     std::vector<VideoSourceFromFile*>   m_sources;
- 
+
+private:
+    virtual void  SetSyncMode();
 };
 
 #ifdef __cplusplus

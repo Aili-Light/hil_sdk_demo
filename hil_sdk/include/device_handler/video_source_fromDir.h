@@ -50,9 +50,6 @@ private:
     std::string  m_filepath;
     uint32_t     m_payload_len;
     uint32_t     m_image_size;
-    uint32_t     m_seq;
-    uint64_t     t_now;
-    uint64_t     t_last;
     uint32_t     m_filename_size;
     std::vector<std::string> s_img_filenames;
 

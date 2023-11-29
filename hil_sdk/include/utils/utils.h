@@ -40,5 +40,23 @@ int fatal(const char *msg);
 void safe_free(void *p);
 void load_image_path(string img_dir_path, vector<string> &img_path);
 int load_image(const char *filename, uint8_t *buffer, uint32_t *data_len);
+int find_highest_frame(std::vector<int>& ch_ids, std::vector<unsigned short>& frame_ids, std::vector<int>& max_ids);
+template <typename T>
+bool check_vector_same(std::vector<T>& vals)
+{
+    if (vals.size() < 1)
+        return false;
+
+    T v0 = vals[0];
+    for(T v : vals)
+    {
+        if(v!=v0)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 #endif

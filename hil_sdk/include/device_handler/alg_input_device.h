@@ -35,9 +35,12 @@ protected:
     ALGInputDevice();
     virtual ~ALGInputDevice();
 public:
-    virtual int   GetWidth(const int ch_id)const ;
-    virtual int   GetHeight(const int ch_id)const ;
+    virtual int   GetWidth(const int ch_id) const ;
+    virtual int   GetHeight(const int ch_id) const ;
     virtual void* GetVideoSource(const int ch_id);
+    virtual unsigned short GetLastFrame(const int ch_id) const;
+    virtual int   GetBufferCount(const int ch_id) const;
+
 public:
     virtual void  RegisterDevice(VideoSourceParam* param);
     virtual bool  Init();
@@ -47,10 +50,23 @@ public:
     virtual void  StartStreamAll();
     virtual void  StartStream(const int ch_id);
     virtual int   GetVideoSourceNum()const;
+    virtual void  LoopTimeSync();
+    virtual void  LoopFrameSync();
 
 public:
     static ALGInputDevice *GetInstance();
     static void onMSGCallback(void *data);   
+
+protected:
+    virtual void  SetSyncMode();
+
+protected:
+    std::thread   m_loop_th;
+
+    uint64_t      t_now;
+    uint64_t      t_last;
+    float         m_frame_rate;
+    int           m_sync_mode;
 };
 
 

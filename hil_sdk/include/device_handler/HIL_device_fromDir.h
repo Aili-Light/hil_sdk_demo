@@ -44,6 +44,8 @@ public:
     virtual void  CloseStreamAll();
     virtual void  StartStreamAll();
     virtual int   GetVideoSourceNum() const;
+    virtual void  LoopTimeSync();
+    virtual void  LoopFrameSync();
 
 public:
     static HILDeviceFromDir *GetInstance();
@@ -51,7 +53,9 @@ public:
 
 protected:
     std::vector<VideoSourceFromDir*>   m_sources;
- 
+
+private:
+    virtual void  SetSyncMode();
 };
 
 #ifdef __cplusplus
