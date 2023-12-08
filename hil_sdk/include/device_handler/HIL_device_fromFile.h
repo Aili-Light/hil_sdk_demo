@@ -35,8 +35,6 @@ public:
     virtual int   GetWidth(const int ch_id)const ;
     virtual int   GetHeight(const int ch_id)const ;
     virtual void* GetVideoSource(const int ch_id);
-    // virtual unsigned short GetLastFrame(const int ch_id) const;
-    // virtual int   GetBufferCount(const int ch_id) const;
 
 public:
     virtual void  RegisterDevice(VideoSourceParam* param);
@@ -57,7 +55,7 @@ protected:
     std::vector<VideoSourceFromFile*>   m_sources;
 
 private:
-    virtual void  SetSyncMode();
+    virtual int  SetSyncMode();
 };
 
 #ifdef __cplusplus

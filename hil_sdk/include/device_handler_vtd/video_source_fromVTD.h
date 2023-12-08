@@ -77,9 +77,6 @@ private:
     std::string  m_filename;
     uint32_t     m_payload_len;
     uint32_t     m_image_size;
-    uint32_t     m_seq;
-    uint64_t     t_now;
-    uint64_t     t_last;
 
     uint16_t     m_ShmKey;
     uint16_t     m_CheckMask;

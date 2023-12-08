@@ -38,8 +38,6 @@ public:
     virtual int   GetWidth(const int ch_id) const ;
     virtual int   GetHeight(const int ch_id) const ;
     virtual void* GetVideoSource(const int ch_id);
-    virtual unsigned short GetLastFrame(const int ch_id) const;
-    virtual int   GetBufferCount(const int ch_id) const;
 
 public:
     virtual void  RegisterDevice(VideoSourceParam* param);
@@ -58,7 +56,7 @@ public:
     static void onMSGCallback(void *data);   
 
 protected:
-    virtual void  SetSyncMode();
+    virtual int   SetSyncMode();
 
 protected:
     std::thread   m_loop_th;
