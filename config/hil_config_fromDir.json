@@ -6,25 +6,68 @@
         {
             "source_id": 0,
             "source_type": "Dir",
-            "pathname": "/mnt/nas_share/NAS5-Image/X3C-1080-RAW/data",
-            "source_width": 1920,
-            "source_height": 1080,
-            "source_data_type": "YUYV",
-            "frame_rate": 30.0,
+            "pathname": "/home/test/data/DR/DR_X8B_RAW12_Padding/data-3",
+            "source_width": 3840,
+            "source_height": 2160,
+            "source_data_type": "RAW12-PAD",
+            "frame_rate": 25.0,
             "channel_id": 0,
-            "output_data_type": "YUYV"
+            "output_data_type": "RAW12-PAD"
         },
-
         {
             "source_id": 1,
             "source_type": "Dir",
-            "pathname": "/mnt/nas_share/NAS5-Image/X3C-1080-RAW/data_cp",
-            "source_width": 1920,
-            "source_height": 1080,
-            "source_data_type": "YUYV",
-            "frame_rate": 30.0,
+            "pathname": "/home/test/data/DR/DR_X8B_RAW12_Padding/data-3",
+            "source_width": 3840,
+            "source_height": 2160,
+            "source_data_type": "RAW12-PAD",
+            "frame_rate": 25.0,
             "channel_id": 1,
-            "output_data_type": "YUYV"
+            "output_data_type": "RAW12-PAD"
+        },
+        {
+            "source_id": 2,
+            "source_type": "Dir",
+            "pathname": "/home/test/data/DR/dongruan-x3c-lupai_4ch_1920_1280_raw12_padding/data-1",
+            "source_width": 1920,
+            "source_height": 1280,
+            "source_data_type": "RAW12-PAD",
+            "frame_rate": 12.5,
+            "channel_id": 4,
+            "output_data_type": "RAW12-PAD"
+        },
+        {
+            "source_id": 3,
+            "source_type": "Dir",
+            "pathname": "/home/test/data/DR/dongruan-x3c-lupai_4ch_1920_1280_raw12_padding/data-2",
+            "source_width": 1920,
+            "source_height": 1280,
+            "source_data_type": "RAW12-PAD",
+            "frame_rate": 12.5,
+            "channel_id": 5,
+            "output_data_type": "RAW12-PAD"
+        },
+        {
+            "source_id": 4,
+            "source_type": "Dir",
+            "pathname": "/home/test/data/DR/dongruan-x3c-lupai_4ch_1920_1280_raw12_padding/data-3",
+            "source_width": 1920,
+            "source_height": 1280,
+            "source_data_type": "RAW12-PAD",
+            "frame_rate": 12.5,
+            "channel_id": 6,
+            "output_data_type": "RAW12-PAD"
+        },
+        {
+            "source_id": 5,
+            "source_type": "Dir",
+            "pathname": "/home/test/data/DR/dongruan-x3c-lupai_4ch_1920_1280_raw12_padding/data-4",
+            "source_width": 1920,
+            "source_height": 1280,
+            "source_data_type": "RAW12-PAD",
+            "frame_rate": 12.5,
+            "channel_id": 7,
+            "output_data_type": "RAW12-PAD"
         }
     ]
 }
