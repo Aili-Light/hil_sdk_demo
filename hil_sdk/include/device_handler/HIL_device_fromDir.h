@@ -29,33 +29,35 @@ SOFTWARE.
 class HILDeviceFromDir : public ALGInputDevice
 {
 protected:
-    HILDeviceFromDir();
-    virtual ~HILDeviceFromDir();
+    HILDeviceFromDir                   ();
+    virtual ~HILDeviceFromDir          ();
 public:
-    virtual int   GetWidth(const int ch_id)const ;
-    virtual int   GetHeight(const int ch_id)const ;
-    virtual void* GetVideoSource(const int ch_id);
-    
-public:
-    virtual void  RegisterDevice(VideoSourceParam* param);
-    virtual bool  Init();
-    virtual void  Wait();
-    virtual void  Release();
-    virtual void  CloseStreamAll();
-    virtual void  StartStreamAll();
-    virtual int   GetVideoSourceNum() const;
-    virtual void  LoopTimeSync();
-    virtual void  LoopFrameSync();
-
-public:
-    static HILDeviceFromDir *GetInstance();
-    static void onMSGCallback(void *data);   
+    virtual int                         GetWidth(const int ch_id)const ;
+    virtual int                         GetHeight(const int ch_id)const ;
+    virtual void*                       GetVideoSource(const int ch_id);
+           
+public:           
+    virtual void                        RegisterDevice(VideoSourceParam* param);
+    virtual bool                        Init();
+    virtual void                        Wait();
+    virtual void                        Release();
+    virtual void                        CloseStreamAll();
+    virtual void                        StartStreamAll();
+    virtual int                         GetVideoSourceNum() const;
+    virtual void                        LoopTimeSync();
+    virtual void                        LoopFrameSync();
+           
+public:           
+    static HILDeviceFromDir             *GetInstance();
+    static void                         onMSGCallback(void *data);   
 
 protected:
     std::vector<VideoSourceFromDir*>   m_sources;
 
 private:
-    virtual int   SetSyncMode();
+    virtual int                         SetSyncMode();
+    virtual void                        Loop(void* p);
+    virtual void                        LoopSync(void* p);
 };
 
 #ifdef __cplusplus

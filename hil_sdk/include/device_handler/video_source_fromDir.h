@@ -41,6 +41,7 @@ public:
     virtual void Loop();
     virtual void WaitForFinish();
     virtual void FreeVideoSource();
+    virtual void SendData();
 
 private:
     void         LoadImageFromDir();
@@ -52,6 +53,7 @@ private:
     uint32_t     m_image_size;
     uint32_t     m_filename_size;
     std::vector<std::string> s_img_filenames;
+    std::vector<std::string>::iterator it_file;
 
     ImageFeed    m_image_feed;
 };
