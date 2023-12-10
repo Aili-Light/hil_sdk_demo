@@ -40,6 +40,7 @@ public:
     virtual void Loop();
     virtual void WaitForFinish();
     virtual void FreeVideoSource();
+    virtual void SendData();
 
 private:
     int          LoadImageFromFile();

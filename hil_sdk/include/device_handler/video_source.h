@@ -57,6 +57,7 @@ protected:
     virtual void            WaitForFinish();
     virtual void            FreeVideoSource();
     virtual bool            StreamOn(bool b_on);
+    virtual void            SendData();
 public:           
     int                     GetChannelId()const{ return m_ch_id; }
     int                     GetWidth()const{ return m_image_width; }

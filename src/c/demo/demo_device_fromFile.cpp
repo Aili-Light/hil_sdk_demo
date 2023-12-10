@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         // Main Loop
         while(1)
         {
-            usleep(100);
+            usleep(1000);
         }
 
         // Wait Until Stream Finish

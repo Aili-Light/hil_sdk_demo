@@ -27,44 +27,53 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <mutex>
+#include <condition_variable>
 #include "device_handler/video_source.h"
 
 class ALGInputDevice
 {
 protected:
-    ALGInputDevice();
-    virtual ~ALGInputDevice();
+    ALGInputDevice            ();
+    virtual ~ALGInputDevice   ();
 public:
-    virtual int   GetWidth(const int ch_id) const ;
-    virtual int   GetHeight(const int ch_id) const ;
-    virtual void* GetVideoSource(const int ch_id);
+    virtual int               GetWidth(const int ch_id) const ;
+    virtual int               GetHeight(const int ch_id) const ;
+    virtual void*             GetVideoSource(const int ch_id);
+            
+public:            
+    virtual void              RegisterDevice(VideoSourceParam* param);
+    virtual bool              Init();
+    virtual void              Wait();
+    virtual void              Release();
+    virtual void              CloseStreamAll();
+    virtual void              StartStreamAll();
+    virtual void              StartStream(const int ch_id);
+    virtual int               GetVideoSourceNum()const;
+    virtual void              LoopTimeSync();
+    virtual void              LoopFrameSync();
 
 public:
-    virtual void  RegisterDevice(VideoSourceParam* param);
-    virtual bool  Init();
-    virtual void  Wait();
-    virtual void  Release();
-    virtual void  CloseStreamAll();
-    virtual void  StartStreamAll();
-    virtual void  StartStream(const int ch_id);
-    virtual int   GetVideoSourceNum()const;
-    virtual void  LoopTimeSync();
-    virtual void  LoopFrameSync();
-
-public:
-    static ALGInputDevice *GetInstance();
-    static void onMSGCallback(void *data);   
+    static ALGInputDevice     *GetInstance();
+    static void               onMSGCallback(void *data);   
 
 protected:
-    virtual int   SetSyncMode();
+    virtual int               SetSyncMode();
+    virtual void              Loop(void* p);
+    virtual void              LoopSync(void* p);
 
 protected:
-    std::thread   m_loop_th;
+    std::thread               m_loop_th;
+    std::vector<std::thread*> thread_list;
+    std::mutex                m_mutex;
+    std::condition_variable   cond_var; 
 
-    uint64_t      t_now;
-    uint64_t      t_last;
-    float         m_frame_rate;
-    int           m_sync_mode;
+protected:
+    uint64_t                  t_now;
+    uint64_t                  t_last;
+    float                     m_frame_rate;
+    int                       m_sync_mode;
+    bool                      m_thread_started;
 };
 
 
