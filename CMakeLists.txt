@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 project(hil_sdk_demo)
+set(CMAKE_CXX_STANDARD 11)
 
 message(STATUS "Processor name is ${CMAKE_SYSTEM_PROCESSOR}")
 include_directories(
