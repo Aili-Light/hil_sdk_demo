@@ -46,13 +46,16 @@ public:
     virtual int                         GetVideoSourceNum() const;
     virtual void                        LoopTimeSync();
     virtual void                        LoopFrameSync();
-           
+    virtual void                        SetCallbackFunc(alg_hil_callback_func func);
+     
 public:           
     static HILDeviceFromFile            *GetInstance();
-    static void                         onMSGCallback(void *data);   
 
 protected:
     std::vector<VideoSourceFromFile*>   m_sources;
+
+private:
+    static void                         onMSGCallback(void *data);   
 
 private:
     virtual int                         SetSyncMode();

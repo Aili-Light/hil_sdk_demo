@@ -31,6 +31,8 @@ SOFTWARE.
 #include <condition_variable>
 #include "device_handler/video_source.h"
 
+typedef void(*alg_hil_callback_func)(void* p);
+
 class ALGInputDevice
 {
 protected:
@@ -52,15 +54,16 @@ public:
     virtual int               GetVideoSourceNum()const;
     virtual void              LoopTimeSync();
     virtual void              LoopFrameSync();
+    virtual void              SetCallbackFunc(alg_hil_callback_func func);
 
 public:
     static ALGInputDevice     *GetInstance();
-    static void               onMSGCallback(void *data);   
 
 protected:
     virtual int               SetSyncMode();
     virtual void              Loop(void* p);
     virtual void              LoopSync(void* p);
+    static void               onMSGCallback(void *data);   
 
 protected:
     std::thread               m_loop_th;
