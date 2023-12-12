@@ -69,8 +69,13 @@ SOFTWARE.
 #define ALG_SDK_MAX_CHANNEL 12
 #define ALG_SDK_MAX_DESERDES 12
 #define ALG_SDK_CHANNEL_PER_DEV 4
-#define MAX_FILE_PATH_LENGTH 60
-#define ONE_MAX_TRANSMISSION_SIZE 65535
+#define ALG_SDK_FILE_PATH_LEN       255
+#define MAX_FILE_PATH_LENGTH        60
+#define ONE_MAX_TRANSMISSION_SIZE   65535
+
+#define  AILI_FILE_NAME_LENTH    32
+#define AILI_FILE_SUPPORT_MAX_NUM   128
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -238,7 +243,13 @@ extern "C"
         AILI_SLAVE_TRIGGER_NAGTIVE,      // 脉冲负极性
         AILI_SLAVE_TRIGGER_MAX,
     };
-
+#pragma pack(push,1)
+    typedef struct
+    {
+        uint8_t file_dir;
+        char    file_name[AILI_FILE_NAME_LENTH];
+    }aili_file_attribute;
+#pragma pack(pop)
     typedef enum
     {
         AILI_SET_STREAM_ACTIVE = 0,
