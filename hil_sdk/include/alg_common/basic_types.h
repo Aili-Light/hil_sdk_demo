@@ -55,12 +55,13 @@ SOFTWARE.
 #define ALG_SDK_NOTIFY_MSG_SIZE 1024
 
 #define ALG_SDK_TOPIC_NAME_IMAGE_DATA "/image_data/stream"
+#define ALG_SDK_TOPIC_NAME_IMAGE_DATA_OUT "/image_data/output"
 #define ALG_SDK_TOPIC_NAME_POC_INFO "/dev_info/poc_info"
 #define ALG_SDK_TOPIC_NAME_HIL_MSG "/feedback/hil_message"
 
 #define ALG_SDK_CLIENT_THREAD_NUM_MAX 32
 
-#define ALG_SDK_PAYLOAD_LEN_MAX 2 * 4096 * 4096
+#define ALG_SDK_PAYLOAD_LEN_MAX 4 * 4096 * 4096
 #define ALG_SDK_CALLBACK_MESG_LEN 65535+256
 #define ALG_SDK_AMP_PROTOCAL_HEAD 0x5A
 #define ALG_SDK_SERVICE_SENSOR_CONFIG_MAX_LINE 8192
@@ -242,6 +243,13 @@ extern "C"
         AILI_SLAVE_TRIGGER_POSITIVE = 0, // 脉冲正极性
         AILI_SLAVE_TRIGGER_NAGTIVE,      // 脉冲负极性
         AILI_SLAVE_TRIGGER_MAX,
+    };
+
+    enum
+    {
+        ALG_SDK_SERVER_FLAG_PUB2DEV = 0,   // server publish data to HIL device
+        ALG_SDK_SERVER_FLAG_FB2USER = 1,    // server publish feedback to user
+        ALG_SDK_SERVER_FLAG_PUB2USER = 2,    // server publish data to user
     };
 #pragma pack(push,1)
     typedef struct

@@ -56,6 +56,18 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     )
     set_target_properties(${PROJECT_NAME}_device_fromDir PROPERTIES LINKER_LANGUAGE CXX)
 
+    add_executable(${PROJECT_NAME}_device_fromALGPub
+        src/c/demo/demo_device_fromALGPub.cpp
+    )
+    target_link_libraries(${PROJECT_NAME}_device_fromALGPub
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
+        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
+        pthread
+        rt
+    )
+    set_target_properties(${PROJECT_NAME}_device_fromDir PROPERTIES LINKER_LANGUAGE CXX)
+
     if (WITH_QCAP)
         include_directories(${CMAKE_SOURCE_DIR}/qcap_lib
         )
@@ -109,5 +121,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     install (TARGETS ${PROJECT_NAME}_service RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
     install (TARGETS ${PROJECT_NAME}_device_fromFile RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
     install (TARGETS ${PROJECT_NAME}_device_fromDir RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+    install (TARGETS ${PROJECT_NAME}_device_fromALGPub RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
 endif()
 
