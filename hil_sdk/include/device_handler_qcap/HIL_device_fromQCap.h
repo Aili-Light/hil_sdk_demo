@@ -29,25 +29,26 @@ SOFTWARE.
 class HILDeviceFromQCap : public ALGInputDevice
 {
 protected:
-    HILDeviceFromQCap();
-    virtual ~HILDeviceFromQCap();
+    HILDeviceFromQCap                   ();
+    virtual ~HILDeviceFromQCap          ();
 public:
-    virtual int   GetWidth(const int ch_id)const ;
-    virtual int   GetHeight(const int ch_id)const ;
-    virtual void* GetVideoSource(const int ch_id);
+    virtual int                         GetWidth(const int ch_id)const ;
+    virtual int                         GetHeight(const int ch_id)const ;
+    virtual void*                       GetVideoSource(const int ch_id);
+                      
+public:                      
+    virtual void                        RegisterDevice(VideoSourceParam* param);
+    virtual bool                        Init();
+    virtual void                        Wait();
+    virtual void                        Release();
+    virtual void                        CloseStreamAll();
+    virtual void                        StartStreamAll();
+    virtual int                         GetVideoSourceNum() const;
+    virtual void                        SetCallbackFunc(alg_hil_callback_func func);
 
 public:
-    virtual void  RegisterDevice(VideoSourceParam* param);
-    virtual bool  Init();
-    virtual void  Wait();
-    virtual void  Release();
-    virtual void  CloseStreamAll();
-    virtual void  StartStreamAll();
-    virtual int   GetVideoSourceNum() const;
-
-public:
-    static HILDeviceFromQCap *GetInstance();
-    static void onMSGCallback(void *data);   
+    static HILDeviceFromQCap            *GetInstance();
+    static void                         onMSGCallback(void *data);   
 
 protected:
     std::vector<VideoSourceFromQCap*>   m_sources;
