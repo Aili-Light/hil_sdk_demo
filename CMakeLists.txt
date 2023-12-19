@@ -78,19 +78,25 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set_target_properties(${PROJECT_NAME}_device_fromDir PROPERTIES LINKER_LANGUAGE CXX)
 
     if (WITH_QCAP)
-        include_directories(${CMAKE_SOURCE_DIR}/qcap_lib
-        )
+        include_directories(${CMAKE_SOURCE_DIR}/qcap_lib)
 
-        link_directories(
-            ${CMAKE_SOURCE_DIR}/qcap_lib/lib/
-        )
+        link_directories(${CMAKE_SOURCE_DIR}/qcap_lib/lib/)
 
-        add_executable(${PROJECT_NAME}_device_fromQCap
-            ${UTILS_SRC_LIST}
-            ${DEVICE_HANDLER_SRC_LIST}
-            ${DEVICE_HANDLER_QCAP_SRC_LIST}
-            src/c/demo/demo_device_fromQCap.cpp
+        add_executable(${PROJECT_NAME}_QCap_Pub 
+            src/c/demo/demo_QCAP_Pub.cpp
+            src/c/qcap/qcapdev.cpp
         )
+        target_link_libraries(${PROJECT_NAME}_QCap_Pub
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so  
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
+            pthread
+            anl
+            -lqcap.x64
+        )
+        install (TARGETS ${PROJECT_NAME}_QCap_Pub RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+
+        add_executable(${PROJECT_NAME}_device_fromQCap src/c/demo/demo_device_fromQCap.cpp)
         target_link_libraries(${PROJECT_NAME}_device_fromQCap
             ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
             ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
