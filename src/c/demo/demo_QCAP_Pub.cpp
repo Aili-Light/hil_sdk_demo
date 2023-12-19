@@ -40,6 +40,7 @@ SOFTWARE.
 #include "alg_common/basic_types.h"
 #include "utils/utils.h"
 #include "qcap/qcapdev.h"
+#include "alg_cvt/alg_cvtColor.h"
 
 bool g_signal_recieved = false;
 QCapDev *g_capture;
@@ -47,6 +48,7 @@ pcie_common_head_t g_img_header;
 pcie_image_info_meta_t g_img_info;
 pcie_image_data_t g_img_data;
 uint32_t g_seq = 0;
+uint8_t g_buf_rgb[ALG_SDK_PAYLOAD_LEN_MAX];
 
 int fatal(const char *msg)
 {
@@ -96,14 +98,7 @@ QRETURN on_video_preview_callback(PVOID pDevice, double dSampleTime, BYTE *pFram
 
     pcie_image_data_t *img_data = &g_img_data;
     img_data->image_info_meta = *img_info;
-    if (img_size != img_data->image_info_meta.img_size)
-    {
-        printf("Image Size Not Match!!!\n");
-        QCAP_RCBUFFER_UNLOCK_DATA(pRCBuffer);
-        return QCAP_RT_FAIL;
-    }
 
-    memcpy(img_data->payload, pAVFrame->pData[0], img_size);
     // img_data->payload = (uint8_t *)pAVFrame->pData[0];
     printf("SEQ : %d, TS : %ld, size : %d\n", g_seq, img_data->image_info_meta.timestamp,
            img_data->image_info_meta.img_size);
@@ -114,6 +109,7 @@ QRETURN on_video_preview_callback(PVOID pDevice, double dSampleTime, BYTE *pFram
     * e.g. convert YUYV to RGB
     * alg_cv::alg_sdk_cvtColor((uint8_t *)pAVFrame->pData[0], (uint8_t *)buf_rgb, w, h, alg_cv::ALG_CV_YUV2RGBCVT_YUYV);
     */
+    alg_cv::alg_sdk_cvtColor((uint8_t *)pAVFrame->pData[0], (uint8_t *)g_buf_rgb, img_data->image_info_meta.width, img_data->image_info_meta.height, alg_cv::ALG_CV_YUV2RGBCVT_YUYV);
 
     /* 
     *  Send your image to HIL Device 
@@ -121,16 +117,11 @@ QRETURN on_video_preview_callback(PVOID pDevice, double dSampleTime, BYTE *pFram
     *  e.g. your image is YUYV, source_type is YUYV
     *  e.g. your image is RGB,  source_type is RGB
     */
+    // memcpy(img_data->payload, pAVFrame->pData[0], img_size);
+    memcpy(img_data->payload, g_buf_rgb, img_data->image_info_meta.img_size);
     alg_sdk_push2q(img_data, ch_id);
 
-    if (g_capture->m_Flags == QCapDev::WriteFrame)
-    {
-        sprintf(filename_raw, "data/image_%02d_%lu.raw", ch_id, t_now);
-        FILE *fp = fopen(filename_raw, "wb");
-        fwrite(pAVFrame->pData[0], 1, pAVFrame->nPitch[0] * g_capture->m_nVideoHeight, fp);
-        fclose(fp);
-    }
-
+    /* finish 1 frame */
     QCAP_RCBUFFER_UNLOCK_DATA(pRCBuffer);
 
     // printf("Data [Id:%ld] [TS:%f] [Len:%ld] [Width:%d] [Height:%d] [Buff0:%d]\n", i, dSampleTime, nFrameBufferLen, pAVFrame->nWidth, pAVFrame->nHeight, pAVFrame->pData[0]);
@@ -290,7 +281,8 @@ int main(int argc, char *argv[])
 
         const int rate = 30;
         const int ops = QCapDev::Default;
-        const uint32_t image_size = image_width * image_height * 2;
+        // const uint32_t image_size = image_width * image_height * 2;  // if publish YUV image, set size x2
+        const uint32_t image_size = image_width * image_height * 3;  // if publish RGB image, set size x3
 
         QCapDev cap(image_width, image_height, channel_id, rate, ops);
         g_capture = &cap;
@@ -321,7 +313,8 @@ int main(int argc, char *argv[])
         img_info->width = image_width;
         img_info->height = image_height;
         /* */
-        img_info->data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
+        // img_info->data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;    // if publish YUV image, set ALG_SDK_MIPI_DATA_TYPE_YUYV
+        img_info->data_type = ALG_SDK_MIPI_DATA_TYPE_RGB888;  // if publish RGB image, set type ALG_SDK_MIPI_DATA_TYPE_RGB888
         img_info->exposure = 1.0;
         img_info->again = 1.0;
         img_info->dgain = 0.0;
