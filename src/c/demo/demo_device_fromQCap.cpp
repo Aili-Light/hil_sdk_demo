@@ -27,6 +27,14 @@ SOFTWARE.
 #include <unistd.h>
 #include "device_handler_qcap/HIL_device_fromQCap.h"
 
+void callback(void* data)
+{
+    hil_mesg_t *msg = (hil_mesg_t*)data;
+    // printf("MSG : %s\n", msg->msg_meta.msg);
+    printf("ALG HIL CB [time : %ld], [ch : %d], [Frame : %d], [Count : %d]\n", msg->msg_meta.timestamp, msg->msg_meta.ch_id, 
+    msg->msg_meta.frame_index, msg->msg_meta.buffer_count);
+}
+
 int main(int argc, char **argv)
 {
     if (argc > 2)
@@ -41,6 +49,7 @@ int main(int argc, char **argv)
 
         HILDeviceFromQCap *hil_device = HILDeviceFromQCap::GetInstance();
 
+        /* Register Devices */
         for (int i = 0; i < num_channel; i++)
         {
             const char *config_file = argv[2];
@@ -51,6 +60,10 @@ int main(int argc, char **argv)
             hil_device->RegisterDevice(&param);
         }
 
+        /* Set Callback Function */
+        hil_device->SetCallbackFunc(callback);
+
+        /* Init HIL Device */
         if(!hil_device->Init())
         {
             fprintf(stderr, "Init device failed");
