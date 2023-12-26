@@ -5,14 +5,14 @@
         {
             "source_id": 0,
             "source_type": "QCAP",
-            "source_width": 1280,
-            "source_height": 720,
+            "source_width": 1824,
+            "source_height": 940,
             "source_name": "HDMI",
             "source_data_type": "YUYV",
-            "bayer_pattern": "RGGB",
+            "bayer_pattern": "RCCC",
             "frame_rate": 30.0,
             "channel_id": 1,
-            "output_data_type": "YUYV"
+            "output_data_type": "RAW12-PAD"
         }
     ]
 }

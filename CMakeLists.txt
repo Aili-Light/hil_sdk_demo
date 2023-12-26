@@ -78,25 +78,19 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set_target_properties(${PROJECT_NAME}_device_fromDir PROPERTIES LINKER_LANGUAGE CXX)
 
     if (WITH_QCAP)
-        include_directories(${CMAKE_SOURCE_DIR}/qcap_lib)
-
-        link_directories(${CMAKE_SOURCE_DIR}/qcap_lib/lib/)
-
-        add_executable(${PROJECT_NAME}_QCap_Pub 
-            src/c/demo/demo_QCAP_Pub.cpp
-            src/c/qcap/qcapdev.cpp
+        include_directories(${CMAKE_SOURCE_DIR}/qcap_lib
         )
-        target_link_libraries(${PROJECT_NAME}_QCap_Pub
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so  
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
-            pthread
-            anl
-            -lqcap.x64
-        )
-        install (TARGETS ${PROJECT_NAME}_QCap_Pub RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
 
-        add_executable(${PROJECT_NAME}_device_fromQCap src/c/demo/demo_device_fromQCap.cpp)
+        link_directories(
+            ${CMAKE_SOURCE_DIR}/qcap_lib/lib/
+        )
+
+        add_executable(${PROJECT_NAME}_device_fromQCap
+            ${UTILS_SRC_LIST}
+            ${DEVICE_HANDLER_SRC_LIST}
+            ${DEVICE_HANDLER_QCAP_SRC_LIST}
+            src/c/demo/demo_device_fromQCap.cpp
+        )
         target_link_libraries(${PROJECT_NAME}_device_fromQCap
             ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
             ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
@@ -129,6 +123,26 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         set_target_properties(${PROJECT_NAME}_device_fromVTD PROPERTIES LINKER_LANGUAGE CXX)
     endif()
 
+    if (WITH_FFMPEG)
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET libavcodec libavdevice libavfilter libavformat libavutil libpostproc)
+        message("-- FFMPEG INCL: ${FFMPEG_INCLUDE_DIRS}")
+        message("-- FFMPEG LIBS: ${FFMPEG_LIBRARY_DIRS}")
+        add_executable(${PROJECT_NAME}_device_fromVideo
+            src/c/demo/demo_device_fromVideo.cpp
+        )
+        target_link_libraries(${PROJECT_NAME}_device_fromVideo
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so 
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_decode.so   
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_video_decode_ffmpeg.so
+            pthread
+            anl
+            PkgConfig::FFMPEG
+        )
+        install (TARGETS ${PROJECT_NAME}_device_fromVideo RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+        set_target_properties(${PROJECT_NAME}_device_fromVideo PROPERTIES LINKER_LANGUAGE CXX)
+    endif()
 
     FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/lib*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)

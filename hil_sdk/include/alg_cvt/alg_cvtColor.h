@@ -64,6 +64,18 @@ namespace alg_cv
         ALG_CV_YUYV2VUY2 = 0x84,
         ALG_CV_YUYV2Y2UV = 0x85,
         ALG_CV_YUYV2Y2VU = 0x86,
+        ALG_CV_I4202YUV_YUYV = 0x90,
+        ALG_CV_I4202YUV_YVYU = 0x91,
+        ALG_CV_I4202YUV_UYVY = 0x92,
+        ALG_CV_I4202YUV_VYUY = 0x93,
+        ALG_CV_NV12ToYUV_YUYV = 0x94,
+        ALG_CV_NV12ToYUV_YVYU = 0x95,
+        ALG_CV_NV12ToYUV_UYVY = 0x96,
+        ALG_CV_NV12ToYUV_VYUY = 0x97,
+        ALG_CV_NV21ToYUV_YUYV = 0x98,
+        ALG_CV_NV21ToYUV_YVYU = 0x99,
+        ALG_CV_NV21ToYUV_UYVY = 0x9a,
+        ALG_CV_NV21ToYUV_VYUY = 0x9b,
     };
 
     /* return color space type enum
