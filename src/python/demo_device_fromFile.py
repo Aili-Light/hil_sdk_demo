@@ -7,6 +7,16 @@ from ctypes import *
 
 from algDeviceHandler import HILDeviceFromFile
 from algDeviceHandler import VideoSourceParam
+from algDeviceHandler import callbackFunc_t
+from algDeviceHandler import hil_mesg_t
+
+def CallbackFunc(ptr):
+    p = ctypes.cast(ptr, ctypes.POINTER(hil_mesg_t))
+    print('ALG HIL-Py CB [time : %d], [ch : %d], [Frame : %d], [Count : %d]'
+          % (p.contents.msg_meta.timestamp, 
+             p.contents.msg_meta.ch_id,
+             p.contents.msg_meta.frame_index,
+             p.contents.msg_meta.buffer_count))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -38,6 +48,10 @@ if __name__ == '__main__':
         param.source_id = i
         param.config_file = config_file_path.encode('utf-8')
         dev.RegisterDevice(param)
+
+    # Set Callback Function
+    callback_func = callbackFunc_t(CallbackFunc)
+    dev.SetCallbackFunc(callback_func)
 
     # Init Device Handler
     if (dev.Init() is not True):

@@ -19,7 +19,7 @@ if __name__ == '__main__':
     )
     parser.add_argument('--type',
                         type=str,
-                        help="init type",
+                        help="init type, e.g. --type=--subscribe",
                         required=True
     )
     args = parser.parse_args()

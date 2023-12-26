@@ -96,6 +96,11 @@ extern "C" {
     {
         self->Wait();
     }
+
+    void HILDevALGPub_SetCallbackFunc(HILDeviceFromALGPub* self, alg_hil_callback_func func)
+    {
+        self->SetCallbackFunc(func);
+    }
 }
 
 #endif

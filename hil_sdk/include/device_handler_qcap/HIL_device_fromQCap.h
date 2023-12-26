@@ -87,6 +87,11 @@ extern "C" {
     {
         self->Wait();
     }
+
+    void HILDevQCap_SetCallbackFunc(HILDeviceFromQCap* self, alg_hil_callback_func func)
+    {
+        self->SetCallbackFunc(func);
+    }
 }
 
 #endif

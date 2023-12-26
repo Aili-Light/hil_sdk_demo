@@ -71,9 +71,6 @@ class service_set_image_write_param(Structure):
     ("ack_code", c_uint8)
     ]
 
-callbackFunc_t = ctypes.CFUNCTYPE(c_void_p, c_void_p)
-notifyFunc_t = ctypes.CFUNCTYPE(c_void_p, c_void_p)
-
 processor_name = platform.processor()
 pcie_sdk = ctypes.CDLL('../../hil_sdk/lib/linux/'+processor_name+'/libhil_sdk.so')
 
