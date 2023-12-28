@@ -10,7 +10,7 @@
             "source_width": 1920,
             "source_height": 1080,
             "is_dir": 0,
-            "source_data_type": "YUYV",
+            "source_data_type": "RGB8",
             "frame_rate": 30.0,
             "channel_id": 0,
             "output_data_type": "YUYV"
