@@ -144,6 +144,24 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         set_target_properties(${PROJECT_NAME}_device_fromVideo PROPERTIES LINKER_LANGUAGE CXX)
     endif()
 
+    if (WITH_OPENCV)
+        find_package(OpenCV REQUIRED)
+        include_directories(${OpenCV_INCLUDE_DIRS})
+        add_executable(${PROJECT_NAME}_device_fromImage
+            src/c/demo/demo_device_fromImage.cpp
+        )
+        target_link_libraries(${PROJECT_NAME}_device_fromImage
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so 
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_image.so   
+            pthread
+            anl
+            ${OpenCV_LIBS}
+        )
+        install (TARGETS ${PROJECT_NAME}_device_fromImage RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+        set_target_properties(${PROJECT_NAME}_device_fromImage PROPERTIES LINKER_LANGUAGE CXX)
+    endif()
+
     FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/lib*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
     install (TARGETS ${PROJECT_NAME}_init RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
