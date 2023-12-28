@@ -171,4 +171,49 @@ class HILDeviceFromVideo(object):
         
     def SetCallbackFunc(self, callback_func):
         device_handler_decode.HILDevVideo_SetCallbackFunc(self.obj, callback_func)
+
+# only with OPENCV
+device_handler_image = ctypes.CDLL('../../hil_sdk/lib/linux/'+processor_name+'/libhil_sdk_device_image.so', mode=ctypes.RTLD_GLOBAL)
+class HILDeviceFromImage(object):
+    def __init__(self):
+        # Declare input and output types for each method you intend to use
+        device_handler_image.HILDevImage_GetInstance.argtypes = []
+        device_handler_image.HILDevImage_GetInstance.restype = ctypes.c_void_p
+
+        device_handler_image.HILDevImage_RegisterDevice.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+        device_handler_image.HILDevImage_RegisterDevice.restype = ctypes.c_void_p
+
+        device_handler_image.HILDevImage_Init.argtypes = [ctypes.c_void_p]
+        device_handler_image.HILDevImage_Init.restype = ctypes.c_bool
+
+        device_handler_image.HILDevImage_StartStreamAll.argtypes = [ctypes.c_void_p]
+        device_handler_image.HILDevImage_StartStreamAll.restype = ctypes.c_void_p
+
+        device_handler_image.HILDevImage_CloseStreamAll.argtypes = [ctypes.c_void_p]
+        device_handler_image.HILDevImage_CloseStreamAll.restype = ctypes.c_void_p
+
+        device_handler_image.HILDevImage_Wait.argtypes = [ctypes.c_void_p]
+        device_handler_image.HILDevImage_Wait.restype = ctypes.c_void_p
+
+        device_handler_image.HILDevImage_SetCallbackFunc.argtypes = [ctypes.c_void_p, callbackFunc_t]
+        device_handler_image.HILDevImage_SetCallbackFunc.restype = ctypes.c_void_p
         
+        self.obj = device_handler_image.HILDevImage_GetInstance()
+
+    def Init(self):
+        return device_handler_image.HILDevImage_Init(self.obj)
+
+    def RegisterDevice(self, param):
+        device_handler_image.HILDevImage_RegisterDevice(self.obj, ctypes.pointer(param))
+    
+    def StartStreamAll(self):
+        device_handler_image.HILDevImage_StartStreamAll(self.obj)
+
+    def CloseStreamAll(self):
+        device_handler_image.HILDevImage_CloseStreamAll(self.obj)
+
+    def Wait(self):
+        device_handler_image.HILDevImage_Wait(self.obj)
+        
+    def SetCallbackFunc(self, callback_func):
+        device_handler_image.HILDevImage_SetCallbackFunc(self.obj, callback_func)
