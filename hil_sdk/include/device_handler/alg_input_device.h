@@ -28,10 +28,13 @@ SOFTWARE.
 #include <string>
 #include <vector>
 #include <mutex>
+#include <thread>
 #include <condition_variable>
-#include "device_handler/video_source.h"
 
 typedef void(*alg_hil_callback_func)(void* p);
+
+class VideoSource;
+struct VideoSourceParam;
 
 class ALGInputDevice
 {
@@ -41,8 +44,8 @@ protected:
 public:
     virtual int               GetWidth(const int ch_id) const ;
     virtual int               GetHeight(const int ch_id) const ;
-    virtual void*             GetVideoSource(const int ch_id);
-            
+    virtual VideoSource*      GetVideoSource(const int ch_id);
+    virtual VideoSource*      GetVideoSourceByIndex(int index);
 public:            
     virtual void              RegisterDevice(VideoSourceParam* param);
     virtual bool              Init();
