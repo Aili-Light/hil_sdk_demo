@@ -21,8 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#ifndef __HIL_DEVICE_FROMDIR_H__
-#define __HIL_DEVICE_FROMDIR_H__
+#ifndef __HIL_DEVICE_FROMIMAGE_H__
+#define __HIL_DEVICE_FROMIMAGE_H__
 #include "device_handler/alg_input_device.h"
 #include "device_handler_image/video_source_fromImage.h"
 
