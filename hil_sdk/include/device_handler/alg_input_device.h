@@ -57,6 +57,7 @@ public:
     virtual int               GetVideoSourceNum()const;
     virtual void              LoopTimeSync();
     virtual void              LoopFrameSync();
+    virtual void              LoopDynamicBuffer();
     virtual void              SetCallbackFunc(alg_hil_callback_func func);
 
 public:
@@ -82,5 +83,13 @@ protected:
     bool                      m_thread_started;
 };
 
+typedef struct DeviceRuntimeArgs
+{
+    uint64_t                  t_last;      
+    uint64_t                  t_now;       
+    bool                      thread_ready;
+    uint32_t                  last_frame;  
+    uint32_t                  buffer_count;
+}DeviceRuntimeArgs_t;
 
 #endif
