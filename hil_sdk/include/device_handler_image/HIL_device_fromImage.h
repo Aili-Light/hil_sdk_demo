@@ -47,7 +47,6 @@ public:
     virtual int                         GetVideoSourceNum() const;
     virtual void                        LoopTimeSync();
     virtual void                        LoopFrameSync();
-    virtual void                        LoopDynamicBuffer();
     virtual void                        SetCallbackFunc(alg_hil_callback_func func);
 
 public:           
@@ -63,6 +62,7 @@ private:
     virtual int                         SetSyncMode();
     virtual void                        Loop(void* p);
     virtual void                        LoopSync(void* p);
+    virtual void                        LoopBuffer(void* p);
 };
 
 #ifdef __cplusplus
