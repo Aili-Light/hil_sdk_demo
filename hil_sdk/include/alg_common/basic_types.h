@@ -315,6 +315,7 @@ extern "C"
         uint32_t frame_index;
         uint64_t timestamp;
         uint32_t buffer_count;
+        uint32_t buffer_len;
         uint32_t msg_len;
         uint8_t  msg[ALG_SDK_NOTIFY_MSG_SIZE];
     } hil_mesg_meta_t;

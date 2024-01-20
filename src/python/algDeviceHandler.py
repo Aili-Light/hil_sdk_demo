@@ -24,6 +24,7 @@ class hil_mesg_meta_t(Structure):
     ("frame_index",c_uint32),
     ("timestamp",c_uint64),
     ("buffer_count",c_uint32),
+    ("buffer_len",c_uint32),
     ("msg_len",c_uint32),
     ("msg",c_uint8*ALG_SDK_NOTIFY_MSG_SIZE),
     ]

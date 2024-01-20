@@ -31,8 +31,8 @@ void callback(void* data)
 {
     hil_mesg_t *msg = (hil_mesg_t*)data;
     // printf("MSG : %s\n", msg->msg_meta.msg);
-    printf("ALG HIL CB [time : %ld], [ch : %d], [Frame : %d], [Count : %d]\n", msg->msg_meta.timestamp, msg->msg_meta.ch_id, 
-    msg->msg_meta.frame_index, msg->msg_meta.buffer_count);
+    printf("ALG HIL CB [time : %ld], [ch : %d], [Frame : %d], [Count : %d/%d]\n", msg->msg_meta.timestamp, msg->msg_meta.ch_id, 
+    msg->msg_meta.frame_index, msg->msg_meta.buffer_count, msg->msg_meta.buffer_len);
 }
 
 int main(int argc, char **argv)

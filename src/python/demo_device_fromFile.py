@@ -12,11 +12,12 @@ from algDeviceHandler import hil_mesg_t
 
 def CallbackFunc(ptr):
     p = ctypes.cast(ptr, ctypes.POINTER(hil_mesg_t))
-    print('ALG HIL-Py CB [time : %d], [ch : %d], [Frame : %d], [Count : %d]'
+    print('ALG HIL-Py CB [time : %d], [ch : %d], [Frame : %d], [Count : %d/%d]'
           % (p.contents.msg_meta.timestamp, 
              p.contents.msg_meta.ch_id,
              p.contents.msg_meta.frame_index,
-             p.contents.msg_meta.buffer_count))
+             p.contents.msg_meta.buffer_count,
+             p.contents.msg_meta.buffer_len))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

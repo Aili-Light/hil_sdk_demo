@@ -90,6 +90,7 @@ typedef struct DeviceRuntimeArgs
     bool                      thread_ready;
     uint32_t                  last_frame;  
     uint32_t                  buffer_count;
+    uint32_t                  buffer_len;
     float                     frame_rate;
 }DeviceRuntimeArgs_t;
 
