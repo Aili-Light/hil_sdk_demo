@@ -41,6 +41,7 @@ public:
     int                    SetSourceType(const char *c_data_type);
     int                    SetOutputType(const char *c_data_type);
     int                    SetOutputBayerType(const char *c_pattern_type);
+    int                    SetFrameRate(const float rate);
 
     /* Get Data */
     void*                  GetDataPtr();
