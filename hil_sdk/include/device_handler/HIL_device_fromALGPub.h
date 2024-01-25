@@ -47,7 +47,8 @@ public:
     virtual int                         GetVideoSourceNum() const;
     virtual void                        LoopTimeSync();
     virtual void                        SetCallbackFunc(alg_hil_callback_func func);
-     
+    virtual void                        SetLogLevel(int level);
+
 public:           
     static HILDeviceFromALGPub          *GetInstance();
 

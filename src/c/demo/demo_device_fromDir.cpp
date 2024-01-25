@@ -47,8 +47,9 @@ int main(int argc, char **argv)
             exit(1);
         }
 
+        /* Create Instance of HIL Device */
         HILDeviceFromDir *hil_device = HILDeviceFromDir::GetInstance();
-        
+
         /* Register Devices */
         for (int i = 0; i < num_channel; i++)
         {
@@ -58,6 +59,22 @@ int main(int argc, char **argv)
             memcpy(param.config_file, config_file, strlen(config_file)+1);
 
             hil_device->RegisterDevice(&param);
+        }
+
+        /* Set HIL Device Parameters */
+        if (argc > 3)
+        {
+            // printf("argv : %s, %s\n", argv[3], argv[4]);
+            for (int i=3; i <(argc-1); )
+            {
+                if (strncmp(argv[i], "--debug_level", strlen("--debug_level")) == 0)
+                {
+                    int debug_level=atoi(argv[i+1]);
+                    printf("set debug level:%d\n", debug_level);
+                    hil_device->SetLogLevel(debug_level);
+                }
+                i=i+2;
+            }
         }
 
         /* Set Callback Function */

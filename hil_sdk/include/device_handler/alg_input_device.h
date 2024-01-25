@@ -58,7 +58,8 @@ public:
     virtual void              LoopTimeSync();
     virtual void              LoopFrameSync();
     virtual void              SetCallbackFunc(alg_hil_callback_func func);
-
+    virtual void              SetLogLevel(int level);
+    
 public:
     static ALGInputDevice     *GetInstance();
 
