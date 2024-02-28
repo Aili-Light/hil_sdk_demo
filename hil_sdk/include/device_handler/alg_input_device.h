@@ -82,6 +82,7 @@ protected:
     float                     m_frame_rate;
     int                       m_sync_mode;
     bool                      m_thread_started;
+    bool                      m_thread_end;
 };
 
 typedef struct DeviceRuntimeArgs

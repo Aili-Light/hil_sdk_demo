@@ -25,7 +25,16 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include "device_handler_video/HIL_device_fromVideo.h"
+
+bool b_start_main_loop = true;
+
+void int_handler(int sig)
+{
+    printf("Keyboard Interrupt : %d\n", sig);
+    b_start_main_loop = false;
+}
 
 void callback(void* data)
 {
@@ -37,6 +46,8 @@ void callback(void* data)
 
 int main(int argc, char **argv)
 {
+    signal(SIGINT, int_handler);
+
     if (argc > 1)
     {
         const uint16_t num_channel = atoi(argv[1]);
@@ -91,11 +102,14 @@ int main(int argc, char **argv)
         hil_device->StartStreamAll();
 
         // Main Loop
-        while(1)
+        while(b_start_main_loop)
         {
             usleep(1000);
         }
 
+        // Close Stream
+        hil_device->CloseStreamAll();
+        
         // Wait Until Stream Finish
         hil_device->Wait();
     }

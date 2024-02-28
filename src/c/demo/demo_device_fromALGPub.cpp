@@ -25,7 +25,16 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include "device_handler/HIL_device_fromALGPub.h"
+
+bool b_start_main_loop = true;
+
+void int_handler(int sig)
+{
+    printf("Keyboard Interrupt : %d\n", sig);
+    b_start_main_loop = false;
+}
 
 void callback(void* data)
 {
@@ -91,11 +100,14 @@ int main(int argc, char **argv)
         hil_device->StartStreamAll();
 
         // Main Loop
-        while(1)
+        while(b_start_main_loop)
         {
-            usleep(100);
+            usleep(1000);
         }
 
+        // Close Stream
+        hil_device->CloseStreamAll();
+        
         // Wait Until Stream Finish
         hil_device->Wait();
     }
