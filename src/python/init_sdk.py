@@ -35,9 +35,9 @@ if __name__ == '__main__':
         print(' Init SDK Failed! result = %d ' % ret)
         sys.exit(0)
  
-    sdkHandler.Spin()
-
     while(True):
-        time.sleep(0.001)
+        time.sleep(1/10000.0)
+
+    sdkHandler.Spin()
 
     print('---------finish-------------')

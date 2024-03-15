@@ -107,9 +107,12 @@ int main(int argc, char **argv)
 
         // Close Stream
         hil_device->CloseStreamAll();
-        
+
         // Wait Until Stream Finish
         hil_device->Wait();
+
+        // Release Device
+        hil_device->Release();
     }
     else
     {
