@@ -25,7 +25,20 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include "device_handler_qcap/HIL_device_fromQCap.h"
+
+bool b_start_main_loop = true;
+HILDeviceFromQCap *hil_device;
+
+void int_handler(int sig)
+{
+    printf("Keyboard Interrupt : %d\n", sig);
+    b_start_main_loop = false;
+
+    // Close Stream
+    hil_device->CloseStreamAll();
+}
 
 void callback(void* data)
 {
@@ -37,6 +50,8 @@ void callback(void* data)
 
 int main(int argc, char **argv)
 {
+    signal(SIGINT, int_handler);
+
     if (argc > 2)
     {
         const uint16_t num_channel = atoi(argv[1]);
@@ -48,7 +63,7 @@ int main(int argc, char **argv)
         }
 
         /* Create Instance of HIL Device */
-        HILDeviceFromQCap *hil_device = HILDeviceFromQCap::GetInstance();
+        hil_device = HILDeviceFromQCap::GetInstance();
 
         /* Register Devices */
         for (int i = 0; i < num_channel; i++)
@@ -91,13 +106,16 @@ int main(int argc, char **argv)
         hil_device->StartStreamAll();
 
         // Main Loop
-        while(1)
+        while(b_start_main_loop)
         {
             usleep(100);
         }
 
         // Wait Until Stream Finish
         hil_device->Wait();
+
+        // Release Device
+        hil_device->Release();
     }
     else
     {

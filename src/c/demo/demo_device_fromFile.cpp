@@ -29,11 +29,15 @@ SOFTWARE.
 #include "device_handler/HIL_device_fromFile.h"
 
 bool b_start_main_loop = true;
+HILDeviceFromFile *hil_device;
 
 void int_handler(int sig)
 {
     printf("Keyboard Interrupt : %d\n", sig);
     b_start_main_loop = false;
+
+    // Close Stream
+    hil_device->CloseStreamAll();
 }
 
 void callback(void* data)
@@ -59,7 +63,7 @@ int main(int argc, char **argv)
         }
 
         /* Create Instance of HIL Device */
-        HILDeviceFromFile *hil_device = HILDeviceFromFile::GetInstance();
+        hil_device = HILDeviceFromFile::GetInstance();
         
         /* Register Devices */
         for (int i = 0; i < num_channel; i++)
@@ -106,9 +110,6 @@ int main(int argc, char **argv)
         {
             usleep(1000);
         }
-
-        // Close Stream
-        hil_device->CloseStreamAll();
 
         // Wait Until Stream Finish
         hil_device->Wait();
