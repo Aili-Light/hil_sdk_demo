@@ -7,11 +7,13 @@ import algSDKpy
 from algSDKpy import algSDKInit
 
 sdkHandler = algSDKInit()
+b_loop_start = True
 
 def int_handler(signum, frame):
-    print('---------SDK Stop-------------')
+    global b_loop_start
+    b_loop_start = False
     sdkHandler.Stop()
-    sys.exit(0)
+    exit(0)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -35,7 +37,7 @@ if __name__ == '__main__':
         print(' Init SDK Failed! result = %d ' % ret)
         sys.exit(0)
  
-    while(True):
+    while(b_loop_start):
         time.sleep(1/10000.0)
 
     sdkHandler.Spin()
