@@ -80,6 +80,9 @@ class HILDeviceFromFile(object):
     def Wait(self):
         device_handler.HILDevFile_Wait(self.obj)
         
+    def Release(self):
+        device_handler.HILDevFile_Release(self.obj)
+        
     def SetCallbackFunc(self, callback_func):
         device_handler.HILDevFile_SetCallbackFunc(self.obj, callback_func)
 
@@ -124,6 +127,9 @@ class HILDeviceFromDir(object):
     def Wait(self):
         device_handler.HILDevDir_Wait(self.obj)
 
+    def Release(self):
+        device_handler.HILDevDir_Release(self.obj)
+        
     def SetCallbackFunc(self, callback_func):
         device_handler.HILDevDir_SetCallbackFunc(self.obj, callback_func)
 
@@ -169,7 +175,10 @@ class HILDeviceFromVideo(object):
 
     def Wait(self):
         device_handler_decode.HILDevVideo_Wait(self.obj)
-        
+
+    def Release(self):
+        device_handler_decode.HILDevVideo_Release(self.obj)
+
     def SetCallbackFunc(self, callback_func):
         device_handler_decode.HILDevVideo_SetCallbackFunc(self.obj, callback_func)
 
@@ -215,6 +224,9 @@ class HILDeviceFromImage(object):
 
     def Wait(self):
         device_handler_image.HILDevImage_Wait(self.obj)
-        
+
+    def Release(self):
+        device_handler_image.HILDevImage_Release(self.obj)
+  
     def SetCallbackFunc(self, callback_func):
         device_handler_image.HILDevImage_SetCallbackFunc(self.obj, callback_func)

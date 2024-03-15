@@ -99,6 +99,11 @@ extern "C" {
         self->Wait();
     }
 
+    void HILDevALGPub_Release(HILDeviceFromALGPub* self)
+    {
+        self->Release();
+    }
+
     void HILDevALGPub_SetCallbackFunc(HILDeviceFromALGPub* self, alg_hil_callback_func func)
     {
         self->SetCallbackFunc(func);

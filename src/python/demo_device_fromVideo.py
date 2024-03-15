@@ -1,6 +1,7 @@
 import sys
 import time
 import argparse
+import signal
 import algDeviceHandler
 import ctypes
 from ctypes import *
@@ -9,6 +10,14 @@ from algDeviceHandler import HILDeviceFromVideo
 from algDeviceHandler import VideoSourceParam
 from algDeviceHandler import callbackFunc_t
 from algDeviceHandler import hil_mesg_t
+
+dev = HILDeviceFromVideo()
+b_loop_start = True
+
+def int_handler(signum, frame):
+    global b_loop_start
+    b_loop_start = False
+    dev.CloseStreamAll()
 
 def CallbackFunc(ptr):
     p = ctypes.cast(ptr, ctypes.POINTER(hil_mesg_t))
@@ -41,7 +50,7 @@ if __name__ == '__main__':
         print("ERROR! Number of Channel is incorrect!")
         sys.exit(1)
 
-    dev = HILDeviceFromVideo()
+    signal.signal(signal.SIGINT, int_handler)
 
     # Setup Device Parameters
     for i in range(0, num_channels):
@@ -63,10 +72,13 @@ if __name__ == '__main__':
     dev.StartStreamAll()
 
     # Main Loop
-    while(True):
+    while(b_loop_start):
         time.sleep(1/10000.0)
 
     #  Wait Until Stream Finish
     dev.Wait()
 
+    # Release
+    dev.Release()
+    
     print('---------finish-------------')

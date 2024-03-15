@@ -99,6 +99,11 @@ extern "C" {
         self->Wait();
     }
 
+    void HILDevImage_Release(HILDeviceFromImage* self)
+    {
+        self->Release();
+    }
+
     void HILDevImage_SetCallbackFunc(HILDeviceFromImage* self, alg_hil_callback_func func)
     {
         self->SetCallbackFunc(func);
