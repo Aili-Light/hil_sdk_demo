@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 message(STATUS "Processor name is ${CMAKE_SYSTEM_PROCESSOR}")
 include_directories(
+    ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/hil_sdk/include 
     ${CMAKE_SOURCE_DIR}/src/c
 )
@@ -41,53 +42,50 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         anl
     )
 
-    add_executable(${PROJECT_NAME}_device_fromFile
-        src/c/demo/demo_device_fromFile.cpp
+    if (WITH_FFMPEG)
+        add_definitions(-DWITH_FFMPEG)
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET libavcodec libavdevice libavfilter libavformat libavutil libpostproc)
+        message("-- FFMPEG INCL: ${FFMPEG_INCLUDE_DIRS}")
+        message("-- FFMPEG LIBS: ${FFMPEG_LIBRARY_DIRS}")
+    endif()
+
+    if (WITH_OPENCV)
+        add_definitions(-DWITH_OPENCV)
+        find_package(OpenCV REQUIRED)
+        include_directories(${OpenCV_INCLUDE_DIRS})
+    endif()
+
+    add_executable(${PROJECT_NAME}_device_fromAny
+        src/c/demo/demo_device_fromAny.cpp
     )
-    target_link_libraries(${PROJECT_NAME}_device_fromFile
+    target_link_libraries(${PROJECT_NAME}_device_fromAny
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so  
         ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
         pthread
         rt
     )
-    set_target_properties(${PROJECT_NAME}_device_fromFile PROPERTIES LINKER_LANGUAGE CXX)
-
-    add_executable(${PROJECT_NAME}_device_fromDir
-        src/c/demo/demo_device_fromDir.cpp
-    )
-    target_link_libraries(${PROJECT_NAME}_device_fromDir
-        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
-        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
-        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
-        pthread
-        rt
-    )
-    set_target_properties(${PROJECT_NAME}_device_fromDir PROPERTIES LINKER_LANGUAGE CXX)
-
-    add_executable(${PROJECT_NAME}_device_fromALGPub
-        src/c/demo/demo_device_fromALGPub.cpp
-    )
-    target_link_libraries(${PROJECT_NAME}_device_fromALGPub
-        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
-        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
-        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
-        pthread
-        rt
-    )
-    set_target_properties(${PROJECT_NAME}_device_fromDir PROPERTIES LINKER_LANGUAGE CXX)
-
-    add_executable(${PROJECT_NAME}_device_fromTCP
-        src/c/demo/demo_device_fromTCP.cpp
-    )
-    target_link_libraries(${PROJECT_NAME}_device_fromTCP
-        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
-        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so
-        ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device.so  
-        pthread
-        rt
-    )
-    set_target_properties(${PROJECT_NAME}_device_fromTCP PROPERTIES LINKER_LANGUAGE CXX)
+    if (WITH_FFMPEG)
+        target_link_libraries(${PROJECT_NAME}_device_fromAny
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so 
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_decode.so   
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_video_decode_ffmpeg.so
+            PkgConfig::FFMPEG
+        )
+    endif()
+    if (WITH_OPENCV)
+        target_link_libraries(${PROJECT_NAME}_device_fromAny
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so 
+            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_image.so   
+            pthread
+            anl
+            ${OpenCV_LIBS}
+        )
+    endif()
+    set_target_properties(${PROJECT_NAME}_device_fromAny PROPERTIES LINKER_LANGUAGE CXX)
 
     if (WITH_QCAP)
         include_directories(${CMAKE_SOURCE_DIR}/qcap_lib
@@ -135,53 +133,11 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         set_target_properties(${PROJECT_NAME}_device_fromVTD PROPERTIES LINKER_LANGUAGE CXX)
     endif()
 
-    if (WITH_FFMPEG)
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET libavcodec libavdevice libavfilter libavformat libavutil libpostproc)
-        message("-- FFMPEG INCL: ${FFMPEG_INCLUDE_DIRS}")
-        message("-- FFMPEG LIBS: ${FFMPEG_LIBRARY_DIRS}")
-        add_executable(${PROJECT_NAME}_device_fromVideo
-            src/c/demo/demo_device_fromVideo.cpp
-        )
-        target_link_libraries(${PROJECT_NAME}_device_fromVideo
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so 
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_decode.so   
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_video_decode_ffmpeg.so
-            pthread
-            anl
-            PkgConfig::FFMPEG
-        )
-        install (TARGETS ${PROJECT_NAME}_device_fromVideo RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
-        set_target_properties(${PROJECT_NAME}_device_fromVideo PROPERTIES LINKER_LANGUAGE CXX)
-    endif()
-
-    if (WITH_OPENCV)
-        find_package(OpenCV REQUIRED)
-        include_directories(${OpenCV_INCLUDE_DIRS})
-        add_executable(${PROJECT_NAME}_device_fromImage
-            src/c/demo/demo_device_fromImage.cpp
-        )
-        target_link_libraries(${PROJECT_NAME}_device_fromImage
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk.so
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libalg_cv_cvtColor.so 
-            ${PROJECT_LINK_DIR}/linux/${CMAKE_SYSTEM_PROCESSOR}/libhil_sdk_device_image.so   
-            pthread
-            anl
-            ${OpenCV_LIBS}
-        )
-        install (TARGETS ${PROJECT_NAME}_device_fromImage RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
-        set_target_properties(${PROJECT_NAME}_device_fromImage PROPERTIES LINKER_LANGUAGE CXX)
-    endif()
-
     FILE(GLOB HIL_SDK_LIB "${CMAKE_SOURCE_DIR}/hil_sdk/lib/linux/${CMAKE_SYSTEM_PROCESSOR}/lib*")
     install (FILES ${HIL_SDK_LIB} DESTINATION ${CMAKE_INSTALL_DIR}/lib)
     install (TARGETS ${PROJECT_NAME}_init RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
     install (TARGETS ${PROJECT_NAME}_service RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
     install (TARGETS ${PROJECT_NAME}_ALG_Pub RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
-    install (TARGETS ${PROJECT_NAME}_device_fromFile RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
-    install (TARGETS ${PROJECT_NAME}_device_fromDir RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
-    install (TARGETS ${PROJECT_NAME}_device_fromALGPub RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
-    install (TARGETS ${PROJECT_NAME}_device_fromTCP RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
+    install (TARGETS ${PROJECT_NAME}_device_fromAny RUNTIME DESTINATION ${CMAKE_INSTALL_DIR}/bin)
 endif()
 

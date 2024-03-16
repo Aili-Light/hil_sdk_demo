@@ -26,7 +26,20 @@ SOFTWARE.
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include "nlohmann/json.hpp"
+#include <fstream>
+#include "device_handler/HIL_device_fromFile.h"
 #include "device_handler/HIL_device_fromDir.h"
+#include "device_handler/HIL_device_fromALGPub.h"
+#include "device_handler/HIL_device_fromTCP.h"
+#ifdef WITH_OPENCV
+#include "device_handler_image/HIL_device_fromImage.h"
+#endif
+#ifdef WITH_FFMPEG
+#include "device_handler_video/HIL_device_fromVideo.h"
+#endif
+
+using json = nlohmann::json;
 
 bool b_start_main_loop = true;
 ALGInputDevice* hil_device;
@@ -54,7 +67,19 @@ int main(int argc, char **argv)
 
     if (argc > 1)
     {
-        const uint16_t num_channel = atoi(argv[1]);
+        /* parse json file */
+        const char* config_file=argv[1];
+        std::ifstream f(config_file);
+
+        json config = json::parse(f);
+        if (!config.contains(std::string{"num_channels"}))
+        {
+            fprintf(stderr,  "json must contain key [num_channels] !.\n");
+            exit(1);
+        }
+
+        /* get channel number */
+        int num_channel = config["num_channels"].get<int>();
         printf("num channels : %d\n", num_channel);
         if (num_channel < 1)
         {
@@ -62,25 +87,72 @@ int main(int argc, char **argv)
             exit(1);
         }
 
+        if (!config.contains(std::string{"channels"}))
+        {
+            fprintf(stderr,  "json must contain key [channels] !.\n");
+            exit(1);
+        }
+
+        /* get source type */
+        std::string s_source_type;
+        for (auto cfg : config["channels"])
+        {
+            if (cfg.contains(std::string{"source_type"}))
+            {
+                s_source_type = cfg["source_type"].get<std::string>();
+                break;
+            }
+        }
+
         /* Create Instance of HIL Device */
-        hil_device = HILDeviceFromDir::GetInstance();
+        if(s_source_type == "File")
+        {
+            hil_device = HILDeviceFromFile::GetInstance();
+        }
+        else if(s_source_type == "Dir")
+        {
+            hil_device = HILDeviceFromDir::GetInstance();
+        }
+        else if(s_source_type == "ALG Pub")
+        {
+            hil_device = HILDeviceFromALGPub::GetInstance();
+        }
+        else if(s_source_type == "TCP")
+        {
+            hil_device = HILDeviceFromTCP::GetInstance();
+        }
+#ifdef WITH_OPENCV
+        else if(s_source_type == "Image")
+        {
+            hil_device = HILDeviceFromImage::GetInstance();
+        }
+#endif
+#ifdef WITH_FFMPEG
+        else if(s_source_type == "Video")
+        {
+            hil_device = HILDeviceFromVideo::GetInstance();
+        }
+#endif
+        else
+        {
+            fprintf(stderr,  "source type [%s] does not match any case !\n", s_source_type.c_str());
+            exit(1);
+        }
 
         /* Register Devices */
         for (int i = 0; i < num_channel; i++)
         {
-            const char *config_file = argv[2];
             VideoSourceParam param;
             param.source_id = i;
             memcpy(param.config_file, config_file, strlen(config_file)+1);
-
             hil_device->RegisterDevice(&param);
         }
 
         /* Set HIL Device Parameters */
-        if (argc > 3)
+        if (argc > 2)
         {
             // printf("argv : %s, %s\n", argv[3], argv[4]);
-            for (int i=3; i <(argc-1); )
+            for (int i=2; i <(argc-1); )
             {
                 if (strncmp(argv[i], "--debug_level", strlen("--debug_level")) == 0)
                 {
