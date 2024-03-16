@@ -31,6 +31,9 @@ SOFTWARE.
 bool b_start_main_loop = true;
 HILDeviceFromFile *hil_device;
 
+static uint32_t df_cnt[ALG_SDK_MAX_CHANNEL]={0};
+static uint32_t fr_last[ALG_SDK_MAX_CHANNEL]={0};
+
 void int_handler(int sig)
 {
     printf("Keyboard Interrupt : %d\n", sig);
@@ -46,6 +49,13 @@ void callback(void* data)
     // printf("MSG : %s\n", msg->msg_meta.msg);
     printf("ALG HIL CB [time : %ld], [ch : %d], [Frame : %d], [Count : %d/%d]\n", msg->msg_meta.timestamp, msg->msg_meta.ch_id, 
     msg->msg_meta.frame_index, msg->msg_meta.buffer_count, msg->msg_meta.buffer_len);
+    
+    if (msg->msg_meta.frame_index - fr_last[msg->msg_meta.ch_id] > 1)
+    {
+        df_cnt[msg->msg_meta.ch_id] = msg->msg_meta.frame_index - fr_last[msg->msg_meta.ch_id];
+        printf("***Frame Drop : %d,%d\n", msg->msg_meta.frame_index, fr_last[msg->msg_meta.ch_id]);
+    }
+    fr_last[msg->msg_meta.ch_id] = msg->msg_meta.frame_index;
 }
 
 int main(int argc, char **argv)

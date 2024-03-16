@@ -29,7 +29,7 @@ SOFTWARE.
 #include "device_handler/HIL_device_fromDir.h"
 
 bool b_start_main_loop = true;
-HILDeviceFromDir* hil_device;
+ALGInputDevice* hil_device;
 
 void int_handler(int sig)
 {
