@@ -41,7 +41,7 @@ public:
     virtual void WaitForFinish();
     virtual void FreeVideoSource();
     virtual void SendData();
-    void         Publish(void* data);
+    void         Publish(const unsigned char *payload, const unsigned int frame_index, const unsigned long timestamp);
 
 private:
     uint8_t*     p_payload;

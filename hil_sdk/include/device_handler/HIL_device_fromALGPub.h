@@ -49,7 +49,9 @@ public:
     virtual void                        SetCallbackFunc(alg_hil_callback_func func);
     virtual void                        SetLogLevel(int level);
 
-public:           
+public:   
+    int                                 Send(const unsigned char *payload, const unsigned int frame_index, 
+                                            const unsigned long timestamp,const int ch_id,const int flag);        
     static HILDeviceFromALGPub          *GetInstance();
 
 protected:
