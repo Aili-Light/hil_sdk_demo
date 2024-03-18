@@ -26,23 +26,52 @@ SOFTWARE.
 #include <string.h>
 #include <signal.h>
 #include <sys/time.h>
-
-#include "alg_sdk/alg_sdk.h"
-#include "alg_sdk/server.h"
 #include "utils/utils.h"
+#include "nlohmann/json.hpp"
+#include <fstream>
+#include <thread>
+#include "device_handler/HIL_device_fromALGPub.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+using json = nlohmann::json;
 
-bool g_ready = false;
+bool b_start_main_loop = true;
+HILDeviceFromALGPub* hil_device;
+static uint8_t payload[ALG_SDK_MAX_CHANNEL][ALG_SDK_PAYLOAD_LEN_MAX];
 
 void int_handler(int sig)
 {
-    g_ready = false;
-    /* stop server */
-    alg_sdk_stop_server();
-    /* terminate program */
-    exit(sig);
+    printf("Keyboard Interrupt : %d\n", sig);
+    b_start_main_loop = false;
+
+    // Close Stream
+    hil_device->CloseStreamAll();
+}
+
+void callback(void* data)
+{
+    hil_mesg_t *msg = (hil_mesg_t*)data;
+    // printf("MSG : %s\n", msg->msg_meta.msg);
+    printf("ALG HIL CB [time : %ld], [ch : %d], [Frame : %d], [Count : %d/%d]\n", msg->msg_meta.timestamp, msg->msg_meta.ch_id, 
+    msg->msg_meta.frame_index, msg->msg_meta.buffer_count, msg->msg_meta.buffer_len);
+}
+
+void send_data(int ch_id)
+{
+    uint32_t m_seq = 0;
+
+    while (b_start_main_loop)
+    {
+        uint64_t t_now = macroseconds();
+        hil_device->Send(&payload[ch_id][0], m_seq, t_now, ch_id, 0);
+        printf("*** publish image on CH : %d, Frame : %d\n", ch_id, m_seq);
+        std::this_thread::sleep_for(std::chrono::microseconds(33333));
+        m_seq++;
+    }
+
+    printf("thread send_data finish.\n");
 }
 
 int main (int argc, char **argv)
@@ -51,62 +80,108 @@ int main (int argc, char **argv)
 
     if (argc > 1)
     {
-        const char*   image_file_path = argv[1];
-        const uint8_t channel_id = atoi(argv[2]);
+        const char*   config_file=argv[1];
+        std::vector<std::thread*> thread_list;
+        std::vector<int> channel_ids;
 
-        /* Init Servers */
-        int rc = 0;
-        rc = alg_sdk_init_server(ALG_SDK_SERVER_FLAG_PUB2USER);
-        if (rc < 0)
+        std::ifstream f(config_file);
+
+        json config = json::parse(f);
+        if (!config.contains(std::string{"num_channels"}))
         {
-            printf("Init server failed\n");
-            return false;
+            fprintf(stderr,  "json must contain key [num_channels] !.\n");
+            exit(1);
         }
 
-        uint8_t* p_payload = (uint8_t*)malloc(sizeof(uint8_t) * ALG_SDK_PAYLOAD_LEN_MAX);
-        uint32_t m_payload_len = 0;
-        int ret = 0;
-        uint32_t m_seq = 0;
-        ret = load_image(image_file_path, p_payload, &m_payload_len);
-
-        pcie_common_head_t img_header;
-        img_header.head = 55;
-        img_header.version = 1;
-        char topic_name[ALG_SDK_HEAD_COMMON_TOPIC_NAME_LEN] = {};
-        sprintf(topic_name, "/image_data/output/%02d", channel_id);
-        strncpy(img_header.topic_name, topic_name, ALG_SDK_HEAD_COMMON_TOPIC_NAME_LEN);
-        img_header.crc8 = crc_array((unsigned char *)&img_header, 130);
-
-        pcie_image_info_meta_t img_info;
-        img_info.frame_index = 0;
-        img_info.width = 1920;
-        img_info.height = 1080;
-        img_info.data_type = ALG_SDK_MIPI_DATA_TYPE_YUYV;
-        img_info.exposure = 0;
-        img_info.again = 0;
-        img_info.dgain = 0;
-        img_info.temp = 0;
-        img_info.timestamp = 0;
-        img_info.img_size = m_payload_len;
-
-        pcie_image_data_t img_data;
-        g_ready = true;
-        while (g_ready)
+        /* get channel number */
+        int num_channel = config["num_channels"].get<int>();
+        printf("num channels : %d\n", num_channel);
+        if (num_channel < 1)
         {
-            img_info.frame_index = m_seq;
-
-            img_data.common_head = img_header;
-            img_data.image_info_meta = img_info;
-            img_data.payload = p_payload;
-            alg_sdk_push2q(&img_data, channel_id);
-            
-            printf("*** publish image on CH : %d, Frame : %d\n", channel_id, m_seq);
-            usleep(33333);
-            m_seq++;
+            fprintf(stderr, "ERROR! Number of Channel is incorrect!");
+            exit(1);
         }
 
-        alg_sdk_server_spin_on();
-        free(p_payload);
+        if (!config.contains(std::string{"channels"}))
+        {
+            fprintf(stderr,  "json must contain key [channels] !.\n");
+            exit(1);
+        }
+
+        /* get source file */
+        std::string s_filename;
+        for (auto cfg : config["channels"])
+        {
+            int ch_id = 0;
+            if (cfg.contains(std::string{"channel_id"}))
+            {
+                ch_id = cfg["channel_id"].get<int>();
+                channel_ids.push_back(ch_id);
+            }
+            else
+            {
+                fprintf(stderr,  "json must contain key [channel_id] !.\n");
+                exit(1);
+            }
+
+            if (cfg.contains(std::string{"filename"}))
+            {
+                s_filename = cfg["filename"].get<std::string>();
+                int ret = 0;
+                uint32_t m_payload_len = 0;
+                ret = load_image(s_filename.c_str(), &payload[ch_id][0], &m_payload_len);
+                printf("load image :%s %d\n", s_filename.c_str(), m_payload_len);
+                if (ret)
+                {
+                    fprintf(stderr,  "load image failed!\n");
+                    exit(1);
+                }
+            }
+            else
+            {
+                fprintf(stderr,  "json must contain key [filename] !.\n");
+                exit(1);
+            }
+        }
+
+        /* Create Instance of HIL Device */
+        hil_device = HILDeviceFromALGPub::GetInstance();
+
+        /* Register Devices */
+        for (int i = 0; i < num_channel; i++)
+        {
+            VideoSourceParam param;
+            param.source_id = i;
+            memcpy(param.config_file, config_file, strlen(config_file)+1);
+            hil_device->RegisterDevice(&param);
+        }
+
+        /* Set Callback Function */
+        hil_device->SetCallbackFunc(callback);
+
+        /* Init HIL Device */
+        if(!hil_device->Init())
+        {
+            fprintf(stderr, "Init device failed");
+            exit(1);
+        }
+
+        // Start Stream
+        hil_device->StartStreamAll();
+
+        // Start send data thread
+        for (int i = 0; i < num_channel; i++)
+        {
+            std::thread* p_thread = new std::thread(send_data, channel_ids[i]);
+            thread_list.push_back(p_thread);
+            p_thread->detach();
+        }
+
+        // Wait Until Stream Finish
+        hil_device->Wait();
+
+        // Release Device
+        hil_device->Release();
     }
     else
     {

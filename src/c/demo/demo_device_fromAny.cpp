@@ -30,7 +30,6 @@ SOFTWARE.
 #include <fstream>
 #include "device_handler/HIL_device_fromFile.h"
 #include "device_handler/HIL_device_fromDir.h"
-#include "device_handler/HIL_device_fromALGPub.h"
 #include "device_handler/HIL_device_fromTCP.h"
 #ifdef WITH_OPENCV
 #include "device_handler_image/HIL_device_fromImage.h"
@@ -112,10 +111,6 @@ int main(int argc, char **argv)
         else if(s_source_type == "Dir")
         {
             hil_device = HILDeviceFromDir::GetInstance();
-        }
-        else if(s_source_type == "ALG Pub")
-        {
-            hil_device = HILDeviceFromALGPub::GetInstance();
         }
         else if(s_source_type == "TCP")
         {
